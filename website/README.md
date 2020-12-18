@@ -1,4 +1,4 @@
 Desenvolvimento do Website
-Linguagem: HTML/CSS
+Linguagens: HTML/CSS
 Equipe:
 - Cristina Bridi
