@@ -159,8 +159,8 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
                     obitos_acumulados_100mil = 0,
                     casos_variacao_14dias = 0,
                     obitos_variacao_14dias = 0,
-                    casos_diarios_100mil = 0,
-                    obitos_diarios_100mil = 0,
+                    incidencia_casos_diarios_100mil = 0,
+                    incidencia_obitos_diarios_100mil = 0,
                     letalidade_100_confirmados = 0,
                     incidencia_100mil = 0,
                     casos_ativos = 0,
@@ -168,6 +168,32 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
 
 
         casos_municipios[codigo_ibge_municipio]['datas'][data_referencia]['casos']+=1
+        
+        for datas in datas_casos:  
+            if value['recuperados'] == 'SIM' and value['obito'] == 'NAO':
+                if data_evolucao_caso != None:
+                    if Utils.date_check(data_inicio_sintomas, data_evolucao_caso, datas) == True:
+                        casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
+                    else:
+                        continue
+                else:
+                    string_data_inicio = datetime.datetime.strptime(value['data_inicio_sintomas'], '%Y-%m-%d')
+                    data_recuperacao = (string_data_inicio + datetime.timedelta(days=14))
+
+                    if Utils.date_check(string_data_inicio, data_recuperacao, datas) == True:
+                        casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
+                    else:
+                        continue
+
+            elif value['obito'] == 'NAO' and value['recuperados'] == 'NAO':
+                if Utils.date_check_atived(data_inicio_sintomas, datas) == True:
+                    casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
+
+            elif value['obito'] == 'SIM':
+                if Utils.date_check(data_inicio_sintomas,data_obito,datas) == True:
+                    casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
+                else:
+                    continue
         
         if data_obito != None:
             casos_municipios[codigo_ibge_municipio]['datas'][data_obito]['obitos']+=1
