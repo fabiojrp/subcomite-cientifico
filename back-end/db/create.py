@@ -126,11 +126,10 @@ class Create:
                     obitos_acumulados_100mil NUMERIC(10,5) DEFAULT NULL,
                     casos_variacao_14dias NUMERIC(10,5) DEFAULT NULL,
                     obitos_variacao_14dias NUMERIC(10,5) DEFAULT NULL,
-                    casos_diarios_100mil NUMERIC(10,5) DEFAULT NULL,
-                    obitos_diarios_100mil NUMERIC(10,5) DEFAULT NULL,
+                    incidencia_casos_diarios_100mil NUMERIC(10,5) DEFAULT NULL,
+                    incidencia_obitos_diarios_100mil NUMERIC(10,5) DEFAULT NULL,
                     letalidade_100_confirmados NUMERIC(10,5) DEFAULT NULL,
-                    incidencia_100mil NUMERIC(10,5) DEFAULT NULL,
-                    casos_ativos NUMERIC(10,5) DEFAULT NULL
+                    casos_ativos integer DEFAULT NULL
                 )
         """
         self.db.execute_query(sql)
