@@ -23,19 +23,26 @@ class estatistica:
       for i in range(0, len(listaDatas)):
 
           if i > 0:
-            #Casos acumulados
+            #Casos e óbitos acumulados
             listaDatas[i][1]['casos_acumulados'] = listaDatas[i][1]['casos'] + listaDatas[i-1][1]['casos_acumulados']
             listaDatas[i][1]['obitos_acumulados'] = listaDatas[i][1]['obitos'] + listaDatas[i-1][1]['obitos_acumulados']
             
-            #Casos por 100mil/habitantes
+            #Casos e óbitos por 100mil/habitantes
             listaDatas[i][1]['casos_acumulados_100mil'] = (listaDatas[i][1]['casos_acumulados']/ self.tabelasDados.getPopulacaoMunicipio(municipio))*100000
             listaDatas[i][1]['obitos_acumulados_100mil'] = (listaDatas[i][1]['obitos_acumulados']/self.tabelasDados.getPopulacaoMunicipio(municipio))*100000
 
             #Incidencia por 100 mil
+              #casos
             if listaDatas[i][1]['casos'] == 0:
-              listaDatas[i][1]['incidencia_100mil'] = 0.00000
+              listaDatas[i][1]['incidencia_casos_diarios_100mil'] = 0.00000
             else:
-              listaDatas[i][1]['incidencia_100mil'] = listaDatas[i][1]['casos']*100000/self.tabelasDados.getPopulacaoMunicipio(municipio)
+              listaDatas[i][1]['incidencia_casos_diarios_100mil'] = listaDatas[i][1]['casos']*100000/self.tabelasDados.getPopulacaoMunicipio(municipio)
+
+              #obitos
+            if listaDatas[i][1]['obitos'] == 0:
+              listaDatas[i][1]['incidencia_obitos_diarios_100mil'] = 0.00000
+            else:
+              listaDatas[i][1]['incidencia_obitos_diarios_100mil'] = listaDatas[i][1]['obitos']*100000/self.tabelasDados.getPopulacaoMunicipio(municipio)
 
           if i>= self.diasVariacaoMediaMovel-1:
             #variação de casos 14 dias
