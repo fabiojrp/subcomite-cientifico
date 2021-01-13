@@ -51,4 +51,16 @@ class Utils:
         ##return datetime.datetime.strptime(exp[0], '%d/%m/%Y').strftime("%Y-%m-%d")
         return datetime.datetime.strptime(exp[0], '%Y-%m-%d')
         
+    @staticmethod
+    def date_check(data_inicio, data_fim, datas_casos):
+        if data_inicio <= datas_casos and data_fim >= datas_casos:
+            return True
+        else:
+            return False
 
+    @staticmethod
+    def date_check_atived(data_inicio, datas_casos):
+        if datas_casos >= data_inicio:
+            return True
+        else:
+            return False
