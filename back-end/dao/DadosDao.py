@@ -81,9 +81,11 @@ class DadosDao(Dao):
                     obitos_variacao_14dias,
                     casos_acumulados_100mil,
                     obitos_acumulados_100mil,
+                    incidencia_casos_diarios_100mil,
+                    incidencia_obitos_diarios_100mil,
                     letalidade_100_confirmados,
-                    incidencia_100mil
-                ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, (case when %s < %s or %s = 0 then 0.00000 
+                    casos_ativos
+                ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, (case when %s < %s or %s = 0 then 0.00000 
                                 else (cast(%s as numeric(10,5))/cast(%s as numeric(10,5))) end), %s)"""
                 dt_letalidade = tabelas.getDataLetalidadeRegional(regional)
                 parametros = [municipio, 
@@ -100,12 +102,14 @@ class DadosDao(Dao):
                         dados['obitos_variacao_14dias'],
                         dados['casos_acumulados_100mil'],
                         dados['obitos_acumulados_100mil'],
+                        dados['incidencia_casos_diarios_100mil'],
+                        dados['incidencia_obitos_diarios_100mil'],
                         data_sintoma,
                         dt_letalidade,
                         dados['obitos_acumulados'],
                         dados['obitos_acumulados'],
                         dados['casos_acumulados'],
-                        dados['incidencia_100mil']
+                        dados['casos_ativos']
                 ]
                 self.db.execute_query(sql, parametros)
                 self.db.conn.commit()
