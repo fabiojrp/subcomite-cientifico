@@ -12,7 +12,7 @@ class Create:
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS dados")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
-        
+        self.db.execute_query("DROP TABLE IF EXISTS leitos")
 
         sql = """
         DO $$
@@ -130,6 +130,21 @@ class Create:
                     incidencia_obitos_diarios_100mil NUMERIC(10,5) DEFAULT NULL,
                     letalidade_100_confirmados NUMERIC(10,5) DEFAULT NULL,
                     casos_ativos integer DEFAULT NULL
+                )
+        """
+        self.db.execute_query(sql)
+        
+        sql = """CREATE TABLE IF NOT EXISTS leitos (
+                    macrorregiao varchar(100) DEFAULT NULL,
+                    hospital varchar(100) DEFAULT NULL,
+                    municipio varchar(100) DEFAULT NULL,
+                    codigo_ibge_municipio integer DEFAULT NULL,
+                    regional_saude varchar(100) DEFAULT NULL,
+                    leitos_ativos integer DEFAULT NULL,
+                    leitos_ocupados integer DEFAULT NULL,
+                    leitos_disponiveis integer DEFAULT NULL,
+                    taxa_ocupacao NUMERIC(5,2) DEFAULT NULL,
+                    pacientes_covid integer DEFAULT NULL
                 )
         """
         self.db.execute_query(sql)
