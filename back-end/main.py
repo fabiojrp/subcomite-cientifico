@@ -24,47 +24,18 @@ with open('leitos.csv', 'r') as arquivo_leitos:
         if hospital['macrorregiao'] == None:
             break    
 
-        try:
-            hospital['codigo_ibge_municipio'] = int(hospital['codigo_ibge_municipio'])
-        except ValueError as ex:
-            hospital['codigo_ibge_municipio']=0
-
-        try:
-            hospital['leitos_ativos'] = int(hospital['leitos_ativos'])
-        except ValueError as ex:
-            hospital['leitos_ativos']=0
-
-        try:
-            hospital['leitos_ocupados'] = int(hospital['leitos_ocupados'])
-        except ValueError as ex:
-            hospital['leitos_ocupados']=0
-
-        try:
-            hospital['leitos_disponiveis'] = int(hospital['leitos_disponiveis'])
-        except ValueError as ex:
-            hospital['leitos_disponiveis']=0
-
-        try:
-            hospital['taxa_ocupacao'] = float(hospital['taxa_ocupacao'][:-1])
-        except ValueError as ex:
-            hospital['taxa_ocupacao']=0.00
-
-        try:
-            hospital['pacientes_covid'] = int(hospital['pacientes_covid'])
-        except ValueError as ex:
-            hospital['pacientes_covid']=0
 
         params = (
             hospital['macrorregiao'],
             hospital['hospital'],
             hospital['municipio'],
-            hospital['codigo_ibge_municipio'],
+            hospital['codigo_ibge_municipio'] = Utils.convert_to_int(hospital['codigo_ibge_municipio']),
             hospital['regional_saude'],
-            hospital['leitos_ativos'],
-            hospital['leitos_ocupados'],
-            hospital['leitos_disponiveis'],
-            hospital['taxa_ocupacao'],
-            hospital['pacientes_covid'],
+            hospital['leitos_ativos'] = Utils.convert_to_int(hospital['leitos_ativos']),
+            hospital['leitos_ocupados'] = Utils.convert_to_int(hospital['leitos_ocupados']),
+            hospital['leitos_disponiveis'] = Utils.convert_to_int(hospital['leitos_disponiveis']),
+            hospital['taxa_ocupacao'] = Utils.convert_to_float(hospital['taxa_ocupacao']),
+            hospital['pacientes_covid'] = Utils.convert_to_int(hospital['pacientes_covid']),
         )
 
         dadosDao.leitos_hospitais(params)
@@ -136,17 +107,6 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
         else:
             idade = value['idade']
 
-        try:
-            codigo_ibge_municipio = int(value['codigo_ibge_municipio']);
-        except ValueError as ex:
-            codigo_ibge_municipio = 0;
-
-        try:
-            codigo_ibge_municipio_notificacao = int(value['codigo_ibge_municipio_notificacao']);
-        except ValueError as ex:
-            codigo_ibge_municipio_notificacao = 0;
-
-
         val = (
             data_publicacao,
             value['recuperados'],
@@ -165,14 +125,14 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
             value['regional'],
             value['raca'],
             data_resultado ,
-            codigo_ibge_municipio,
+            codigo_ibge_municipio = Utils.convert_to_int(value['codigo_ibge_municipio']),
             value['latitude'],
             value['longitude'],
             value['estado'],
             value['criterio_confirmacao'],
             value['tipo_teste'],
             value['municipio_notificacao'],
-            codigo_ibge_municipio_notificacao,
+            codigo_ibge_municipio_notificacao = Utils.convert_to_int(value['codigo_ibge_municipio_notificacao']),
             value['latitude_notificacao'],
             value['longitude_notificacao'],
             value['classificacao'],
