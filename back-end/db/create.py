@@ -6,6 +6,36 @@ class Create:
 
     def __init__(self):
         self.db = Database.get_instance()
+        
+    def create_table_brasil(self):
+        print("Limpando e criando as tabelas...")
+        # Limpa as tabelas
+        self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS CASOSBRASIL(
+                REGIAO VARCHAR(32) DEFAULT NULL,
+                ESTADO VARCHAR(8) DEFAULT NULL,
+                MUNICIPIO VARCHAR(256) DEFAULT NULL,
+                CODUF int DEFAULT NULL,
+                CODMUN int DEFAULT NULL,
+                CODREGIAOSAUDE int DEFAULT NULL,
+                NOMEREGIAOSAUDE VARCHAR(256) DEFAULT NULL,
+                DATA date DEFAULT NULL,
+                SEMANAEPI int DEFAULT NULL,
+                POPULACAOTCU2019 int DEFAULT NULL,
+                CASOSACUMULADO int DEFAULT NULL,
+                CASOSNOVOS int DEFAULT NULL,
+                OBITOSACUMULADO int DEFAULT NULL,
+                OBITOSNOVOS int DEFAULT NULL,
+                RECUPERADOSNOVOS int DEFAULT NULL,
+                EMACOMPANHAMENTONOVOS int DEFAULT NULL,
+                INTERIOR_METROPOLITANA int DEFAULT NULL
+            )
+        """
+        self.db.execute_query(sql)
+
+        print("OK")
 
     def create_table(self):
         print("Limpando e criando as tabelas...")
