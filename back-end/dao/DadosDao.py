@@ -55,7 +55,7 @@ class DadosDao(Dao):
 
         self.db.execute_query(sql, params)
         self.db.conn.commit()
-	
+    
     def insertBrasil(self, params):
         sql = """
             INSERT INTO CASOSBRASIL ( 
