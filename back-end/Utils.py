@@ -64,3 +64,17 @@ class Utils:
             return True
         else:
             return False
+        
+    def convert_to_int(value_to_convert):
+        try:
+            valor = int(value_to_convert);
+        except ValueError as ex:
+            valor = 0;
+        return valor
+    
+    def convert_to_float(value_to_convert):
+        try:
+            valor = float(value_to_convert);
+        except ValueError as ex:
+            valor = 0.00;
+        return valor
