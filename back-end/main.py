@@ -108,6 +108,7 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
             idade = value['idade']
 
         codigo_ibge_municipio = Utils.convert_to_int(value['codigo_ibge_municipio'])
+        codigo_ibge_municipio_notificacao = Utils.convert_to_int(value['codigo_ibge_municipio_notificacao'])
             
         val = (
             data_publicacao,
@@ -134,7 +135,7 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
             value['criterio_confirmacao'],
             value['tipo_teste'],
             value['municipio_notificacao'],
-            codigo_ibge_municipio_notificacao = Utils.convert_to_int(value['codigo_ibge_municipio_notificacao']),
+            codigo_ibge_municipio_notificacao,
             value['latitude_notificacao'],
             value['longitude_notificacao'],
             value['classificacao'],
