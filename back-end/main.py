@@ -29,13 +29,13 @@ with open('leitos.csv', 'r') as arquivo_leitos:
             hospital['macrorregiao'],
             hospital['hospital'],
             hospital['municipio'],
-            hospital['codigo_ibge_municipio'] = Utils.convert_to_int(hospital['codigo_ibge_municipio']),
+            Utils.convert_to_int(hospital['codigo_ibge_municipio']),
             hospital['regional_saude'],
-            hospital['leitos_ativos'] = Utils.convert_to_int(hospital['leitos_ativos']),
-            hospital['leitos_ocupados'] = Utils.convert_to_int(hospital['leitos_ocupados']),
-            hospital['leitos_disponiveis'] = Utils.convert_to_int(hospital['leitos_disponiveis']),
-            hospital['taxa_ocupacao'] = Utils.convert_to_float(hospital['taxa_ocupacao']),
-            hospital['pacientes_covid'] = Utils.convert_to_int(hospital['pacientes_covid']),
+            Utils.convert_to_int(hospital['leitos_ativos']),
+            Utils.convert_to_int(hospital['leitos_ocupados']),
+            Utils.convert_to_int(hospital['leitos_disponiveis']),
+            Utils.convert_to_float(hospital['taxa_ocupacao']),
+            Utils.convert_to_int(hospital['pacientes_covid']),
         )
 
         dadosDao.leitos_hospitais(params)
@@ -107,6 +107,8 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
         else:
             idade = value['idade']
 
+        codigo_ibge_municipio = Utils.convert_to_int(value['codigo_ibge_municipio'])
+            
         val = (
             data_publicacao,
             value['recuperados'],
@@ -125,7 +127,7 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
             value['regional'],
             value['raca'],
             data_resultado ,
-            codigo_ibge_municipio = Utils.convert_to_int(value['codigo_ibge_municipio']),
+            codigo_ibge_municipio,
             value['latitude'],
             value['longitude'],
             value['estado'],
