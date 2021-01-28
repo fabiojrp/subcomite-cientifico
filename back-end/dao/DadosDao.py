@@ -55,6 +55,32 @@ class DadosDao(Dao):
 
         self.db.execute_query(sql, params)
         self.db.conn.commit()
+	
+    def insertBrasil(self, params):
+        sql = """
+            INSERT INTO CASOSBRASIL ( 
+                regiao,
+                estado,
+                municipio,
+                coduf,
+                codmun,
+                codRegiaoSaude,
+                nomeRegiaoSaude,
+                data,
+                semanaEpi,
+                populacaoTCU2019,
+                casosAcumulado,
+                casosNovos,
+                obitosAcumulado,
+                obitosNovos,
+                Recuperadosnovos,
+                emAcompanhamentoNovos,
+                interior_metropolitana
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )
+        """
+
+        self.db.execute_query(sql, params)
+        self.db.conn.commit()
     
     def casos_municipios(self, dict_municipios):
         index = 0;
@@ -136,24 +162,24 @@ class DadosDao(Dao):
                     print('.', end='', flush=True)
         print('Fim', flush=True)
 	
-	def leitos_hospitais(self, params):
-		sql = """
-		    INSERT INTO leitos ( 
-			macrorregiao,
-			hospital,
-			municipio,
-			codigo_ibge_municipio,
-			regional_saude,
-			leitos_ativos,
-			leitos_ocupados,
-			leitos_disponiveis,
-			taxa_ocupacao,
-			pacientes_covid
-		    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-		"""
+    def leitos_hospitais(self, params):
+	sql = """
+	    INSERT INTO leitos ( 
+		macrorregiao,
+		hospital,
+		municipio,
+		codigo_ibge_municipio,
+		regional_saude,
+		leitos_ativos,
+		leitos_ocupados,
+		leitos_disponiveis,
+		taxa_ocupacao,
+		pacientes_covid
+	    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+	"""
 
-		self.db.execute_query(sql, params)
-		self.db.conn.commit()
+	self.db.execute_query(sql, params)
+	self.db.conn.commit()
         ''' 
 
          ## SQL para obter casos  por município:
