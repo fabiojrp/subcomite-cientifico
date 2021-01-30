@@ -1,0 +1,227 @@
+/* Estilos Gerais */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f0f0f0;
+}
+
+/* Header */
+.header {
+  width: 100%;
+  float: left;
+  /* background: #6a9481; */
+  align-items: center;
+  display: flex;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 60px;
+  font-family: "Oswald", sans-serif;
+  /*cor abaixo para o menu clean*/
+ color: #497d65; 
+  /* color: #fff; */
+  margin-top: 25px;
+  margin-right: 5px;
+  letter-spacing: 0.4rem;
+}
+
+header .logo {
+  text-decoration: none;
+}
+
+.header h3 {
+  font-size: 20px;
+  font-family: "Oswald", sans-serif;
+  /*cor abaixo para o menu clean*/
+   color: #497d65; 
+  /* color: #fff; */
+  margin-top: 30px;
+}
+
+.header p {
+  font-family: "Roboto Mono", monospace;
+}
+
+.map {
+  width: 100%;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.region p {
+  font-family: "Roboto Mono", monospace;
+  font-size: 22px;
+  text-align: center;
+  color: #b57e6a;
+  padding: 20px 0px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  margin-top: -10px;
+  margin-right: 20px;
+  letter-spacing: 0.3rem;
+}
+
+.mst {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.title {
+  font-family: "Roboto Mono", monospace;
+  text-align: center;
+}
+
+.region .pdate {
+  font-family: "Roboto Mono", monospace;
+  max-width: 100%;
+  font-size: 20px;
+  text-align: start;
+  color: #000000;
+  font-weight: 700;
+  margin: -10px;
+  margin-left: 14px;
+  margin-bottom: 30px;
+  clear: both;
+  margin-top: -80px;
+}
+.region .if {
+  margin-left: 20px;
+  margin-top: 15px;
+}
+
+.menu {
+  margin-top: 70px;
+  text-align: center;
+  float: left;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.menu a {
+  color: #fff;
+  border-radius: 5px;
+  background-color: #497d65;
+  padding: 5px 10px;
+}
+
+.menu a:hover {
+  margin-top: 50px;
+  color: rgb(233, 233, 233);
+  background-color: #91aea1;
+
+  transition: 0.9s;
+  text-decoration: none;
+}
+
+footer {
+  float: left;
+  width: 100%;
+}
+
+.footerst {
+  background-color: #6a9481;
+  margin: 0px;
+  margin-bottom: -30px;
+  text-align: center;
+  padding: 40px;
+}
+
+.footerst a {
+  font-size: 15px;
+  color: rgb(255, 255, 255);
+
+  font-family: "Roboto Mono", monospace;
+  text-align: center;
+}
+.footerst a:hover {
+  text-decoration: none;
+  color: rgb(233, 233, 233);
+
+  text-align: center;
+}
+
+.graphic {
+  width: 100%;
+  min-height: 450px;
+  margin-bottom: 60px;
+  margin-top: 10px;
+}
+
+
+
+.region .info:before {
+  content: "";
+  background: #b57e6a;
+  content: "";
+  display: block;
+  width: 95%;
+  height: 0.1rem;
+  margin: 0px 35px 20px;
+}
+.info {
+  clear: both;
+  margin-top: 20px;
+}
+
+.region .menu:before {
+  content: "";
+  background: #b57e6a;
+  content: "";
+  display: block;
+  width: 93.29%;
+  height: 0.1rem;
+  margin-top: -10px;
+  margin-bottom: 40px;
+  margin-left: 30px;
+}
+
+.graphics::before {
+  content: "";
+  background: #b57e6a;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 0.1rem;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
+
+.p_graphic {
+  font-family: "Roboto Mono", monospace;
+  font-size: 22px;
+  text-align: center;
+  color: #b57e6a;
+  padding: 20px 0px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  margin-top: -30px;
+  margin-left: 20px;
+  letter-spacing: 0.3rem;
+}
+
+.conteudo1 ul li {
+  display: inline-block;
+  margin-top: -20px;
+  margin-left: 30px;
+}
+
+.conteudo1 {
+  width: 100%;
+  margin-top: -40px;
+  margin-left: -32px;
+}
+
+.region ul li {
+  max-width: 95%;
+}
+
+section#graficos {
+  float: left;
+  width: 100%;
+}
+
