@@ -1,13 +1,29 @@
 $(document).ready(() => {
 
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    region = urlParams.get('region');
+    
+    var map;
 
+    if (region == null) {
+        map = L.map('map', { 
+            zoomControl: false,
+            center: [-27.587776543236944, -51.151320339703375], 
+            zoom: 8
+        });
 
-    var map = L.map('map', { 
-        zoomControl: false,
-        center: [-27.587776543236944, -51.151320339703375], 
-        zoom: 8
-    });
-
+        L.geoJson(stateData).addTo(map);
+    } else {
+        map = L.map('map', { 
+            zoomControl: false,
+            center: regionData.features[0].properties.center, 
+            zoom: regionData.features[0].properties.zoom
+        });
+        
+        L.geoJson(regionData).addTo(map);
+    }
+    
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
@@ -20,8 +36,6 @@ $(document).ready(() => {
         tileSize: 512,
         zoomOffset: -1
     }).addTo(map);
-
-    L.geoJson(regionData).addTo(map);
 
     var videira = L.marker([-27.026555588666362, -51.14521223224076]).bindPopup('IFC - Campus Videira');
     var luzerna = L.marker([-27.132361991407368, -51.46302556370465]).bindPopup('IFC - Campus Luzerna');
@@ -61,15 +75,20 @@ $(document).ready(() => {
 
 	info.update = function (props) {
         this._div.innerHTML = '' +  
-          (props ? '<h4><b>Regional:</b> ' + props.name + '</h4><p>Taxa de Transmissibilidade: ' + props.rt + '</p><p>Média Móvel: ' + props.media_movel + '</p><p>Ocupação de Leitos: ' + props.ocupacao_leitos +'</p><p><a href="#">Saiba mais sobre essa região</a></p>' : '<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>');
-	};
+          (props ? '<h4><b>Regional:</b> ' + props.name + '</h4><p>Taxa de Transmissibilidade: ' + props.rt + '</p><p>Média Móvel: ' + props.media_movel + '</p><p>Ocupação de Leitos: ' + props.ocupacao_leitos +'</p><p><a href="'+ props.path + '?region=1">Saiba mais sobre essa região</a></p>' : '<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>');
+    };
+    
+    if (regionData === null) {
+        info.addTo(map);
+    }
 
-	info.addTo(map);
+	
 
 
 	// get color depending on rt value
 	function getColor(d) {
-		return d >= 1 ? '#ff7979' : '#f9ca24';
+        return d >= 1 ? '#ff7979' :
+               d < 1 && d >= 0 ? '#f9ca24' : "transparent";
 	}
 
 	function style(feature) {
@@ -79,7 +98,7 @@ $(document).ready(() => {
 			color: 'white',
 			dashArray: '3',
 			fillOpacity: 0.5,
-			fillColor: getColor(feature.properties.rt)
+			fillColor: getColor(feature.properties.child ? -1 : feature.properties.rt)
 		};
 	}
 
@@ -114,10 +133,20 @@ $(document).ready(() => {
 		});
 	}
 
-	geojson = L.geoJson(regionData, {
-		style: style,
-		onEachFeature: onEachFeature
-	}).addTo(map);
+    if (regionData !== null) {
+        geojson = L.geoJson(regionData, {
+            style: style,
+            onEachFeature: onEachFeature
+        }).addTo(map);
+
+    } else {
+        geojson = L.geoJson(stateData, {
+            style: style,
+            onEachFeature: onEachFeature
+        }).addTo(map);
+    }
+
+	
 
 	map.attributionControl.addAttribution('Dados do Covid &copy; <a href="https://www.ciasc.sc.gov.br/">CIASC</a>');
 
@@ -136,8 +165,8 @@ $(document).ready(() => {
 			to = grades[i + 1];
 
 			labels.push(
-				'<i style="background:' + getColor(from + 1) + '"></i> ' +
-				from + (to ? '&ndash;' + to : '+'));
+				'<i style="background:' + getColor(from) + '"></i> ' +
+				from + (to ? '&ndash;' + to + '(Surto Controlado)<br />' : '+  (Transmissão Comunitária)'));
 		}
 
 		div.innerHTML = labels.join('<br>');
@@ -146,197 +175,7 @@ $(document).ready(() => {
 
 	legend.addTo(map);
 
-
-
     // END LEAF
 
 
-    /* 
-    google.load("visualization", "1", { packages: ["corechart", "line"] });
-    google.setOnLoadCallback(grafico);
-    function grafico() {
-        var json_text = $.ajax({
-            method: "post",
-            url: "new.php",
-            dataType: "json",
-            async: false,
-        }).responseText;
-        var dados = new google.visualization.DataTable(json_text);
-
-        var options = {
-            title: "Casos Confirmados",
-            colors: ["#1C1C61", "#5f0404"],
-            titlePosition: "center",
-            hAxis: {
-                title: "Meses",
-                titleTextStyle: { color: "#5f0404" },
-                baselineColor: "#000",
-                format: "MM/yy",
-                gridlines: { count: 20 },
-            },
-            backgroundColor: { strokeWidth: 1, fill: "#F0F0F0" },
-            dataOpacity: 3,
-        };
-
-        var chart = new google.visualization.LineChart(
-            document.getElementById("chart_casos_confirmados")
-        );
-        chart.draw(dados, options);
-    }
-
-    google.load("visualization", "1", { packages: ["corechart"] });
-    google.setOnLoadCallback(drawChart2);
-    function drawChart2() {
-        var data = google.visualization.arrayToDataTable([
-            ["Meses", "Casos Confirmados", "Casos Ativos"],
-            ["Mar/20", 1000, 400],
-            ["Abr/20", 1200, 300],
-            ["Mai/20", 1400, 450],
-            ["Jun/20", 1600, 410],
-            ["Jul/20", 1800, 420],
-            ["Ago/20", 2000, 860],
-            ["Set/20", 2200, 1020],
-            ["Out/20", 2400, 540],
-            ["Nov/20", 2600, 300],
-            ["Dez/20", 2800, 200],
-            ["Jan/21", 3000, 800],
-        ]);
-
-        var options = {
-            title: "Taxa de Letalidade",
-            colors: ["#3232AD", "#5f0404"],
-            hAxis: { title: "Meses", titleTextStyle: { color: "#333" } },
-            vAxis: { minValue: 0 },
-        };
-
-        var chart = new google.visualization.AreaChart(
-            document.getElementById("chart_taxa_letalidade")
-        );
-        chart.draw(data, options);
-    }
-
-    google.charts.load("current", { packages: ["corechart"] });
-    google.charts.setOnLoadCallback(drawChart3);
-
-    function drawChart3() {
-        // Some raw data (not necessarily accurate)
-        var data = google.visualization.arrayToDataTable([
-            ["Meses", "Casos Confirmados", "Casos Ativos"],
-            ["Mar/20", 1000, 400],
-            ["Abr/20", 1200, 300],
-            ["Mai/20", 1400, 450],
-            ["Jun/20", 1600, 410],
-            ["Jul/20", 1800, 420],
-            ["Ago/20", 2000, 860],
-            ["Set/20", 2200, 1020],
-            ["Out/20", 2400, 540],
-            ["Nov/20", 2600, 300],
-            ["Dez/20", 2800, 200],
-            ["Jan/21", 3000, 800],
-        ]);
-
-        var options = {
-            title: "Média Móvel de Casos",
-            vAxis: { title: "Quantidade de casos" },
-            hAxis: { title: "Meses" },
-            colors: ["#3232AD", "#5f0404"],
-            seriesType: "bars",
-            backgroundColor: { strokeWidth: 1, fill: "#F0F0F0" },
-            series: { 1: { type: "line" } },
-        };
-
-        var chart = new google.visualization.ComboChart(
-            document.getElementById("chart_media_movel")
-        );
-        chart.draw(data, options);
-    }
-    google.charts.load("current", { packages: ["corechart", "line"] });
-    google.charts.setOnLoadCallback(drawChart4);
-
-    function drawChart4() {
-        var data = new google.visualization.DataTable();
-        data.addColumn("number", "X");
-        data.addColumn("number", "Casos");
-        data.addColumn("number", "Ativos");
-
-        data.addRows([
-            [0, 0, 0],
-            [5, 1000, 400],
-            [10, 2000, 800],
-            [15, 2300, 550],
-            [20, 3000, 600],
-            [25, 2000, 500],
-            [30, 1000, 600],
-            [35, 6300, 1550],
-            [40, 5000, 2000],
-            [45, 8000, 4200],
-            [50, 1000, 800],
-            [55, 300, 550],
-        ]);
-        var options = {
-            title: "Taxa de transmissibilidade R(t)",
-            hAxis: {
-                title: "",
-            },
-            vAxis: {
-                title: "Quantidade de Casos",
-            },
-            colors: ["#3232AD", "#5f0404"],
-            series: {
-                0: {
-                    lineWidth: 6,
-                    lineDashStyle: [1, 1, 1],
-                },
-            },
-        };
-
-        var chart = new google.visualization.LineChart(
-            document.getElementById("chart_rt")
-        );
-        chart.draw(data, options);
-    }
-    google.charts.load("current", { packages: ["corechart", "bar"] });
-    google.charts.setOnLoadCallback(drawChart5);
-
-    function drawChart5() {
-        var data = google.visualization.arrayToDataTable([
-            ["Meses", "Leitos "],
-            ["Mar/20", 0],
-            ["Abr/20", 30],
-            ["Mai/20", 40],
-            ["Jun/20", 60],
-            ["Jul/20", 80],
-            ["Ago/20", 90],
-            ["Set/20", 90],
-            ["Out/20", 60],
-            ["Nov/20", 90],
-            ["Dez/20", 90],
-            ["Jan/21", 95],
-        ]);
-
-        var options = {
-            title: "Taxa de ocupação de UTI",
-            hAxis: {
-                title: "%",
-                minValue: 0,
-            },
-            vAxis: {
-                title: "Meses",
-            },
-        };
-
-        var chart = new google.visualization.BarChart(
-            document.getElementById("chart_ocup_uti")
-        );
-        chart.draw(data, options);
-    }
-
-    $(window).resize(function () {
-        grafico();
-        drawChart2();
-        drawChart3();
-        drawChart4();
-        drawChart5();
-    }); 
-    */
 });
