@@ -1,4 +1,29 @@
 $(document).ready(() => {
+
+  
+
+  var map = L.map('map').setView([-27.587776543236944, -51.151320339703375], 8);
+  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  mapboxAccessToken = 'pk.eyJ1IjoibWFuZmUiLCJhIjoiY2tranBsdWlxMG01OTJ3cW55YjhudW01cSJ9.quumn6h49KGEftd4odva2A';
+
+  L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
+    id: 'mapbox/light-v10',
+    attribution: "blabla",
+    tileSize: 512,
+    zoomOffset: -1
+  }).addTo(map);
+
+  L.geoJson(regionData).addTo(map);
+
+
+
+
+  
+
+
   google.load("visualization", "1", { packages: ["corechart", "line"] });
   google.setOnLoadCallback(grafico);
   function grafico() {
