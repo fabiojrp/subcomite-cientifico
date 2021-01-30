@@ -1,0 +1,23 @@
+{
+  "name": "subcomite-cientifico",
+  "version": "1.0.0",
+  "description": "Desenvolvimento do site do Subcomitê Científico\r Neste repositório estarão as diferentes frentes do projeto do subcomitê, compartilhado entre todos os membros do projeto.\r Continua...",
+  "main": "api/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabiojrp/subcomite-cientifico.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fabiojrp/subcomite-cientifico/issues"
+  },
+  "homepage": "https://github.com/fabiojrp/subcomite-cientifico#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.5.1"
+  }
+}
