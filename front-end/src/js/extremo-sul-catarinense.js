@@ -44,48 +44,110 @@ var regionData = {
 }
 
 $(document).ready(() => {
-    /* RT */
-    var rt = [
-        {
-          x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
-          y: [1, 10, 5, 25],
-          type: 'scatter'
+
+    var id = 7; /* EXTREMO SUL CATARINENSE */
+
+    const casos_por_regiao_url = base_url + '/api/casos-por-regiao/' + id;
+    fetch(casos_por_regiao_url).then(response => {
+        return response.json()
+    }).then(dados => {
+
+        /* MÉDIA MÓVEL */
+        var rt = [
+            {
+            x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
+            y: [1, 3, 6],
+            type: 'scatter'
+            }
+        ];
+
+        var rt_layout = {
+            title: 'Média Móvel',
+        };
+        
+        Plotly.newPlot('rt-graph', rt, rt_layout);
+
+        /* MÉDIA MÓVEL */
+        
+        var media_movel = {
+            type: "scatter",
+            mode: "lines",
+            x: dados.datas,                
+            y: dados.casos_media_movel,
+            line: {color: '#17BECF'},
+            name: "Média Móvel"
         }
-    ];
 
-    var rt_layout = {
-        title: 'Taxa de Transmissibilidade',
-      };
-      
-    Plotly.newPlot('rt-graph', rt, rt_layout);
-
-    /* MÉDIA MÓVEL */
-    var media_movel = [
-        {
-          x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
-          y: [1, 3, 6],
-          type: 'scatter'
+        var obitos_media_movel = {
+            type: "scatter",
+            mode: "lines",
+            x: dados.datas,
+            y: dados.obitos_media_movel,
+            line: {color: '#FF0000'},
+            name: "Óbitos Média Móvel"
         }
-    ];
 
-    var mm_layout = {
-        title: 'Média Móvel',
-      };
-      
-    Plotly.newPlot('media-movel-graph', media_movel, mm_layout);
+        dados_media_movel = [media_movel, obitos_media_movel]
 
-    /* Ocupacao de Leitos */
-    var ocupacao_leitos = [
-        {
-          x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
-          y: [80, 97, 100],
-          type: 'scatter'
+        var mm_layout = {
+            title: 'Média Móvel X Óbitos Média Móvel',
+        };
+        
+        Plotly.newPlot('media-movel-graph', dados_media_movel, mm_layout);
+
+        /* Ocupacao de Leitos */
+        var ocupacao_leitos = [
+            {
+            x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
+            y: [80, 97, 100],
+            type: 'scatter'
+            }
+        ];
+
+        var ol_layout = {
+            title: 'Ocupação de Leitos (UTI) em porcentagem (%)',
+        };
+        
+        Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout);
+
+
+        /* CASOS DIÁRIOS */
+        var traco_casos = {
+            type: "scatter",
+            mode: "lines",
+            name: 'Casos Diários',
+            x: dados.datas,
+            y: dados.casos,
+            line: {color: '#17BECF'}
         }
-    ];
 
-    var ol_layout = {
-        title: 'Ocupação de Leitos (UTI) em porcentagem (%)',
-      };
-      
-    Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout);
+        data = [traco_casos]
+
+        var layout = {
+            title: 'Casos Diários',
+        };
+
+        Plotly.newPlot('casos-diarios', data, layout);
+
+
+        /* CASOS ACUMULADOS */
+        var traco_casos = {
+            type: "scatter",
+            mode: "lines",
+            name: 'Casos Acumulados',
+            x: dados.datas,
+            y: dados.casos_acumulados,
+            line: {color: '#17BECF'}
+        }
+
+        data = [traco_casos]
+
+        var layout = {
+            title: 'Casos Acumulados',
+        };
+
+        Plotly.newPlot('casos-acumulados', data, layout);
+
+    }).catch(err => console.error(err));
+
 });

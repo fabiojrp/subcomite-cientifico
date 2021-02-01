@@ -6,7 +6,8 @@
 	<meta name="description" content="Mapa do COVID em Santa Catarina compilados por regionais da saúde." />
 	<meta name="keywords" content="COVID, Santa Catarina, IFC, Instituto Federal Catarinense" />
 	<title>Boletim COVID-19 - Santa Catarina</title>
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />,
+	<script src="js/config.js"></script>
 	<link rel="stylesheet" href="css/bootstrap.css" />
 	<link rel="stylesheet" href="css/style.css">
 	<link rel="preconnect" href="https://fonts.gstatic.com">
@@ -14,8 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="css/leaflet.css" />
 	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
-	<script src="js/leaflet.js" ></script>
-	
+	<script src="js/leaflet.js" ></script>	
 </head>
 
 <body>
@@ -53,6 +53,10 @@
 					<div id='media-movel-graph' class="graph"></div>
 
 					<div id='leitos-graph' class="graph"></div>
+
+					<div id='casos-diarios' class="graph"></div>
+
+					<div id='casos-acumulados' class="graph"></div>
 				</div>
 			</div>
 		</div>
@@ -70,7 +74,8 @@
 		</div>
 	</footer>
 
-
+	<script src="https://cdn.plot.ly/plotly-locale-pt-br-latest.js"></script>
+	<script>Plotly.setPlotConfig({locale: 'pt-br'})</script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 	<script  type="text/javascript" src="js/extremo-sul-catarinense.js"></script>
 	<script src="js/index.js"></script>
