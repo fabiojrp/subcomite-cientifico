@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="Mapa do COVID em Santa Catarina compilados por regionais da saúde." />
+	<meta name="keywords" content="COVID, Santa Catarina, IFC, Instituto Federal Catarinense" />
+	<title>Boletim COVID-19 - Santa Catarina</title>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+	<link rel="stylesheet" href="css/bootstrap.css" />
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="css/leaflet.css" />
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+	<script src="js/leaflet.js" ></script>
+	
+</head>
+
+<body>
+
+	<header class="header">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<a href="index.html" class="logo">
+						<h3>Instituto Federal Catarinense</h3>
+						<h1>CORONAVÍRUS EM SANTA CATARINA</h1>
+					</a>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<section class="region">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-12">
+					<div id="map"></div>
+					<p class="info2">Dados compilados em: 30/01/2021</p>
+				</div>
+			</div>
+
+			<hr />
+
+			<div class="row">
+				<div class="col-lg-12">
+					<h2>Dados Detalhados da Região</h2>
+
+					<div id='rt-graph' class="graph"></div>
+
+					<div id='media-movel-graph' class="graph"></div>
+
+					<div id='leitos-graph' class="graph"></div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<footer>
+		<div class="footerst">
+			<div class="container">
+				<a href="https://ifc.edu.br/" target="_blank">
+					Instituto Federal de Educação, Ciência e Tecnologia Catarinense
+				</a>
+				<p><a href="equipe.html" href="_blank">- Equipe Subcomitê Ciêntifico</a></p>
+
+			</div>
+		</div>
+	</footer>
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script  type="text/javascript" src="js/alto-vale-do-rio-do-peixe.js"></script>
+	<script src="js/index.js"></script>
+
+</body>
+
+</html>
