@@ -17,11 +17,11 @@ body {
   font-size: 60px;
   font-family: "Oswald", sans-serif;
   /*cor abaixo para o menu clean*/
- color: #FFF; 
+  color: #fff;
   /* color: #fff; */
   margin-top: 25px;
   margin-right: 5px;
-  letter-spacing: 0.4rem;  
+  letter-spacing: 0.4rem;
   margin-bottom: 30px;
 }
 
@@ -33,7 +33,7 @@ header .logo {
   font-size: 20px;
   font-family: "Oswald", sans-serif;
   /*cor abaixo para o menu clean*/
-   color: #FFF; 
+  color: #fff;
   /* color: #fff; */
   margin-top: 30px;
 }
@@ -50,32 +50,32 @@ header .logo {
   width: 100%;
 }
 
-.map-info { 
-  padding: 10px 10px; 
-  font: 14px/16px Arial, Helvetica, sans-serif; 
-  background: white; 
-  background: rgba(255,255,255,0.8); 
-  box-shadow: 0 0 15px rgba(0,0,0,0.2); 
+.map-info {
+  padding: 10px 10px;
+  font: 14px/16px Arial, Helvetica, sans-serif;
+  background: white;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
-} 
-
-.map-info h4 { 
-  margin: 10px 0 15px 0px; 
-  color: #777; 
 }
 
-.legend { 
-  text-align: left; 
-  line-height: 18px; 
-  color: #555; 
-} 
+.map-info h4 {
+  margin: 10px 0 15px 0px;
+  color: #777;
+}
 
-.legend i { 
-  width: 18px; 
-  height: 18px; 
-  float: left; 
-  margin-right: 8px; 
-  opacity: 0.7; 
+.legend {
+  text-align: left;
+  line-height: 18px;
+  color: #555;
+}
+
+.legend i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.7;
 }
 
 .region p.info2 {
@@ -179,6 +179,11 @@ footer {
   text-align: center;
   text-decoration: none;
 }
+.footerst p {
+  margin: 20px 0px 0px 0px;
+  font-size: 15px;
+}
+
 .footerst a:hover {
   text-decoration: none;
   color: rgb(233, 233, 233);
@@ -197,7 +202,6 @@ footer {
   clear: both;
   margin-top: 20px;
 }
-
 
 .graphics::before {
   content: "";
@@ -287,7 +291,7 @@ section .section-title {
   -o-transform: rotateY(0deg);
   -ms-transform: rotateY(0deg);
   transform: rotateY(0deg);
-  border-radius: .25rem;
+  border-radius: 0.25rem;
 }
 
 .image-flip:hover .frontside,
@@ -372,4 +376,3 @@ section .section-title {
   border-radius: 50%;
 }
 /* END EQUIPE */
-

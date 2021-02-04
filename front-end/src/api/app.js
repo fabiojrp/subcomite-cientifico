@@ -23,10 +23,10 @@ if (env == 'dev') {
 }
 
 const pool = new Pool({
-    user: 'postgres',
+    user: 'postgres', 
     host: 'localhost',
-    database: 'covid',
-    password: 'postgres',
+    database: 'dump', // covid - mauricio
+    password: 'zzdz0737', // postgres mauricio
     port: 5432,
 })
 
