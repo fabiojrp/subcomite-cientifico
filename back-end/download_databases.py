@@ -5,7 +5,7 @@ import requests
 from xml.dom import minidom
 import urllib
 
-
+#teste...
 url = 'https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral'
 
 #headers = CaseInsensitiveDict()
