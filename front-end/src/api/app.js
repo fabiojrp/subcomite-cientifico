@@ -16,8 +16,7 @@ const pool = new Pool({
     host: 'localhost',
     database: 'covid', // covid - mauricio
     password: 'postgres', // postgres mauricio
-    port: 5432,
-    multipleStatements: true
+    port: 5432
 })
 
 regions = {
