@@ -84,7 +84,10 @@ $(document).ready(() => {
 
 	
 
-
+    // TODO: Fazer a cor verde:
+    // RT: < 1
+    // Média Móvel < 15%
+    // UTI < 60%
 	// get color depending on rt value
 	function getColor(d) {
         return d >= 1 ? '#ff7979' :
@@ -148,7 +151,8 @@ $(document).ready(() => {
 
 	
 
-	map.attributionControl.addAttribution('Dados do Covid &copy; <a href="https://www.ciasc.sc.gov.br/">CIASC</a>');
+	map.attributionControl.addAttribution('Dados do Covid &copy; <a href="https://covid.saude.gov.br/">Ministério da Saúde</a>');
+    map.attributionControl.addAttribution('Dados de UTI &copy; <a href="https://www.ciasc.sc.gov.br/">CIASC</a>');
 
 
 	var legend = L.control({position: 'bottomleft'});

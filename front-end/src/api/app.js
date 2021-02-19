@@ -5,22 +5,11 @@ var cors = require('cors');
 const express = require('express')
 const app = express()
 
-const env = 'dev' // prod || dev
+let port = 3000;
 
-let port = 0;
-
-
-if (env == 'dev') {
-    app.use(cors())
-    port = 3000
-} else if (env == 'prod') {
-    // https://medium.com/zero-equals-false/using-cors-in-express-cac7e29b005b
-    // em produção devemos limitar somente para ambiente de desenvolvimento e para o domínio da aplicação.
-    app.use(cors())
-    port = 80
-} else {
-    throw new Error("Wrong express server configuration");
-}
+// https://medium.com/zero-equals-false/using-cors-in-express-cac7e29b005b
+// em produção devemos limitar somente para ambiente de desenvolvimento e para o domínio da aplicação.
+app.use(cors())
 
 const pool = new Pool({
     user: 'postgres', 
@@ -65,13 +54,13 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         SUM(CASOS.OBITOS) AS OBITOS_DIAS,
         SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
         SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL
-    FROM REGIONAIS, CASOS
-    WHERE CASOS.DATA BETWEEN 
+        FROM REGIONAIS, CASOS
+        WHERE CASOS.DATA BETWEEN 
             (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '15 days' AND
             (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
         AND CASOS.REGIONAL = REGIONAIS.ID
         AND REGIONAIS.ID = $1
-    GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
+        GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
         ORDER BY CASOS.DATA
         `,
         [id],
@@ -156,8 +145,8 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     
                 res.send({region, datas, rt})
             })    
-        })
+    })
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
-  })
+})
