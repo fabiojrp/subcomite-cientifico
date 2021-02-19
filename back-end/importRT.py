@@ -37,4 +37,5 @@ with open('RtSC.csv', 'r') as arquivo:
                 print('.', end='', flush=True)
 
     print("\nFeito")
-
+    
+    ## feito...
