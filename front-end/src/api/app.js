@@ -25,9 +25,10 @@ if (env == 'dev') {
 const pool = new Pool({
     user: 'postgres', 
     host: 'localhost',
-    database: 'dump', // covid - mauricio
-    password: 'zzdz0737', // postgres mauricio
+    database: 'covid', // covid - mauricio
+    password: 'postgres', // postgres mauricio
     port: 5432,
+    multipleStatements: true
 })
 
 regions = {
@@ -51,27 +52,32 @@ regions = {
     17: 'XANXERÊ'
 }
 
+app.get('/', (req, res) => {
+    res.send("foi..");
+});
+
 app.get('/api/casos-por-regiao/:id', (req, res) => {
     id = req.params.id;
 
     pool.query(
-        `SELECT
-            to_char(casos.data, 'DD/MM/YYYY') as data,
-            sum(casos.casos) as casos_dia,
-            sum(casos.obitos) as obitos_dias,
-            sum(casos.casos_acumulados) as casos_acumulados,
-            sum(casos.obitos_acumulados) as obitos_acumulados,
-            replace(to_char(sum(casos.casos_mediaMovel), '99990d999999'), ',', '.') as casos_mediaMovel,
-            replace(to_char(sum(casos.obitos_mediaMovel), '99990d999999'), ',', '.') as obitos_mediaMovel,
-            to_char(avg(casos.casos_acumulados_100mil), '99990d999999') as casos_acumulados_100mil,
-            to_char(avg(casos.obitos_acumulados_100mil), '99990d999999') as obitos_acumulados_100mil
-        FROM regionais, casos
-        WHERE casos.regional = regionais.id AND regionais.id = $1 group by regionais.regional_saude, casos.data ORDER BY casos.data`,
+        `SELECT CASOS.DATA,
+        SUM(CASOS.CASOS) AS CASOS_DIA,
+        SUM(CASOS.OBITOS) AS OBITOS_DIAS,
+        SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
+        SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL
+    FROM REGIONAIS, CASOS
+    WHERE CASOS.DATA BETWEEN 
+            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '15 days' AND
+            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
+        AND CASOS.REGIONAL = REGIONAIS.ID
+        AND REGIONAIS.ID = $1
+    GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
+        ORDER BY CASOS.DATA
+        `,
         [id],
         (err, rows) => {
-
             if (err) {
-                console.log("Erro ao buscar por cidade: " + err)
+                console.log("Erro ao buscar por região: " + err)
                 return
             }
 
@@ -91,25 +97,66 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     return row.casos_dia;
                 })
 
-                casos_acumulados = rows.rows.map(row => {
-                    return row.casos_acumulados;
-                })
-
                 casos_media_movel = rows.rows.map(row => {
                     return row.casos_mediamovel;
+                })
+
+                obitos = rows.rows.map(row => {
+                    return row.obitos_dias;
                 })
 
                 obitos_media_movel = rows.rows.map(row => {
                     return row.obitos_mediamovel;
                 })
 
-                
-
             }
 
-            res.send({region, datas, casos, casos_acumulados, casos_media_movel, obitos_media_movel, ocupacao_uti})
+            res.send({region, datas, casos, casos_media_movel, obitos, obitos_media_movel})
         })    
     })
+
+    app.get('/api/rt-por-regiao/:id', (req, res) => {
+        id = req.params.id;
+    
+        pool.query(
+            `SELECT RT.DATA as data,
+            RT.RT as rt
+        FROM REGIONAIS, RT
+        WHERE DATA BETWEEN
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '15 days' AND
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+                AND RT.REGIONAL = REGIONAIS.ID
+                AND RT.REGIONAL = $1
+        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+            `,
+            [id],
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o R(T) por região: " + err)
+                    return
+                }
+    
+                region = regions[id]
+    
+                if (typeof(region) === 'undefined') {
+                    res.send("Região não reconhecida. Informe um ID válido.")
+                    return;
+                }
+    
+                if (rows.rows.length > 0) {
+                    datas = rows.rows.map(row => {
+                        return row.data;
+                    })
+        
+                    rt = rows.rows.map(row => {
+                        return row.rt;
+                    })
+    
+                }
+    
+                res.send({region, datas, rt})
+            })    
+        })
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)

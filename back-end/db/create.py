@@ -3,14 +3,14 @@ from Database import Database
 
 
 class Create:
-
     def __init__(self):
         self.db = Database.get_instance()
-        
+
     def create_table_brasil(self):
         print("Limpando e criando as tabelas...")
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
+        self.db.execute_query("DROP TABLE IF EXISTS casos")
 
         sql = """
             CREATE TABLE IF NOT EXISTS CASOSBRASIL(
@@ -35,6 +35,30 @@ class Create:
         """
         self.db.execute_query(sql)
 
+        sql = """CREATE TABLE IF NOT EXISTS casos (
+                    codigo_ibge_municipio integer DEFAULT NULL,
+                    populacao integer DEFAULT NULL,
+                    regional integer DEFAULT NULL,
+                    data date DEFAULT NULL,
+                    casos integer DEFAULT NULL,
+                    obitos integer DEFAULT NULL,
+                    casos_acumulados integer DEFAULT NULL,
+                    obitos_acumulados integer DEFAULT NULL,
+                    casos_mediaMovel NUMERIC(17,5) DEFAULT NULL,
+                    obitos_mediaMovel NUMERIC(17,5) DEFAULT NULL,
+                    variacao_mediaMovel_casos NUMERIC(17,5) DEFAULT NULL,
+                    casos_acumulados_100mil NUMERIC(22,6) DEFAULT NULL,
+                    obitos_acumulados_100mil NUMERIC(26,6) DEFAULT NULL,
+                    casos_variacao_14dias NUMERIC(17,5) DEFAULT NULL,
+                    obitos_variacao_14dias NUMERIC(17,5) DEFAULT NULL,
+                    incidencia_casos_diarios_100mil NUMERIC(17,5) DEFAULT NULL,
+                    incidencia_obitos_diarios_100mil NUMERIC(17,5) DEFAULT NULL,
+                    letalidade_100_confirmados NUMERIC(17,5) DEFAULT NULL,
+                    casos_ativos integer DEFAULT NULL
+                )
+        """
+        self.db.execute_query(sql)
+
         print("OK")
 
     def create_table(self):
@@ -42,7 +66,7 @@ class Create:
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS dados")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
-        self.db.execute_query("DROP TABLE IF EXISTS leitos")
+        
 
         sql = """
         DO $$
@@ -55,7 +79,7 @@ class Create:
             END IF;
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'internacao') THEN
                     CREATE  TYPE internacao AS ENUM('INTERNADO','NAO INTERNADO');
-            END IF;
+            END IF; 
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'internacao_uti') THEN
                 CREATE TYPE internacao_uti AS ENUM('NAO INTERNADO UTI','INTERNADO UTI');
             END IF;
@@ -160,21 +184,6 @@ class Create:
                     incidencia_obitos_diarios_100mil NUMERIC(10,5) DEFAULT NULL,
                     letalidade_100_confirmados NUMERIC(10,5) DEFAULT NULL,
                     casos_ativos integer DEFAULT NULL
-                )
-        """
-        self.db.execute_query(sql)
-        
-        sql = """CREATE TABLE IF NOT EXISTS leitos (
-                    macrorregiao varchar(100) DEFAULT NULL,
-                    hospital varchar(100) DEFAULT NULL,
-                    municipio varchar(100) DEFAULT NULL,
-                    codigo_ibge_municipio integer DEFAULT NULL,
-                    regional_saude varchar(100) DEFAULT NULL,
-                    leitos_ativos integer DEFAULT NULL,
-                    leitos_ocupados integer DEFAULT NULL,
-                    leitos_disponiveis integer DEFAULT NULL,
-                    taxa_ocupacao NUMERIC(5,2) DEFAULT NULL,
-                    pacientes_covid integer DEFAULT NULL
                 )
         """
         self.db.execute_query(sql)

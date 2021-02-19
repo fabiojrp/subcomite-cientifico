@@ -24,7 +24,7 @@ class Utils:
         return datetime.datetime.strptime(saida, '%d/%m/%Y %H:%M').strftime("%Y-%m-%d %H:%M")
 
     @staticmethod
-    def date_format(date):
+    def date_format(date, date_alternative = None):
         if date == "2002-11-24 00:00:00":
             return datetime.datetime.strptime("2020-11-24", '%Y-%m-%d')
 
@@ -42,14 +42,19 @@ class Utils:
 
         if date == "1899-12-31 00:00:00" or date == "1961-12-21 00:00:00" or date == "1966-01-04 00:00:00" or date == "1991-04-19 00:00:00":
             ##print(saida)
-            return datetime.datetime.strptime("2020-01-01", '%Y-%m-%d')
+            return date_alternative
 
         if date == None:
             return -1
 
         exp = date.split(' ')
         ##return datetime.datetime.strptime(exp[0], '%d/%m/%Y').strftime("%Y-%m-%d")
-        return datetime.datetime.strptime(exp[0], '%Y-%m-%d')
+        
+        formated_date = datetime.datetime.strptime(exp[0], '%Y-%m-%d')
+        if formated_date < datetime.datetime(2020,2,25, 0, 0):
+            return date_alternative
+        else:
+            return formated_date
         
     @staticmethod
     def date_check(data_inicio, data_fim, datas_casos):
@@ -64,14 +69,14 @@ class Utils:
             return True
         else:
             return False
-        
+    @staticmethod    
     def convert_to_int(value_to_convert):
         try:
             valor = int(value_to_convert);
         except ValueError as ex:
             valor = 0;
         return valor
-    
+    @staticmethod
     def convert_to_float(value_to_convert):
         try:
             valor = float(value_to_convert);

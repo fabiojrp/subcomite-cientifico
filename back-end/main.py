@@ -15,33 +15,6 @@ dadosDao = DadosDao()
 
 create.create_table()
 
-print("Inserindo os dados de leitos...")
-with open('leitos.csv', 'r') as arquivo_leitos:
-    hospitais = csv.DictReader(arquivo_leitos, delimiter=",")
-
-    for hospital in hospitais:
-
-        if hospital['macrorregiao'] == None:
-            break    
-
-
-        params = (
-            hospital['macrorregiao'],
-            hospital['hospital'],
-            hospital['municipio'],
-            Utils.convert_to_int(hospital['codigo_ibge_municipio']),
-            hospital['regional_saude'],
-            Utils.convert_to_int(hospital['leitos_ativos']),
-            Utils.convert_to_int(hospital['leitos_ocupados']),
-            Utils.convert_to_int(hospital['leitos_disponiveis']),
-            Utils.convert_to_float(hospital['taxa_ocupacao']),
-            Utils.convert_to_int(hospital['pacientes_covid']),
-        )
-
-        dadosDao.leitos_hospitais(params)
-
-print("Ok")
-
 index = 0
 
 casos_municipios = {}
@@ -107,9 +80,17 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
         else:
             idade = value['idade']
 
-        codigo_ibge_municipio = Utils.convert_to_int(value['codigo_ibge_municipio'])
-        codigo_ibge_municipio_notificacao = Utils.convert_to_int(value['codigo_ibge_municipio_notificacao'])
-            
+        try:
+            codigo_ibge_municipio = int(value['codigo_ibge_municipio']);
+        except ValueError as ex:
+            codigo_ibge_municipio = 0;
+
+        try:
+            codigo_ibge_municipio_notificacao = int(value['codigo_ibge_municipio_notificacao']);
+        except ValueError as ex:
+            codigo_ibge_municipio_notificacao = 0;
+
+
         val = (
             data_publicacao,
             value['recuperados'],
@@ -188,36 +169,28 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
 
         casos_municipios[codigo_ibge_municipio]['datas'][data_referencia]['casos']+=1
         
-        for datas in datas_casos:
+        for datas in datas_casos:  
             if value['recuperados'] == 'SIM' and value['obito'] == 'NAO':
                 if data_evolucao_caso != None:
-                    if data_inicio_sintomas <= datas:
-                        if data_evolucao_caso >= datas:
-                            casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
-                        else:
-                            break
+                    if Utils.date_check(data_inicio_sintomas, data_evolucao_caso, datas) == True:
+                        casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
                     else:
                         continue
                 else:
                     string_data_inicio = datetime.datetime.strptime(value['data_inicio_sintomas'], '%Y-%m-%d')
                     data_recuperacao = (string_data_inicio + datetime.timedelta(days=14))
 
-                    if data_inicio_sintomas <= datas:
-                        if data_recuperacao >= datas:
-                            casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
-                        else:
-                            break
+                    if Utils.date_check(string_data_inicio, data_recuperacao, datas) == True:
+                        casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
                     else:
                         continue
 
             elif value['obito'] == 'NAO' and value['recuperados'] == 'NAO':
-                if data_inicio_sintomas <= datas:
+                if Utils.date_check_atived(data_inicio_sintomas, datas) == True:
                     casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
-                else:
-                    continue
 
             elif value['obito'] == 'SIM':
-                if data_inicio_sintomas <= datas:
+                if Utils.date_check(data_inicio_sintomas,data_obito,datas) == True:
                     casos_municipios[codigo_ibge_municipio]['datas'][datas]['casos_ativos']+=1
                 else:
                     continue

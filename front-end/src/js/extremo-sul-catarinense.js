@@ -1,5 +1,4 @@
 var stateData = null;
-
 var regionData = {
     "type":"FeatureCollection",
     "features":
