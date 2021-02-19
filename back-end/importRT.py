@@ -17,7 +17,6 @@ with open('RtSC.csv', 'r') as arquivo:
     for value in dados:
 
         regiaoSaude = processaDados.buscaRegiao(value['\ufeffRegião da Saúde'])
-
         for v in value:
             if v == '\ufeffRegião da Saúde': continue
             if v == 'Instituto Federal Catarinense': continue
