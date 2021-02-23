@@ -14,8 +14,8 @@ app.use(cors())
 const pool = new Pool({
     user: 'postgres', 
     host: 'localhost',
-    database: 'covid', // covid - mauricio
-    password: 'postgres', // postgres mauricio
+    database: 'dump', // covid - mauricio
+    password: 'zzdz0737', // postgres mauricio
     port: 5432,
     multipleStatements: true
 })
