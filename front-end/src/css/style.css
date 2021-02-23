@@ -78,6 +78,12 @@ header .logo {
   opacity: 0.7;
 }
 
+.region {
+  width: 100%;
+  display: block;
+  float: left;
+}
+
 .region p.info2 {
   font-family: "Roboto Mono", monospace;
   font-size: 22px;
