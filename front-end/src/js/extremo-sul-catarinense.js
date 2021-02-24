@@ -43,40 +43,64 @@ var regionData = {
 }
 
 $(document).ready(() => {
-
     var id = 7; /* EXTREMO SUL CATARINENSE */
-
-    const casos_por_regiao_url = base_url + '/api/casos-por-regiao/' + id;
-    fetch(casos_por_regiao_url).then(response => {
+  
+    fetch(base_url + '/api/rt-por-regiao/' + id).then(response => {
         return response.json()
     }).then(dados => {
-
-        /* MÉDIA MÓVEL */
+        /* R(t) */
         var rt = [
             {
-            x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
-            y: [1, 3, 6],
+            x: dados.datas,
+            y: dados.rt,
             type: 'scatter'
             }
         ];
-
         var rt_layout = {
-            title: 'Média Móvel',
+            title: 'Taxa de Transmissibilidade R(t)',
         };
-        
         Plotly.newPlot('rt-graph', rt, rt_layout);
-
-        /* MÉDIA MÓVEL */
-        
-        var media_movel = {
+    }).catch(err => console.error(err));
+  
+    fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
+        return response.json()
+    }).then(dados => {
+            /* Casos / Casos média móvel */
+            var casos= {
+              type: "scatter",
+              mode: "lines",
+              x: dados.datas,                
+              y: dados.casos,
+              line: {color: '#17BECF'},
+              name: "Casos"
+          }
+    
+          var casos_media_movel = {
+              type: "scatter",
+              mode: "lines",
+              x: dados.datas,
+              y: dados.casos_media_movel,
+              line: {color: '#FF0000'},
+              name: "Casos Média Móvel"
+          }
+          dados_casos = [casos, casos_media_movel]
+    
+          var mm_layout = {
+              title: 'Casos X Casos Média Móvel',
+          };
+          
+          Plotly.newPlot('casos-graph', dados_casos, mm_layout);
+  
+        /* Óbitos / Óbitos média móvel */
+        var obitos = {
             type: "scatter",
             mode: "lines",
             x: dados.datas,                
-            y: dados.casos_media_movel,
+            y: dados.obitos,
             line: {color: '#17BECF'},
-            name: "Média Móvel"
+            name: "Óbitos"
         }
-
+  
         var obitos_media_movel = {
             type: "scatter",
             mode: "lines",
@@ -85,15 +109,14 @@ $(document).ready(() => {
             line: {color: '#FF0000'},
             name: "Óbitos Média Móvel"
         }
-
-        dados_media_movel = [media_movel, obitos_media_movel]
-
+        dados_obitos = [obitos, obitos_media_movel]
+  
         var mm_layout = {
-            title: 'Média Móvel X Óbitos Média Móvel',
+            title: 'Óbitos X Óbitos Média Móvel',
         };
         
-        Plotly.newPlot('media-movel-graph', dados_media_movel, mm_layout);
-
+        Plotly.newPlot('obitos-graph', dados_obitos, mm_layout);
+  
         /* Ocupacao de Leitos */
         var ocupacao_leitos = [
             {
@@ -102,51 +125,39 @@ $(document).ready(() => {
             type: 'scatter'
             }
         ];
-
+  
         var ol_layout = {
             title: 'Ocupação de Leitos (UTI) em porcentagem (%)',
         };
         
         Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout);
-
-
-        /* CASOS DIÁRIOS */
-        var traco_casos = {
-            type: "scatter",
-            mode: "lines",
-            name: 'Casos Diários',
-            x: dados.datas,
-            y: dados.casos,
-            line: {color: '#17BECF'}
-        }
-
-        data = [traco_casos]
-
-        var layout = {
-            title: 'Casos Diários',
-        };
-
-        Plotly.newPlot('casos-diarios', data, layout);
-
-
+  
+  
         /* CASOS ACUMULADOS */
         var traco_casos = {
-            type: "scatter",
-            mode: "lines",
-            name: 'Casos Acumulados',
-            x: dados.datas,
-            y: dados.casos_acumulados,
-            line: {color: '#17BECF'}
+          x: dados.datas,
+          y: dados.casos_acumulados_100mil,
+          type: "bar",
+          mode: "horizontal",
+          name: 'Incidência acumulada por 100 mil habitantes',
+          marker: {
+              color: 'rgba(222,45,38,0.8)',
+              opacity: 0.7
+            }, 
+          orientation: 'v'
+            
         }
-
+  
         data = [traco_casos]
-
+  
         var layout = {
-            title: 'Casos Acumulados',
+            title: 'Incidência acumulada por 100 mil habitantes',
+            barmode: 'stack',
         };
-
+  
         Plotly.newPlot('casos-acumulados', data, layout);
-
+  
     }).catch(err => console.error(err));
-
-});
+  
+  
+   });

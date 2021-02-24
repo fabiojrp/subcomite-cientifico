@@ -47,13 +47,17 @@
 
 			<div class="row">
 				<div class="col-lg-12">
-					<h2>Dados Detalhados da Região</h2>
+					<h2>Dados Detalhados Grande Florianópolis</h2>
 
 					<div id='rt-graph' class="graph"></div>
 
-					<div id='media-movel-graph' class="graph"></div>
+					<div id='casos-graph' class="graph"></div>
+
+					<div id='obitos-graph' class="graph"></div>
 
 					<div id='leitos-graph' class="graph"></div>
+
+					<div id='casos-acumulados' class="graph"></div>
 				</div>
 			</div>
 		</div>
@@ -62,19 +66,21 @@
 	<footer>
 		<div class="footerst">
 			<div class="container">
-				<a href="https://ifc.edu.br/" target="_blank">
-					Instituto Federal de Educação, Ciência e Tecnologia Catarinense
-				</a>
-
 				<p><a href="https://subcomitecientifico.ifc.edu.br" target="_blank">Site Subcomitê Ciêntifico</a></p>
 
-				<p><a href="equipe.html" target="_blank">Equipe Subcomitê Ciêntifico</a></p>
+				<p><a href="equipe.html" target="_blank">Equipe de Desenvolvimento</a></p>
+				
+				<a class="iflink" href="https://ifc.edu.br/" target="_blank">
+					Instituto Federal de Educação, Ciência e Tecnologia Catarinense
+				</a>
 			</div>
 		</div>
 	</footer>
 
-
+	<script src="https://cdn.plot.ly/plotly-locale-pt-br-latest.js"></script>
+	<script>Plotly.setPlotConfig({ locale: 'pt-br' })</script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/config.js"></script>
 	<script type="text/javascript" src="js/grande-florianopolis.js"></script>
 	<script src="js/index.js"></script>
 

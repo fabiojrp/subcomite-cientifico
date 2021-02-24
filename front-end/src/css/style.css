@@ -168,14 +168,16 @@ header .logo {
 footer {
   float: left;
   width: 100%;
+  align-items: center;
+  justify-content: center;
 }
 
 .footerst {
   background-color: #1d1f32;
   margin: 0px;
-  margin-bottom: -30px;
+
   text-align: center;
-  padding: 40px;
+  padding: 30px;
 }
 
 .footerst a {
@@ -185,10 +187,7 @@ footer {
   text-align: center;
   text-decoration: none;
 }
-.footerst p {
-  margin: 20px 0px 0px 0px;
-  font-size: 15px;
-}
+
 
 .footerst a:hover {
   text-decoration: none;

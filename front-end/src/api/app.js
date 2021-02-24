@@ -53,16 +53,18 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         SUM(CASOS.CASOS) AS CASOS_DIA,
         SUM(CASOS.OBITOS) AS OBITOS_DIAS,
         SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
-        SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL
+        SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
+        SUM(CASOS.CASOS_ACUMULADOS_100mil) AS CASOS_ACUMULADOS_100mil
         FROM REGIONAIS, CASOS
-        WHERE CASOS.DATA BETWEEN 
-            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '15 days' AND
-            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
-        AND CASOS.REGIONAL = REGIONAIS.ID
+        
+        WHERE CASOS.REGIONAL = REGIONAIS.ID
         AND REGIONAIS.ID = $1
         GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
         ORDER BY CASOS.DATA
         `,
+        // WHERE CASOS.DATA BETWEEN 
+        //     (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '15 days' AND
+        //     (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
         [id],
         (err, rows) => {
             if (err) {
@@ -98,26 +100,38 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     return row.obitos_mediamovel;
                 })
 
+                casos_acumulados_100mil = rows.rows.map(row => {
+                    return row.casos_acumulados_100mil;
+                })
+
             }
 
-            res.send({region, datas, casos, casos_media_movel, obitos, obitos_media_movel})
+            res.send({region, datas, casos, casos_media_movel, obitos, obitos_media_movel, casos_acumulados_100mil})
         })    
     })
 
     app.get('/api/rt-por-regiao/:id', (req, res) => {
         id = req.params.id;
     
-        pool.query(
-            `SELECT RT.DATA as data,
-            RT.RT as rt
-        FROM REGIONAIS, RT
-        WHERE DATA BETWEEN
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '15 days' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
-                AND RT.REGIONAL = REGIONAIS.ID
-                AND RT.REGIONAL = $1
-        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
-            `,
+        // pool.query(
+        //     `SELECT RT.DATA as data,
+        //     RT.RT as rt
+        // FROM REGIONAIS, RT
+        // WHERE DATA BETWEEN
+        //         (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '15 days' AND
+        //         (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+        //         AND RT.REGIONAL = REGIONAIS.ID
+        //         AND RT.REGIONAL = $1
+        // ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+        //     `
+            pool.query(
+                `SELECT RT.DATA as data,
+                RT.RT as rt
+                FROM REGIONAIS, RT
+                WHERE RT.REGIONAL = REGIONAIS.ID
+                    AND RT.REGIONAL = $1
+                ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA`
+            ,
             [id],
             (err, rows) => {
                 if (err) {
