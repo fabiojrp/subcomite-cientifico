@@ -75,7 +75,7 @@ $(document).ready(() => {
     var sao_francisco_do_sul = L.marker([-26.21763874417492, -48.57035665361086]).bindPopup('IFC - Campus São Francisco de Sul');
     var araquari = L.marker([-26.394781055206387, -48.73823989999723]).bindPopup('IFC - Campus Araquari');
     var abelardo_luz = L.marker([-26.586521596148813, -52.10501674417086]).bindPopup('IFC - Campus Abelardo Luz (Avançado)');
-    var sao_bento_do_sul = L.marker([-26.21763874417492, -48.57035665361086]).bindPopup('IFC - Campus São Bento do Sul');
+    var sao_bento_do_sul = L.marker([-26.25027687276346, -49.35088784121336]).bindPopup('IFC - Campus São Bento do Sul');
     var santa_rosa_do_sul = L.marker([-29.0954650121907, -49.81419731861792]).bindPopup('IFC - Campus Santa Rosa do Sul');
     var ibirama = L.marker([-27.04909677497824, -49.53896279407205]).bindPopup('IFC - Campus Ibirama');
     var blumenau = L.marker([-26.881739150584163, -49.137095301484216]).bindPopup('IFC - Campus Blumenau');
@@ -83,7 +83,6 @@ $(document).ready(() => {
     var blumenau2 = L.marker([-26.912126542043502, -49.0664407730001]).bindPopup('IFC - Reitoria');
     var camboriu = L.marker([-27.015680100497377, -48.65878562611805]).bindPopup('IFC - Campus Camboriú');
     var brusque = L.marker([-27.09941598304748, -48.92860645226999]).bindPopup('IFC - Campus Brusque');
-
     
     var campus = L.layerGroup(
         [
