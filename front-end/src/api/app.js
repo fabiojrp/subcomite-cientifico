@@ -13,9 +13,11 @@ app.use(cors())
 
 const pool = new Pool({
     user: 'postgres', 
+   // user: 'covid', // postgres marcelo
     host: 'localhost',
     database: 'covid', // covid - mauricio
     password: 'postgres', // postgres mauricio
+    //password: 'WEpJqsYMnHWB', // postgres marcelo
     port: 5432
 })
 
@@ -55,7 +57,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL
         FROM REGIONAIS, CASOS
         WHERE CASOS.DATA BETWEEN 
-            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '15 days' AND
+            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '5 months' AND
             (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
         AND CASOS.REGIONAL = REGIONAIS.ID
         AND REGIONAIS.ID = $1
@@ -111,8 +113,8 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             RT.RT as rt
         FROM REGIONAIS, RT
         WHERE DATA BETWEEN
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '15 days' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT)
                 AND RT.REGIONAL = REGIONAIS.ID
                 AND RT.REGIONAL = $1
         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
