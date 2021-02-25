@@ -58,7 +58,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         FROM REGIONAIS, CASOS
         WHERE CASOS.DATA BETWEEN 
             (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '5 months' AND
-            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
+            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '1 day'
         AND CASOS.REGIONAL = REGIONAIS.ID
         AND REGIONAIS.ID = $1
         GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
@@ -114,7 +114,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         FROM REGIONAIS, RT
         WHERE DATA BETWEEN
                 (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT)
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
                 AND RT.REGIONAL = REGIONAIS.ID
                 AND RT.REGIONAL = $1
         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
@@ -147,6 +147,52 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 res.send({region, datas, rt})
             })    
     })
+
+    app.get('/api/dados-estado/', (req, res) => {
+        /*
+        "name": "Extremo Sul Catarinense", 
+        "rt": 1, 
+        "media_movel": '15%', 
+        "ocupacao_leitos": "90%",
+        "path": "extremo-sul.html"
+        */
+        pool.query(
+            `SELECT REGIONAIS.REGIONAL_SAUDE, RT.DATA as data,
+                    RT.RT as rt
+            FROM REGIONAIS, RT
+            WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT) 
+                    AND RT.REGIONAL = REGIONAIS.ID
+            ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+            `,
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o R(T) por região: " + err)
+                    return
+                }
+    
+                region = regions[id]
+    
+                if (typeof(region) === 'undefined') {
+                    res.send("Região não reconhecida. Informe um ID válido.")
+                    return;
+                }
+    
+                if (rows.rows.length > 0) {
+                    datas = rows.rows.map(row => {
+                        return row.data;
+                    })
+        
+                    rt = rows.rows.map(row => {
+                        return row.rt;
+                    })
+    
+                }
+    
+                res.send({region, datas, rt})
+            })    
+    })
+
+
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)
