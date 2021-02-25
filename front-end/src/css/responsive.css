@@ -2,7 +2,6 @@
   .header h1 {
     font-size: 3em;
     font-family: "Oswald", sans-serif;
-    color: #1e4219;
     margin-top: 12px;
     letter-spacing: 0.4rem;
   }
@@ -22,93 +21,50 @@
 }
 
 @media only screen and (max-width: 787px) {
-  .header_icone2 {
-    max-width: 55px;
-    margin-top: -100px;
-    margin-left: 40px;
-  }
-  .conteudo1 ul li {
-    width: 100%;
-    display: block;
-    float: left;
-  }
-  .conteudo1 {
-    margin-top: 20px;
-    margin-left: -22px;
-  }
-  .butnst {
-    margin-top: 20px;
-    color: #fff;
-    background-color: #6d976a;
-    border-radius: 0.4rem;
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    width: 100%;
-  }
-  .region .menu:before {
-    content: "";
-    background: #990909;
-    content: "";
-    display: block;
-    width: 93.29%;
-    height: 0.1rem;
-    margin-top: -20px;
-    margin-bottom: 20px;
-    margin-left: 10px;
-  }
   .header h1 {
-    font-size: 2em;
+    font-size: 2rem;
     font-family: "Oswald", sans-serif;
-    color: #1e4219;
     margin-top: 12px;
     letter-spacing: 0.4rem;
   }
-  .region p {
-    font-size: 1.2em;
-    letter-spacing: 0.3rem;
-    padding: 30px 0px;
+
+  .header h3 {
+    font-size: 1rem;
+    letter-spacing: 0.1rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+    margin-top: 12px;
+    letter-spacing: 0.4rem;
+  }
+  
+  .region h2 {
+    font-size: 1.4rem;
+    font-family: "Roboto Mono", monospace;
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: 10px;
+  }
+
+  .region p.info2 {
+    font-family: "Roboto Mono", monospace;
+    font-size: 1rem;
+    padding: 20px 0px;
     margin-bottom: 20px;
     font-weight: 700;
-    display: block;
-  }
-  .region .info:before {
-    content: "";
-    background: #990909;
-    content: "";
-    display: block;
-    width: 100%;
-    height: 0.1rem;
-    margin: -15px 10px 20px;
-  }
-  .region .pdate {
-    font-family: "Roboto Mono", monospace;
-    font-size: 12px;
-    margin: -10px;
-    margin-left: 10px;
-    margin-bottom: 30px;
-    clear: both;
-    margin-top: -60px;
-  }
-  .graphic {
-    margin-left: -1px;
-    margin-top: -20px;
-  }
-  .graphic2 {
-    margin-left: -1px;
-  }
-  .graphics::before {
-    margin-left: 1px;
-    margin-top: 60px;
-  }
-  .p_graphic {
-    font-size: 1.2em;
-    text-align: center;
-    color: #5f0404;
-    padding: 30px 0px;
-    font-weight: 700;
-    margin-top: -30px;
-    display: block;
+    margin-top: 30px;
+    margin-right: 20px;
     letter-spacing: 0.3rem;
+    float: left;
+    width: 100%;
+  }
+
+  .footerst a {
+    font-size: .8rem;
+    color: rgb(255, 255, 255);
+    font-family: "Roboto Mono", monospace;
+    text-align: center;
+    text-decoration: none;
   }
 }

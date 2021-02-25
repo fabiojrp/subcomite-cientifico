@@ -56,9 +56,12 @@ $(document).ready(() => {
           }
       ];
       var rt_layout = {
-          title: 'R(t)',
+          title: 'Taxa de Transmissibilidade R(t)',
       };
-      Plotly.newPlot('rt-graph', rt, rt_layout);
+
+      var config = {responsive: true}
+
+      Plotly.newPlot('rt-graph', rt, rt_layout, config);
   }).catch(err => console.error(err));
 
   fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
@@ -88,7 +91,9 @@ $(document).ready(() => {
             title: 'Casos X Casos Média Móvel',
         };
         
-        Plotly.newPlot('casos-graph', dados_casos, mm_layout);
+        var config = {responsive: true}
+
+        Plotly.newPlot('casos-graph', dados_casos, mm_layout, config);
 
       /* Óbitos / Óbitos média móvel */
       var obitos = {
@@ -113,8 +118,10 @@ $(document).ready(() => {
       var mm_layout = {
           title: 'Óbitos X Óbitos Média Móvel',
       };
-      
-      Plotly.newPlot('obitos-graph', dados_obitos, mm_layout);
+
+      var config = {responsive: true}
+
+      Plotly.newPlot('obitos-graph', dados_obitos, mm_layout, config);
 
       /* Ocupacao de Leitos */
       var ocupacao_leitos = [
@@ -129,26 +136,35 @@ $(document).ready(() => {
           title: 'Ocupação de Leitos (UTI) em porcentagem (%)',
       };
       
-      Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout);
+      var config = {responsive: true}
+
+      Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout, config);
 
 
       /* CASOS ACUMULADOS */
       var traco_casos = {
-          type: "scatter",
-          mode: "lines",
-          name: 'Casos Acumulados',
-          x: dados.datas,
-          y: dados.casos_acumulados,
-          line: {color: '#17BECF'}
+        x: dados.datas,
+        y: dados.casos_acumulados_100mil,
+        type: "bar",
+        mode: "horizontal",
+        name: 'Incidência acumulada por 100 mil habitantes',
+        marker: {
+            color: 'rgba(222,45,38,0.8)',
+            opacity: 0.7
+          }, 
+        orientation: 'v'
+          
       }
 
       data = [traco_casos]
 
       var layout = {
-          title: 'Casos Acumulados',
+          title: 'Incidência acumulada por 100 mil habitantes',
+          barmode: 'stack',
       };
+      var config = {responsive: true}
 
-      Plotly.newPlot('casos-acumulados', data, layout);
+      Plotly.newPlot('casos-acumulados', data, layout, config);
 
   }).catch(err => console.error(err));
 

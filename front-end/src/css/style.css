@@ -36,6 +36,7 @@ header .logo {
   color: #fff;
   /* color: #fff; */
   margin-top: 30px;
+  letter-spacing: 0.2rem;
 }
 
 .header p {
@@ -45,6 +46,14 @@ header .logo {
 #map {
   margin-top: 30px;
   height: 800px;
+  display: block;
+  float: left;
+  width: 100%;
+}
+
+#map.mobile {
+  margin-top: 30px;
+  height: 400px;
   display: block;
   float: left;
   width: 100%;
@@ -76,6 +85,12 @@ header .logo {
   float: left;
   margin-right: 8px;
   opacity: 0.7;
+}
+
+.region {
+  width: 100%;
+  display: block;
+  float: left;
 }
 
 .region p.info2 {
@@ -162,14 +177,16 @@ header .logo {
 footer {
   float: left;
   width: 100%;
+  align-items: center;
+  justify-content: center;
 }
 
 .footerst {
   background-color: #1d1f32;
   margin: 0px;
-  margin-bottom: -30px;
+
   text-align: center;
-  padding: 40px;
+  padding: 30px;
 }
 
 .footerst a {
@@ -179,10 +196,7 @@ footer {
   text-align: center;
   text-decoration: none;
 }
-.footerst p {
-  margin: 20px 0px 0px 0px;
-  font-size: 15px;
-}
+
 
 .footerst a:hover {
   text-decoration: none;
@@ -271,11 +285,12 @@ section#graficos {
 section .section-title {
   text-align: center;
   color: #1d1f32;
-  margin-bottom: 50px;
+  margin-bottom: 40px;
+  margin-top: 40px;
   text-transform: uppercase;
-  margin-top: 30px;
   float: left;
   width: 100%;
+  letter-spacing: 0.4rem;
 }
 
 #team .card {

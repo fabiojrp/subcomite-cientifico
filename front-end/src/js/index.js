@@ -4,13 +4,22 @@ $(document).ready(() => {
     const urlParams = new URLSearchParams(queryString);
     region = urlParams.get('region');
     
+    var width = document.documentElement.clientWidth;
     var map;
-
+    
+    function teste() {
+        if (width > 1024) {
+            return [-27.587776543236944, -51.151320339703375]
+        }else {
+            return [-30.916065412264867, -50.64844684943738]
+        }
+    }
     if (region == null) {
         map = L.map('map', { 
             zoomControl: false,
-            center: [-27.587776543236944, -51.151320339703375], 
-            zoom: 8
+             center: teste(),
+            //  [-27.587776543236944, -51.151320339703375], 
+            zoom: 8,
         });
 
         L.geoJson(stateData).addTo(map);
@@ -23,6 +32,25 @@ $(document).ready(() => {
         
         L.geoJson(regionData).addTo(map);
     }
+    if (width < 1024) {
+        map.setZoom(6);
+        map.panTo(new L.LatLng(-227.587776543236944, -51.151320339703375));
+        document.querySelector('#map')
+        .classList
+        .add('mobile');
+    }
+    window.addEventListener('resize', function(event){
+        var width = document.documentElement.clientWidth;
+        if (width < 1200) {
+            // set the zoom level to 10
+            map.setZoom(7);
+        }else if (width < 787) {
+            // set the zoom level to 8
+            map.setZoom(5);
+        }else{
+            map.setZoom(8);
+        }
+    });
     
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
@@ -101,7 +129,7 @@ $(document).ready(() => {
 			color: 'white',
 			dashArray: '3',
 			fillOpacity: 0.5,
-			fillColor: getColor(feature.properties.child ? -1 : feature.properties.rt)
+			fillColor:  getColor(feature.properties.child ? -1 : feature.properties.rt)
 		};
 	}
 
