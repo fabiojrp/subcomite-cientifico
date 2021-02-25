@@ -12,12 +12,12 @@ let port = 3000;
 app.use(cors())
 
 const pool = new Pool({
-    user: 'postgres', 
-   // user: 'covid', // postgres marcelo
+    //user: 'postgres', 
+    user: 'covid', // postgres marcelo
     host: 'localhost',
     database: 'covid', // covid - mauricio
-    password: 'postgres', // postgres mauricio
-    //password: 'WEpJqsYMnHWB', // postgres marcelo
+    //password: 'postgres', // postgres mauricio
+    password: 'WEpJqsYMnHWB', // postgres marcelo
     port: 5432
 })
 
@@ -157,38 +157,48 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         "path": "extremo-sul.html"
         */
         pool.query(
-            `SELECT REGIONAIS.REGIONAL_SAUDE, RT.DATA as data,
-                    RT.RT as rt
-            FROM REGIONAIS, RT
-            WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT) 
-                    AND RT.REGIONAL = REGIONAIS.ID
-            ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+            `SELECT VIEW_RT.REGIONAL_SAUDE as REGIONAIS,
+                VIEW_RT.DATA AS RT_DATA,
+                VIEW_RT.RT AS RT_VALOR,
+                VIEW_CASOS_ATUAL.DATA AS DATA_CASOS_ATUAL,
+                VIEW_CASOS_ANTERIOR.DATA AS DATA_CASOS_ANTERIOR,
+                (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL)/VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO
+            FROM VIEW_RT,
+                VIEW_CASOS_ATUAL,
+                VIEW_CASOS_ANTERIOR
+            WHERE VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ATUAL.REGIONAL_SAUDE
+                            AND VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ANTERIOR.REGIONAL_SAUDE
             `,
             (err, rows) => {
                 if (err) {
-                    console.log("Erro ao buscar o R(T) por região: " + err)
+                    console.log("Erro ao buscar os dados por região: " + err)
                     return
                 }
-    
-                region = regions[id]
-    
-                if (typeof(region) === 'undefined') {
-                    res.send("Região não reconhecida. Informe um ID válido.")
-                    return;
-                }
-    
-                if (rows.rows.length > 0) {
-                    datas = rows.rows.map(row => {
-                        return row.data;
-                    })
         
-                    rt = rows.rows.map(row => {
-                        return row.rt;
+                if (rows.rows.length > 0) {
+                    regionais = rows.rows.map(row => {
+                        return row.regionais;
                     })
+                    rt_data = rows.rows.map(row => {
+                        return row.rt_data;
+                    })
+                    rt_valor = rows.rows.map(row => {
+                        return row.rt_valor;
+                    })
+                    data_casos_atuais = rows.rows.map(row => {
+                        return row.data_casos_atual;
+                    })
+                    data_casos_anterior = rows.rows.map(row => {
+                        return row.data_casos_anterior;
+                    })
+                    variacao = rows.rows.map(row => {
+                        return row.variacao;
+                    })
+
     
                 }
     
-                res.send({region, datas, rt})
+                res.send({regionais, rt_data, rt_valor, data_casos_atuais, data_casos_anterior, variacao})
             })    
     })
 
