@@ -12,8 +12,8 @@ class Database:
             Database.instance = Database()
         return Database.instance
 
-    #def __init__(self, host='localhost',port='5432', user='postgres', password='WEpJqsYMnHWB', dbname='covid'):
-    def __init__(self, host='192.168.10.139',port='5432', user='covid', password='WEpJqsYMnHWB', dbname='covid'):    
+    def __init__(self, host='localhost',port='5432', user='postgres', password='WEpJqsYMnHWB', dbname='covid'):
+    # def __init__(self, host='192.168.10.139',port='5432', user='covid', password='WEpJqsYMnHWB', dbname='covid'):    
         try:
             conn = psycopg2.connect(
                 host=host,port=port, user=user, password=password, dbname=dbname)

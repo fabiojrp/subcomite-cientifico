@@ -6,6 +6,48 @@ class Create:
     def __init__(self):
         self.db = Database.get_instance()
 
+    def create_leitos(self):
+        print("Limpando e criando as tabelas de leitos...")
+        # Limpa as tabelas
+        self.db.execute_query("DROP TABLE IF EXISTS leitosGeraisCovid")
+        self.db.execute_query("DROP TABLE IF EXISTS leitosCovid")
+
+        sql = """CREATE TABLE IF NOT EXISTS leitosGeraisCovid (
+                    macrorregiao varchar(100) DEFAULT NULL,
+                    hospital varchar(100) DEFAULT NULL,
+                    municipio varchar(100) DEFAULT NULL,
+                    codigo_ibge_municipio integer DEFAULT NULL,
+                    regional_saude varchar(100) DEFAULT NULL,
+                    index_regional integer DEFAULT NULL,
+                    leitos_ativos integer DEFAULT NULL,
+                    leitos_ocupados integer DEFAULT NULL,
+                    leitos_disponiveis integer DEFAULT NULL,
+                    taxa_ocupacao NUMERIC(5,2) DEFAULT NULL,
+                    pacientes_covid integer DEFAULT NULL,
+                    atualizacao timestamp DEFAULT NULL
+                )
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE TABLE IF NOT EXISTS leitosCovid (
+                    macrorregiao varchar(100) DEFAULT NULL,
+                    hospital varchar(100) DEFAULT NULL,
+                    municipio varchar(100) DEFAULT NULL,
+                    codigo_ibge_municipio integer DEFAULT NULL,
+                    regional_saude varchar(100) DEFAULT NULL,
+                    index_regional integer DEFAULT NULL,
+                    leitos_ativos integer DEFAULT NULL,
+                    leitos_ocupados integer DEFAULT NULL,
+                    leitos_disponiveis integer DEFAULT NULL,
+                    taxa_ocupacao NUMERIC(5,2) DEFAULT NULL,
+                    pacientes_covid integer DEFAULT NULL,
+                    atualizacao timestamp DEFAULT NULL
+                )
+        """
+        self.db.execute_query(sql)
+
+        print("OK")
+
     def create_table_brasil(self):
         print("Limpando e criando as tabelas...")
         # Limpa as tabelas
