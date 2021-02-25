@@ -9,8 +9,6 @@ class Create:
     def create_leitos(self):
         print("Limpando e criando as tabelas de leitos...")
         # Limpa as tabelas
-        self.db.execute_query("DROP TABLE IF EXISTS leitosGeraisCovid")
-        self.db.execute_query("DROP TABLE IF EXISTS leitosCovid")
 
         sql = """CREATE TABLE IF NOT EXISTS leitosGeraisCovid (
                     macrorregiao varchar(100) DEFAULT NULL,

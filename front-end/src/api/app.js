@@ -157,17 +157,21 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         "path": "extremo-sul.html"
         */
         pool.query(
-            `SELECT VIEW_RT.REGIONAL_SAUDE as REGIONAIS,
-                VIEW_RT.DATA AS RT_DATA,
-                VIEW_RT.RT AS RT_VALOR,
-                VIEW_CASOS_ATUAL.DATA AS DATA_CASOS_ATUAL,
-                VIEW_CASOS_ANTERIOR.DATA AS DATA_CASOS_ANTERIOR,
-                (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL)/VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO
-            FROM VIEW_RT,
-                VIEW_CASOS_ATUAL,
-                VIEW_CASOS_ANTERIOR
-            WHERE VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ATUAL.REGIONAL_SAUDE
-                            AND VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ANTERIOR.REGIONAL_SAUDE
+            `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
+            VIEW_RT.DATA AS RT_DATA,
+            VIEW_RT.RT AS RT_VALOR,
+            1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC AS LEITOS_OCUPADOS,
+            VIEW_LEITOS.MAX_DATA AS LEITOS_DATA,
+            VIEW_CASOS_ATUAL.DATA AS DATA_CASOS_ATUAL,
+            VIEW_CASOS_ANTERIOR.DATA AS DATA_CASOS_ANTERIOR,
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO
+        FROM VIEW_RT,
+            VIEW_CASOS_ATUAL,
+            VIEW_CASOS_ANTERIOR,
+            VIEW_LEITOS
+        WHERE VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ATUAL.REGIONAL_SAUDE
+                        AND VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ANTERIOR.REGIONAL_SAUDE
+                        AND VIEW_RT.REGIONAL_SAUDE = VIEW_LEITOS.REGIONAL_SAUDE
             `,
             (err, rows) => {
                 if (err) {
@@ -185,6 +189,12 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     rt_valor = rows.rows.map(row => {
                         return row.rt_valor;
                     })
+                    leitos_ocupados = rows.rows.map(row => {
+                        return row.leitos_ocupados;
+                    })
+                    leitos_data = rows.rows.map(row => {
+                        return row.leitos_data;
+                    })
                     data_casos_atuais = rows.rows.map(row => {
                         return row.data_casos_atual;
                     })
@@ -194,11 +204,9 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     variacao = rows.rows.map(row => {
                         return row.variacao;
                     })
-
-    
                 }
     
-                res.send({regionais, rt_data, rt_valor, data_casos_atuais, data_casos_anterior, variacao})
+                res.send({regionais, rt_data, rt_valor, leitos_ocupados, leitos_data, data_casos_atuais, data_casos_anterior, variacao})
             })    
     })
 
