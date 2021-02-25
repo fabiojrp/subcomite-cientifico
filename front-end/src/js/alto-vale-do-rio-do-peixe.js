@@ -58,7 +58,10 @@ $(document).ready(() => {
       var rt_layout = {
           title: 'Taxa de Transmissibilidade R(t)',
       };
-      Plotly.newPlot('rt-graph', rt, rt_layout);
+
+      var config = {responsive: true}
+
+      Plotly.newPlot('rt-graph', rt, rt_layout, config);
   }).catch(err => console.error(err));
 
   fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
@@ -88,7 +91,9 @@ $(document).ready(() => {
             title: 'Casos X Casos Média Móvel',
         };
         
-        Plotly.newPlot('casos-graph', dados_casos, mm_layout);
+        var config = {responsive: true}
+
+        Plotly.newPlot('casos-graph', dados_casos, mm_layout, config);
 
       /* Óbitos / Óbitos média móvel */
       var obitos = {
@@ -113,8 +118,10 @@ $(document).ready(() => {
       var mm_layout = {
           title: 'Óbitos X Óbitos Média Móvel',
       };
-      
-      Plotly.newPlot('obitos-graph', dados_obitos, mm_layout);
+
+      var config = {responsive: true}
+
+      Plotly.newPlot('obitos-graph', dados_obitos, mm_layout, config);
 
       /* Ocupacao de Leitos */
       var ocupacao_leitos = [
@@ -129,7 +136,9 @@ $(document).ready(() => {
           title: 'Ocupação de Leitos (UTI) em porcentagem (%)',
       };
       
-      Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout);
+      var config = {responsive: true}
+
+      Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout, config);
 
 
       /* CASOS ACUMULADOS */
@@ -153,8 +162,9 @@ $(document).ready(() => {
           title: 'Incidência acumulada por 100 mil habitantes',
           barmode: 'stack',
       };
+      var config = {responsive: true}
 
-      Plotly.newPlot('casos-acumulados', data, layout);
+      Plotly.newPlot('casos-acumulados', data, layout, config);
 
   }).catch(err => console.error(err));
 

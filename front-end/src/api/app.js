@@ -45,6 +45,56 @@ app.get('/', (req, res) => {
     res.send("foi..");
 });
 
+// app.get ('/api/indicadores/:id', (req, res) => {
+//     id = req.params.id;
+//     pool.query(
+//         `SELECT RT.DATA as data,
+//         RT.RT as rt
+//         FROM REGIONAIS, RT
+//         WHERE RT.REGIONAL = REGIONAIS.ID
+//             AND RT.REGIONAL = $1
+//         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA`
+//     ,
+//     [id],
+//     (err, rows) => {
+//         if (err) {
+//             console.log("Erro ao buscar o R(T) por região: " + err)
+//             return
+//         }
+
+//         region = regions[id]
+
+//         if (typeof(region) === 'undefined') {
+//             res.send("Região não reconhecida. Informe um ID válido.")
+//             return;
+//         }
+
+//         if (rows.rows.length > 0) {
+//             datas = rows.rows.map(row => {
+//                 return row.data;
+//             })
+
+//             rt = rows.rows.map(row => {
+//                 return row.rt;
+//             })
+
+//         }
+//         rtf = rt[rt.length - 1]
+//         properties = {
+            
+//             "name": "Alto Uruguai Catarinense", 
+//             "rt": Number(rtf),
+//             "media_movel": '55%', 
+//             "ocupacao_leitos": "120%",
+//             "center" : [-27.142063934075992, -52.060554383313196],
+//             "zoom" : 10,
+
+//         }
+//         res.send({properties})
+//     }
+
+//     ) })
+
 app.get('/api/casos-por-regiao/:id', (req, res) => {
     id = req.params.id;
 
@@ -111,6 +161,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     })
 
     app.get('/api/rt-por-regiao/:id', (req, res) => {
+ 
         id = req.params.id;
     
         // pool.query(
