@@ -272,7 +272,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
 
     app.get('/teste', (req, res) => {
         pool.query(
-            `SELECT myjson from json_table`,
+            `SELECT poligono, url from regionais2`,
             (err, rows) => {
                 if (err) {
                     console.log("Erro ao buscar o R(T) por região: " + err)
@@ -281,8 +281,12 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 
                 if (rows.rows.length > 0) {
                     geometry = rows.rows.map(row => {
-                        return row.myjson;
+                        return row.poligono;
                     })
+                    url = rows.rows.map(row => {
+                        return row.url;
+                    })
+
                 }
 
                 stateData = {
@@ -297,7 +301,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                                 "rt": 2, 
                                 "media_movel": '55%', 
                                 "ocupacao_leitos": "120%",
-                                "path":"alto-uruguai.html"
+                                "path":url[0]
                             },
                             "geometry": geometry[0]
                         }
