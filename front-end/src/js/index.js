@@ -6,7 +6,7 @@ $(document).ready(() => {
     
     var width = document.documentElement.clientWidth;
     var map;
-    
+
     function teste() {
         if (width > 1024) {
             return [-27.587776543236944, -51.151320339703375]
@@ -21,7 +21,18 @@ $(document).ready(() => {
             //  [-27.587776543236944, -51.151320339703375], 
             zoom: 8,
         });
-
+        // $.ajax({
+        //     type: 'GET',
+        //     url: base_url + '/api/properties/' + 5,
+        //     success: function(data) {
+        //         dat = data.properties
+        //         var dat2 = JSON.stringify(dat) + ",";      
+        //         console.log(dat2) 
+        //         return stateData.features[2].properties = dat2;
+                 
+        //    }
+        //  }),
+        //  ttt = {"name":"CARBONIFERA","rt":0.99,"media_movel":"55%","ocupacao_leitos":"99%","path":"carbonifera.html"}
         L.geoJson(stateData).addTo(map);
     } else {
         map = L.map('map', { 

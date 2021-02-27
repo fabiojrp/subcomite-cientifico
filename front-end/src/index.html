@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="css/leaflet.css" />
 	<script  type="text/javascript" src="js/regionais-sc.js"></script>
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 	<script src="js/leaflet.js" ></script>
 </head>
 
@@ -42,6 +43,22 @@
 					<p class="info2">Dados compilados em: 30/01/2021</p>
 				</div>
 			</div>
+			<hr/>
+			<div class="row">
+				<div class="col-lg-12">
+					<h2>Dados Detalhados de Santa Catarina</h2>
+
+					<div id='rt-graph' class="graph"></div>
+
+					<div id='casos-graph' class="graph"></div>
+
+					<div id='obitos-graph' class="graph"></div>
+
+					<div id='leitos-graph' class="graph"></div>
+
+					<div id='casos-acumulados' class="graph"></div>
+				</div>
+			</div>
 		</div>
 	</section>
 
@@ -61,7 +78,10 @@
 
 
 	<script src="https://cdn.plot.ly/plotly-locale-pt-br-latest.js"></script>
+	<script>Plotly.setPlotConfig({ locale: 'pt-br' })</script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script type="text/javascript" src="js/config.js"></script>
+	<script type="text/javascript" src="js/estado.js"></script>
 	<script src="js/index.js"></script>
 
 </body>
