@@ -17,7 +17,7 @@ const pool = new Pool({
     host: 'localhost',
     database: 'covid', // covid - mauricio
     //password: 'postgres', // postgres mauricio
-    password: 'WEpJqsYMnHWB', // postgres marcelo
+    password: 'WEpJqsYMnHWB', // postgres marcelo WEpJqsYMnHWB
     port: 5432
 })
 
@@ -41,7 +41,26 @@ regions = {
     16: 'SERRA CATARINENSE',
     17: 'XANXERÊ'
 }
-
+html_regions = {
+    0: 'Ignorado',
+    1: 'NULL',
+    2: 'ALTO URUGUAI CATARINENSE',
+    3: 'ALTO VALE DO ITAJAI',
+    4: 'ALTO VALE DO RIO DO PEIXE',
+    5: 'carbonifera',
+    6: 'EXTREMO OESTE',
+    7: 'EXTREMO SUL CATARINENSE',
+    8: 'FOZ DO RIO ITAJAI',
+    9: 'GRANDE FLORIANOPOLIS',
+    10: 'LAGUNA',
+    11: 'MEDIO VALE DO ITAJAI',
+    12: 'MEIO OESTE',
+    13: 'NORDESTE',
+    14: 'OESTE',
+    15: 'PLANALTO NORTE',
+    16: 'SERRA CATARINENSE',
+    17: 'XANXERÊ'
+}
 app.get('/', (req, res) => {
     res.send("foi..");
 });
@@ -149,13 +168,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     })
 
     app.get('/api/dados-estado/', (req, res) => {
-        /*
-        "name": "Extremo Sul Catarinense", 
-        "rt": 1, 
-        "media_movel": '15%', 
-        "ocupacao_leitos": "90%",
-        "path": "extremo-sul.html"
-        */
+    
         pool.query(
             `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
             VIEW_RT.DATA AS RT_DATA,
@@ -211,6 +224,89 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     })
 
 
+    app.get('/api/properties/:id', (req, res) => {
+        id = req.params.id;
+    
+        pool.query(
+            `SELECT RT.DATA as data,
+             RT.RT as rt
+             FROM REGIONAIS, RT
+             WHERE RT.REGIONAL = REGIONAIS.ID
+                AND RT.REGIONAL = $1
+                ORDER BY REGIONAIS.REGIONAL_SAUDE
+            `,
+            [id],
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o R(T) por região: " + err)
+                    return
+                }
+    
+                region = regions[id]
+    
+                if (typeof(region) === 'undefined') {
+                    res.send("Região não reconhecida. Informe um ID válido.")
+                    return;
+                }
+    
+                if (rows.rows.length > 0) {
+
+        
+                    rt = rows.rows.map(row => {
+                        return row.rt;
+                    })
+    
+                }
+
+                properties = { 
+                    "name": regions[id], 
+                    "rt": Number(rt[rt.length - 1]), 
+                    "media_movel": '55%', 
+                    "ocupacao_leitos": "99%",
+                    "path": html_regions[id] + ".html"
+                }
+    
+                res.send({region, rt, properties})
+            })    
+    })
+
+    app.get('/teste', (req, res) => {
+        pool.query(
+            `SELECT myjson from json_table`,
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o R(T) por região: " + err)
+                    return
+                }
+                
+                if (rows.rows.length > 0) {
+                    geometry = rows.rows.map(row => {
+                        return row.myjson;
+                    })
+                }
+
+                stateData = {
+                    "type":"FeatureCollection",
+                    "features":
+                    [
+                        {
+                            "type": "Feature",
+                            "regional_id": 2, 
+                            "properties":{
+                                "name": "Alto Uruguai Catarinense", 
+                                "rt": 2, 
+                                "media_movel": '55%', 
+                                "ocupacao_leitos": "120%",
+                                "path":"alto-uruguai.html"
+                            },
+                            "geometry": geometry[0]
+                        }
+                    ]
+                }
+    
+                res.send({stateData})
+            })    
+    })
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)

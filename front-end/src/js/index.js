@@ -6,7 +6,8 @@ $(document).ready(() => {
     
     var width = document.documentElement.clientWidth;
     var map;
-    
+
+
     function teste() {
         if (width > 1024) {
             return [-27.587776543236944, -51.151320339703375]
@@ -15,24 +16,28 @@ $(document).ready(() => {
         }
     }
     if (region == null) {
+        $.ajax({
+            type: 'GET',
+            url: base_url + '/teste',
+            async: false,
+            success: function(data) {
+                 //dat = data.properties
+                 //var dat2 = JSON.stringify(dat) + ",";      
+                 //console.log(data) 
+                 //return stateData.features[2].properties = dat2;
+                 stateData = data.stateData;
+                 
+            },error: function(result) {
+                console.log("Erro");
+            }
+          });
         map = L.map('map', { 
             zoomControl: false,
              center: teste(),
             //  [-27.587776543236944, -51.151320339703375], 
             zoom: 8,
         });
-
-        /*
-var tmp = { 
-				"name": "Extremo Sul Catarinense", 
-				"rt": 0.88, 
-				"media_movel": '55%', 
-				"ocupacao_leitos": "99%",
-				"path": "extremo-sul.html"
-			}
-stateData.features[0].properties = tmp;
-
-        */
+        //  ttt = {"name":"CARBONIFERA","rt":0.99,"media_movel":"55%","ocupacao_leitos":"99%","path":"carbonifera.html"}
         L.geoJson(stateData).addTo(map);
     } else {
         map = L.map('map', { 
