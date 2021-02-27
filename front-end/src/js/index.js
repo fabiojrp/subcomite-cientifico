@@ -22,6 +22,17 @@ $(document).ready(() => {
             zoom: 8,
         });
 
+        /*
+var tmp = { 
+				"name": "Extremo Sul Catarinense", 
+				"rt": 0.88, 
+				"media_movel": '55%', 
+				"ocupacao_leitos": "99%",
+				"path": "extremo-sul.html"
+			}
+stateData.features[0].properties = tmp;
+
+        */
         L.geoJson(stateData).addTo(map);
     } else {
         map = L.map('map', { 
