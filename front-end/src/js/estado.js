@@ -1,24 +1,26 @@
 $(document).ready(() => {
 
-    fetch(base_url + '/api/dados-estado').then(response => {
+    fetch(base_url + '/api/rt-por-regiao/').then(response => {
         return response.json()
     }).then(dados => {
-        /* R(t) */
-        var rt = [
-            {
-            x: dados.rt_data,
-            y: dados.rt_valor,
-            type: 'scatter'
-            }
-        ];
-        var rt_layout = {
-            title: 'Taxa de Transmissibilidade R(t)',
+        var dadosEstado = [];
+        for(var regional in dados.regionais ){
+            dadosEstado.push(dados.regionais[regional]);
+          }
+        var regionais_layout = {
+            title: 'Dados das regiões',
         };
+
+        var config = {responsive: true}
+        // Não funciona!!!
+        //Plotly.newPlot('rt-estado-graph', dadosEstado, regionais_layout, config);
   
+        //Se for passado apena 1, funciona.
+        Plotly.newPlot('rt-estado-graph', dadosEstado[1], regionais_layout, config);
+
         var config = {responsive: true};
-  
-        Plotly.newPlot('rt-graph', rt, rt_layout, config);
     }).catch(err => console.error(err));
+  
   
     fetch(base_url + '/api/dados-estado').then(response => {
         return response.json()

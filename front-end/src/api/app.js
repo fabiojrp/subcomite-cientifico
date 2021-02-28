@@ -167,6 +167,45 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             })    
     })
 
+    app.get('/api/rt-por-regiao/', (req, res) => {  
+        pool.query(
+            `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
+            RT.RT as rt
+        FROM REGIONAIS, RT
+        WHERE DATA BETWEEN
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+                AND RT.REGIONAL = REGIONAIS.ID
+        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+            `,
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o R(T) por região: " + err)
+                    return
+                }
+                
+                result = rows.rows;
+                regionais = {};
+                result.forEach(item => {
+                   const temp = {};
+                   if (!regionais[item.regional_saude]) {
+                        regionais[item.regional_saude] = [{
+                            "name":item.regional_saude,
+                            "mode":"lines",
+                            "type":"scatter",
+                            "x" : [], 
+                            "y": []
+                        }];
+                    };
+                    regionais[item.regional_saude][0].x.push(item.data);
+                    regionais[item.regional_saude][0].y.push(item.rt);
+                    
+                });
+    
+                res.send({regionais})
+            })    
+    })
+
     app.get('/api/dados-estado/', (req, res) => {
     
         pool.query(
@@ -221,53 +260,6 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 }
    
                 res.send({stateData})
-            })    
-    })
-
-
-    app.get('/api/properties/:id', (req, res) => {
-        id = req.params.id;
-    
-        pool.query(
-            `SELECT RT.DATA as data,
-             RT.RT as rt
-             FROM REGIONAIS, RT
-             WHERE RT.REGIONAL = REGIONAIS.ID
-                AND RT.REGIONAL = $1
-                ORDER BY REGIONAIS.REGIONAL_SAUDE
-            `,
-            [id],
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar o R(T) por região: " + err)
-                    return
-                }
-    
-                region = regions[id]
-    
-                if (typeof(region) === 'undefined') {
-                    res.send("Região não reconhecida. Informe um ID válido.")
-                    return;
-                }
-    
-                if (rows.rows.length > 0) {
-
-        
-                    rt = rows.rows.map(row => {
-                        return row.rt;
-                    })
-    
-                }
-
-                properties = { 
-                    "name": regions[id], 
-                    "rt": Number(rt[rt.length - 1]), 
-                    "media_movel": '55%', 
-                    "ocupacao_leitos": "99%",
-                    "path": html_regions[id] + ".html"
-                }
-    
-                res.send({region, rt, properties})
             })    
     })
 
