@@ -194,15 +194,11 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     console.log("Erro ao buscar os dados do estado: " + err)
                     return
                 }
-                stateData = [{
-                    "type":"FeatureCollection"
-                }];
 
                 stateData = {
                     "type":"FeatureCollection",
                     "features":[]
                 };
-
 
                 if (rows.rows.length > 0) {
                     result = rows.rows;
