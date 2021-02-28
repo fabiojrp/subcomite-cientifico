@@ -17,8 +17,6 @@ $(document).ready(() => {
   
         //Se for passado apena 1, funciona.
         Plotly.newPlot('rt-estado-graph', dadosEstado[1], regionais_layout, config);
-
-        var config = {responsive: true};
     }).catch(err => console.error(err));
   
   
