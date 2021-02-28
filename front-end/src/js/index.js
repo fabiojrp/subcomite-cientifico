@@ -131,8 +131,17 @@ $(document).ready(() => {
     // UTI < 60%
 	// get color depending on rt value
 	function getColor(d) {
-        return d >= 1 ? '#ff7979' :
-               d < 1 && d >= 0 ? '#f9ca24' : "transparent";
+        var nFav = "#ff7979";
+        var fav = "#92efb6";
+        if (typeof d == "object"){
+            if (d.rt < 1 && d.media_movel < 0.15 && d.ocupacao_leitos < 0.6)
+                return fav;
+            else 
+                return nFav;
+        }      
+        return d >= 1 ? nFav :
+               d < 1 && d >= 0 ? fav : "transparent";
+               
 	}
 
 	function style(feature) {
@@ -142,7 +151,7 @@ $(document).ready(() => {
 			color: 'white',
 			dashArray: '3',
 			fillOpacity: 0.5,
-			fillColor:  getColor(feature.properties.child ? -1 : feature.properties.rt)
+			fillColor:  getColor(feature.properties.child ? -1 : feature.properties)
 		};
 	}
 
@@ -200,21 +209,11 @@ $(document).ready(() => {
 
 	legend.onAdd = function (map) {
 
-		var div = L.DomUtil.create('div', 'map-info legend'),
-			grades = [0, 1],
-			labels = ["<b>R(t) - Taxa de Transmissibilidade</b> </br>"],
-			from, to;
-
-		for (var i = 0; i < grades.length; i++) {
-			from = grades[i];
-			to = grades[i + 1];
-
-			labels.push(
-				'<i style="background:' + getColor(from) + '"></i> ' +
-				from + (to ? '&ndash;' + to + '(Surto Controlado)<br />' : '+  (Transmissão Comunitária)'));
-		}
-
-		div.innerHTML = labels.join('<br>');
+		var div = L.DomUtil.create('div', 'map-info legend');
+			labels = ["<b>Condição de retorno das aulas</b> </br>"]
+            labels.push('<i style="background:' + getColor(0) + '"></i> (Favorável)<br />');
+            labels.push('<i style="background:' + getColor(1) + '"></i> (Não Favorável)');
+		   	div.innerHTML = labels.join('<br>');
 		return div;
 	};
 
