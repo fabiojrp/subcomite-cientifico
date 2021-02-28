@@ -110,16 +110,20 @@ $(document).ready(() => {
 		return this._div;
 	};
 
+    //Todo: formatar os números!
 	info.update = function (props) {
         this._div.innerHTML = '' +  
-          (props ? '<h4><b>Regional:</b> ' + props.name + '</h4><p>Taxa de Transmissibilidade: ' + props.rt + '</p><p>Média Móvel: ' + props.media_movel + '</p><p>Ocupação de Leitos: ' + props.ocupacao_leitos +'</p><p><a href="'+ props.path + '?region=1">Saiba mais sobre essa região</a></p>' : '<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>');
+          (props ? '<h4><b>Regional:</b> ' + props.name + 
+          '</h4><p>Taxa de Transmissibilidade: ' + props.rt + 
+          '</p><p>Média Móvel: ' + props.media_movel + 
+          '</p><p>Ocupação de Leitos: ' + props.ocupacao_leitos + 
+          '</p><p><a href="'+ props.path + '?region=1">Saiba mais sobre essa região</a></p>' : 
+          '<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>');
     };
     
     if (regionData === null) {
         info.addTo(map);
     }
-
-	
 
     // TODO: Fazer a cor verde:
     // RT: < 1

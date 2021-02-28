@@ -175,7 +175,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             VIEW_RT.DATA AS RT_DATA,
             VIEW_RT.RT AS RT_VALOR,
             VIEW_RT.poligono AS POLIGONO,
-            VIEW_RT.rt AS RT,
+            VIEW_RT.url AS url,
             1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
             VIEW_LEITOS.MAX_DATA AS LEITOS_DATA,
             VIEW_CASOS_ATUAL.DATA AS DATA_CASOS_ATUAL,
@@ -216,7 +216,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                                         "rt": result[i].rt_valor, 
                                         "media_movel": result[i].variacao, 
                                         "ocupacao_leitos": result[i].leitos_ocupados,
-                                        "path": result[i].rt
+                                        "path": result[i].url
                                     },
                                     "geometry": result[i].poligono
                                 }
