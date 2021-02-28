@@ -14,7 +14,7 @@ app.use(cors())
 const pool = new Pool({
     //user: 'postgres', 
     user: 'covid', // postgres marcelo
-    host: 'localhost',
+    host: '192.168.10.139',
     database: 'covid', // covid - mauricio
     //password: 'postgres', // postgres mauricio
     password: 'WEpJqsYMnHWB', // postgres marcelo WEpJqsYMnHWB
@@ -171,9 +171,12 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     
         pool.query(
             `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
+            VIEW_RT.ID AS ID,
             VIEW_RT.DATA AS RT_DATA,
             VIEW_RT.RT AS RT_VALOR,
-            1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC AS LEITOS_OCUPADOS,
+            VIEW_RT.poligono AS POLIGONO,
+            VIEW_RT.rt AS RT,
+            1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
             VIEW_LEITOS.MAX_DATA AS LEITOS_DATA,
             VIEW_CASOS_ATUAL.DATA AS DATA_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR.DATA AS DATA_CASOS_ANTERIOR,
@@ -182,44 +185,46 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             VIEW_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR,
             VIEW_LEITOS
-        WHERE VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ATUAL.REGIONAL_SAUDE
-                        AND VIEW_RT.REGIONAL_SAUDE = VIEW_CASOS_ANTERIOR.REGIONAL_SAUDE
-                        AND VIEW_RT.REGIONAL_SAUDE = VIEW_LEITOS.REGIONAL_SAUDE
+        WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
+                        AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+                        AND VIEW_RT.ID = VIEW_LEITOS.ID
             `,
             (err, rows) => {
                 if (err) {
-                    console.log("Erro ao buscar os dados por região: " + err)
+                    console.log("Erro ao buscar os dados do estado: " + err)
                     return
                 }
-        
+                stateData = [{
+                    "type":"FeatureCollection"
+                }];
+
+                stateData = {
+                    "type":"FeatureCollection",
+                    "features":[]
+                };
+
+
                 if (rows.rows.length > 0) {
-                    regionais = rows.rows.map(row => {
-                        return row.regionais;
-                    })
-                    rt_data = rows.rows.map(row => {
-                        return row.rt_data;
-                    })
-                    rt_valor = rows.rows.map(row => {
-                        return row.rt_valor;
-                    })
-                    leitos_ocupados = rows.rows.map(row => {
-                        return row.leitos_ocupados;
-                    })
-                    leitos_data = rows.rows.map(row => {
-                        return row.leitos_data;
-                    })
-                    data_casos_atuais = rows.rows.map(row => {
-                        return row.data_casos_atual;
-                    })
-                    data_casos_anterior = rows.rows.map(row => {
-                        return row.data_casos_anterior;
-                    })
-                    variacao = rows.rows.map(row => {
-                        return row.variacao;
-                    })
+                    result = rows.rows;
+                    for (var i = 0; i < result.length; i++) {    
+                        stateData.features.push(
+                                {
+                                    "type": "Feature",
+                                    "regional_id": result[i].id, 
+                                    "properties":{
+                                        "name": result[i].regionais, 
+                                        "rt": result[i].rt_valor, 
+                                        "media_movel": result[i].variacao, 
+                                        "ocupacao_leitos": result[i].leitos_ocupados,
+                                        "path": result[i].rt
+                                    },
+                                    "geometry": result[i].poligono
+                                }
+                        );
+                    }
                 }
-    
-                res.send({regionais, rt_data, rt_valor, leitos_ocupados, leitos_data, data_casos_atuais, data_casos_anterior, variacao})
+   
+                res.send({stateData})
             })    
     })
 
@@ -267,48 +272,6 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 }
     
                 res.send({region, rt, properties})
-            })    
-    })
-
-    app.get('/teste', (req, res) => {
-        pool.query(
-            `SELECT poligono, url from regionais2`,
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar o R(T) por região: " + err)
-                    return
-                }
-                
-                if (rows.rows.length > 0) {
-                    geometry = rows.rows.map(row => {
-                        return row.poligono;
-                    })
-                    url = rows.rows.map(row => {
-                        return row.url;
-                    })
-
-                }
-
-                stateData = {
-                    "type":"FeatureCollection",
-                    "features":
-                    [
-                        {
-                            "type": "Feature",
-                            "regional_id": 2, 
-                            "properties":{
-                                "name": "Alto Uruguai Catarinense", 
-                                "rt": 2, 
-                                "media_movel": '55%', 
-                                "ocupacao_leitos": "120%",
-                                "path":url[0]
-                            },
-                            "geometry": geometry[0]
-                        }
-                    ]
-                }
-    
-                res.send({stateData})
             })    
     })
 

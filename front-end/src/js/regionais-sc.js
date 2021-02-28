@@ -1,6 +1,9 @@
 var regionData = null;
 
-var stateData = {
+var stateData = {};
+
+/*
+{
     "type":"FeatureCollection",
     "features":
     [
@@ -306,3 +309,5 @@ var stateData = {
 		}		
     ]
 }
+
+*/
