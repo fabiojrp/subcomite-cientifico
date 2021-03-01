@@ -13,11 +13,11 @@ app.use(cors())
 
 const pool = new Pool({
     //user: 'postgres', 
-    user: 'covid', // postgres marcelo
-    host: '192.168.10.139',
+    user: 'postgres', // postgres marcelo
+    host: 'localhost',
     database: 'covid', // covid - mauricio
     //password: 'postgres', // postgres mauricio
-    password: 'WEpJqsYMnHWB', // postgres marcelo WEpJqsYMnHWB
+    password: 'zzdz0737', // postgres marcelo WEpJqsYMnHWB
     port: 5432
 })
 
@@ -241,16 +241,33 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
 
                 if (rows.rows.length > 0) {
                     result = rows.rows;
-                    for (var i = 0; i < result.length; i++) {    
+                    for (var i = 0; i < result.length; i++) {   
+                         mediamovel = result[i].variacao * 100;
+                         mediamovel = mediamovel.toFixed(0);
+                         if (mediamovel > 15){
+                            mediamovel += "%";
+                            mediamovel += " (EM ALTA)"
+                         } else if((mediamovel <= 15) && (mediamovel >= -15)) {
+                            mediamovel += "%";
+                            mediamovel += " (ESTÁVEL)" 
+                         } else if (mediamovel < -15){
+                            mediamovel += "%";
+                            mediamovel += " (QUEDA)" 
+                         }
+                         
+                        leitos = result[i].leitos_ocupados * 100;
+                        
                         stateData.features.push(
                                 {
                                     "type": "Feature",
                                     "regional_id": result[i].id, 
                                     "properties":{
                                         "name": result[i].regionais, 
-                                        "rt": result[i].rt_valor, 
-                                        "media_movel": result[i].variacao, 
-                                        "ocupacao_leitos": result[i].leitos_ocupados,
+                                        "rt": Number(result[i].rt_valor), 
+                                        "media_movel": mediamovel, 
+                                        // result[i].variacao,
+                                        
+                                        "ocupacao_leitos": leitos.toFixed(0) + "%",
                                         "path": result[i].url
                                     },
                                     "geometry": result[i].poligono

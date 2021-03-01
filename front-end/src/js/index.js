@@ -131,15 +131,38 @@ $(document).ready(() => {
     // UTI < 60%
 	// get color depending on rt value
 	function getColor(d) {
-        var nFav = "#ff7979";
+        var threeNfav = "#ff7979";
         var fav = "#92efb6";
+        var twoNfav = "#FA9600";
+        var oneNfav = "#FAD700";
+        
         if (typeof d == "object"){
             if (d.rt < 1 && d.media_movel < 0.15 && d.ocupacao_leitos < 0.6)
                 return fav;
-            else 
-                return nFav;
-        }      
-        return d >= 1 ? nFav :
+            
+            // if(d.rt > 1 && d.media_movel < 0.15 && d.ocupacao_leitos > 0.6)
+            //     return twoNfav;
+
+            // if(d.rt > 1 && d.media_movel > 0.15 && d.ocupacao_leitos < 0.6)
+            //     return twoNfav;
+
+            //  if(d.rt < 1 && d.media_movel > 0.15 && d.ocupacao_leitos > 0.6)
+            //     return twoNfav;
+
+            //  if(d.rt < 1 && d.media_movel < 0.15 && d.ocupacao_leitos > 0.6)
+            //     return oneNfav;
+
+            //  if(d.rt < 1 && d.media_movel > 0.15 && d.ocupacao_leitos < 0.6)
+            //     return oneNfav;
+
+            //  if(d.rt > 1 && d.media_movel < 0.15 && d.ocupacao_leitos < 0.6)
+            //     return oneNfav;
+
+            //  if (d.rt > 1 && d.media_movel > 0.15 && d.ocupacao_leitos > 0.6)
+            //     return threeNfav;
+            else return threeNfav
+        }
+        return d >= 1 ? threeNfav :
                d < 1 && d >= 0 ? fav : "transparent";
                
 	}
