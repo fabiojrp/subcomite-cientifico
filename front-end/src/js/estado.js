@@ -11,6 +11,14 @@ $(document).ready(() => {
             title: 'Dados das regiões',
         };
 
+        // const data = dadosEstado.reduce((data, arr) => {
+        //     data[arr] = data[arr] || [];
+        //     data[arr].push(arr);
+        //     return data;
+        // }, {});
+
+
+        console.log(dadosEstado)
         var config = {responsive: true}
         // Não funciona!!!
         //Plotly.newPlot('rt-estado-graph', dadosEstado, regionais_layout, config);
