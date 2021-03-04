@@ -8,6 +8,8 @@ class Create:
 
     def create_leitos(self):
         print("Limpando e criando as tabelas de leitos...")
+
+
         # Limpa as tabelas
 
         sql = """CREATE TABLE IF NOT EXISTS leitosGeraisCovid (
@@ -48,6 +50,12 @@ class Create:
 
     def create_table_brasil(self):
         print("Limpando e criando as tabelas...")
+        # Apagando as views
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ANTERIOR")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ATUAL")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
+
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
@@ -98,6 +106,63 @@ class Create:
                 )
         """
         self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_rt AS SELECT REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID,
+                    REGIONAIS.POLIGONO::JSONB,
+                    REGIONAIS.URL AS URL,
+                    RT.DATA AS DATA,
+                    RT.RT AS RT
+                FROM REGIONAIS, RT
+                WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT)
+                                AND RT.REGIONAL = REGIONAIS.ID
+                ORDER BY REGIONAIS.REGIONAL_SAUDE,
+                    RT.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_casos_atual AS SELECT REGIONAIS.ID,
+                    CASOS.DATA,
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                FROM REGIONAIS,
+                    CASOS
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
+                                AND CASOS.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID,
+                    REGIONAIS.POLIGONO::JSONB,
+                    REGIONAIS.URL,
+                    CASOS.DATA
+                ORDER BY CASOS.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_casos_anterior AS SELECT REGIONAIS.ID,
+                    CASOS.DATA,
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                FROM REGIONAIS,
+                    CASOS
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '13 day'
+                                AND CASOS.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID,
+                    CASOS.DATA
+                ORDER BY CASOS.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_leitos AS SELECT REGIONAIS.ID,
+                    SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                    SUM(LEITOSGERAISCOVID.leitos_ocupados) AS LEITOS_OCUPADOS,
+                    MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA
+                FROM REGIONAIS, LEITOSGERAISCOVID
+                WHERE LEITOSGERAISCOVID.ATUALIZACAO =
+                    (SELECT MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA FROM LEITOSGERAISCOVID)
+                    AND LEITOSGERAISCOVID.INDEX_REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+
+
 
         print("OK")
 

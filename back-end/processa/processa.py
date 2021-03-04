@@ -5,7 +5,7 @@ class estatistica:
     diasVariacaoMediaMovel = 0
     tabelasDados = None;
 
-    def __init__(self, diasMMovel = 14, diasVMovel = 14):
+    def __init__(self, diasMMovel = 7, diasVMovel = 14):
         self.diasMediaMovel = diasMMovel
         self.diasVariacaoMediaMovel = diasVMovel
         self.tabelasDados = tabelas.Tabelas()
