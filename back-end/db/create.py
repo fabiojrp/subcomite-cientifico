@@ -126,12 +126,10 @@ class Create:
                     SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
                 FROM REGIONAIS,
                     CASOS
-                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) - interval '1 day' AS MAX_DATA FROM CASOS)
                                 AND CASOS.REGIONAL = REGIONAIS.ID
                 GROUP BY REGIONAIS.REGIONAL_SAUDE,
                     REGIONAIS.ID,
-                    REGIONAIS.POLIGONO::JSONB,
-                    REGIONAIS.URL,
                     CASOS.DATA
                 ORDER BY CASOS.DATA
         """
@@ -142,7 +140,7 @@ class Create:
                     SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
                 FROM REGIONAIS,
                     CASOS
-                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '13 day'
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '14 day'
                                 AND CASOS.REGIONAL = REGIONAIS.ID
                 GROUP BY REGIONAIS.ID,
                     CASOS.DATA
