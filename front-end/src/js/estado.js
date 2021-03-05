@@ -1,4 +1,26 @@
 $(document).ready(() => {
+
+  fetch(base_url + '/api/rt-estado/').then(response => {
+    return response.json()
+    }).then(dados => {
+        /* R(t) */
+        var rt = [
+            {
+            x: dados.datas,
+            y: dados.rt,
+            type: 'scatter'
+            }
+        ];
+        var rt_layout = {
+            title: 'Taxa de Transmissibilidade R(t) no estado de SC',
+        };
+
+        var config = {responsive: true};
+
+        Plotly.newPlot('rt-estado-graph', rt, rt_layout, config);
+    }).catch(err => console.error(err));
+
+ /*
   fetch(base_url + "/api/rt-por-regiao/")
     .then((response) => {
       return response.json();
@@ -9,28 +31,27 @@ $(document).ready(() => {
         dadosEstado.push(dados.regionais[regional]);
       }
       var regionais_layout = {
-        title: "Rt de todas as regiões",
+        title: "Taxa de Transmissibilidade R(t) por região de SC",
       };
 
       ind = dadosEstado.length
       var draw =[];
       for(i = 0; i < ind; i++){
-      var obj = dadosEstado[i].reduce((obj, dado) => {
-            obj["name"] = dado.name;
-            obj["mode"] = dado.mode;
-            obj["type"] = dado.type;
-            obj["x"] = dado.x;
-            obj["y"] = dado.y;
-       
-            
-        draw[i] = obj; 
-        return draw;
-      }, {});
-    }
+        var obj = dadosEstado[i].reduce((obj, dado) => {
+              obj["name"] = dado.name;
+              obj["mode"] = dado.mode;
+              obj["type"] = dado.type;
+              obj["x"] = dado.x;
+              obj["y"] = dado.y;
+
+          draw[i] = obj; 
+          return draw;
+          }, {});
+      }
       var config = { responsive: true };
 
       Plotly.newPlot(
-        "rt-estado-graph",
+        "rt-estado-regioes-graph",
         draw,
         regionais_layout,
         config
@@ -38,38 +59,42 @@ $(document).ready(() => {
     })
     .catch((err) => console.error(err));
 
-  fetch(base_url + "/api/dados-estado")
+    */
+
+    fetch(base_url + "/api/rt-por-regiao/")
     .then((response) => {
       return response.json();
     })
     .then((dados) => {
-      /* Casos / Casos média móvel */
-      var casos = {
-        type: "scatter",
-        mode: "lines",
-        x: dados.datas,
-        y: dados.casos,
-        line: { color: "#17BECF" },
-        name: "Casos",
-      };
+        //Limpa célculas vazias. 
+        dadosRegionais = $.grep(dados.regionais,function(n){ return n == 0 || n });
+  
+        var mm_layout = {
+          title: "Taxa de Transmissibilidade R(t) por região de SC",
+        };
+  
+        var config = { responsive: true };
+        
+        Plotly.newPlot("rt-estado-regioes-graph", dadosRegionais, mm_layout, config);
+    })
+    .catch((err) => console.error(err));
 
-      var casos_media_movel = {
-        type: "scatter",
-        mode: "lines",
-        x: dados.datas,
-        y: dados.casos_media_movel,
-        line: { color: "#FF0000" },
-        name: "Casos Média Móvel",
-      };
-      dados_casos = [casos, casos_media_movel];
 
+  fetch(base_url + "/api/casos-por-regiao/")
+    .then((response) => {
+      return response.json();
+    })
+    .then((dados) => {
+      //Limpa célculas vazias. 
+      dadosRegionais = $.grep(dados.regionais,function(n){ return n == 0 || n });
+      
       var mm_layout = {
         title: "Casos X Casos Média Móvel",
       };
 
       var config = { responsive: true };
-
-      Plotly.newPlot("casos-graph", dados_casos, mm_layout, config);
+      
+      Plotly.newPlot("casos-graph", dadosRegionais, mm_layout, config);
 
       /* Óbitos / Óbitos média móvel */
       var obitos = {

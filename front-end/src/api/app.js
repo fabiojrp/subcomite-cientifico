@@ -13,11 +13,11 @@ app.use(cors())
 
 const pool = new Pool({
     //user: 'postgres', 
-    user: 'postgres', // postgres marcelo
+    user: 'covid', // postgres marcelo
     host: 'localhost',
     database: 'covid', // covid - mauricio
     //password: 'postgres', // postgres mauricio
-    password: 'zzdz0737', // postgres marcelo WEpJqsYMnHWB
+    password: 'WEpJqsYMnHWB', // postgres marcelo WEpJqsYMnHWB
     port: 5432
 })
 
@@ -70,16 +70,18 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
 
     pool.query(
         `SELECT CASOS.DATA,
-        SUM(CASOS.CASOS) AS CASOS_DIA,
-        SUM(CASOS.OBITOS) AS OBITOS_DIAS,
-        SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
-        SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL
+            SUM(CASOS.CASOS) AS CASOS_DIA,
+            SUM(CASOS.OBITOS) AS OBITOS_DIAS,
+            SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
+            SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
+            SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
+            SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS
         FROM REGIONAIS, CASOS
         WHERE CASOS.DATA BETWEEN 
             (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '5 months' AND
             (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '1 day'
-        AND CASOS.REGIONAL = REGIONAIS.ID
-        AND REGIONAIS.ID = $1
+            AND CASOS.REGIONAL = REGIONAIS.ID
+            AND REGIONAIS.ID = $1
         GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
         ORDER BY CASOS.DATA
         `,
@@ -118,11 +120,69 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     return row.obitos_mediamovel;
                 })
 
+                casos_acumulados = rows.rows.map(row => {
+                    return row.casos_acumulados;
+                })
+
+                obitos_acumulados = rows.rows.map(row => {
+                    return row.obitos_acumulados;
+                })
+
             }
 
-            res.send({region, datas, casos, casos_media_movel, obitos, obitos_media_movel})
+            res.send({region, datas, casos, casos_media_movel, obitos, obitos_media_movel, casos_acumulados, obitos_acumulados})
         })    
     })
+
+    app.get('/api/casos-por-regiao/', (req, res) => {
+        pool.query(
+            `SELECT REGIONAIS.ID,
+                    REGIONAIS.REGIONAL_SAUDE,
+                    CASOS.DATA,
+                    SUM(CASOS.CASOS) AS CASOS_DIA,
+                    SUM(CASOS.OBITOS) AS OBITOS_DIAS,
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
+                    SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
+                    SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
+                    SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS
+                FROM REGIONAIS, CASOS
+                WHERE CASOS.DATA BETWEEN 
+                    (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '5 months' AND
+                    (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '1 day'
+                    AND CASOS.REGIONAL = REGIONAIS.ID
+                    AND REGIONAIS.ID <> 0 AND REGIONAIS.ID <> 1 
+                GROUP BY REGIONAIS.ID, REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
+                ORDER BY REGIONAIS.ID, CASOS.DATA
+            `,
+            (err, rows) => {
+
+                if (err) {
+                    console.log("Erro ao buscar o casos por região: " + err)
+                    return
+                }
+                
+                result = rows.rows;
+                regionais = [];
+                result.forEach(item => {
+                   const temp = {};
+                   if (!regionais[item.id]) {
+                        regionais[item.id] = {
+                            "name":item.regional_saude,
+                            "mode":"lines",
+                            "type":"scatter",
+                            "x" : [], 
+                            "y": []
+                        };
+                    };
+                    regionais[item.id].x.push(item.data);
+                    regionais[item.id].y.push(item.casos_acumulados);
+                    
+                });
+    
+                res.send({regionais})
+
+             })    
+        })
 
     app.get('/api/rt-por-regiao/:id', (req, res) => {
         id = req.params.id;
@@ -167,6 +227,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             })    
     })
 
+    /*
     app.get('/api/rt-por-regiao/', (req, res) => {  
         pool.query(
             `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
@@ -176,6 +237,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
                 (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
                 AND RT.REGIONAL = REGIONAIS.ID
+                AND REGIONAIS.ID <> 1
         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
             `,
             (err, rows) => {
@@ -203,6 +265,81 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 });
     
                 res.send({regionais})
+            })    
+    })
+*/
+
+    app.get('/api/rt-por-regiao/', (req, res) => {
+        pool.query(
+            `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
+            RT.RT as rt
+        FROM REGIONAIS, RT
+        WHERE DATA BETWEEN
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+                AND RT.REGIONAL = REGIONAIS.ID
+                AND REGIONAIS.ID <> 1
+        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+            `,
+            (err, rows) => {
+
+                if (err) {
+                    console.log("Erro ao buscar o valor de R(t) por região: " + err)
+                    return
+                }
+                
+                result = rows.rows;
+                regionais = [];
+                result.forEach(item => {
+                   const temp = {};
+                   if (!regionais[item.id]) {
+                        regionais[item.id] = {
+                            "name":item.regional_saude,
+                            "mode":"lines",
+                            "type":"scatter",
+                            "x" : [], 
+                            "y": []
+                        };
+                    };
+                    regionais[item.id].x.push(item.data);
+                    regionais[item.id].y.push(item.rt);
+                    
+                });
+    
+                res.send({regionais})
+
+             })    
+        })
+
+
+    app.get('/api/rt-estado/', (req, res) => {  
+        pool.query(
+            `SELECT RT.DATA as data,
+            RT.RT as rt
+        FROM RT
+        WHERE DATA BETWEEN
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+				AND RT.REGIONAL = 1
+        ORDER BY RT.DATA
+            `,
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o R(T) por região: " + err)
+                    return
+                }
+       
+                if (rows.rows.length > 0) {
+                    datas = rows.rows.map(row => {
+                        return row.data;
+                    })
+        
+                    rt = rows.rows.map(row => {
+                        return row.rt;
+                    })
+                }
+    
+                res.send({datas, rt})
             })    
     })
 
