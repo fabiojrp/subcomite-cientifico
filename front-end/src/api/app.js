@@ -162,11 +162,12 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 }
                 
                 result = rows.rows;
-                regionais = [];
+                regionais_casos_acumulados = [];
+                regionais_obitos_acumulados = [];
                 result.forEach(item => {
                    const temp = {};
-                   if (!regionais[item.id]) {
-                        regionais[item.id] = {
+                   if (!regionais_casos_acumulados[item.id]) {
+                        regionais_casos_acumulados[item.id] = {
                             "name":item.regional_saude,
                             "mode":"lines",
                             "type":"scatter",
@@ -174,12 +175,25 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                             "y": []
                         };
                     };
-                    regionais[item.id].x.push(item.data);
-                    regionais[item.id].y.push(item.casos_acumulados);
+                    if (!regionais_obitos_acumulados[item.id]) {
+                        regionais_obitos_acumulados[item.id] = {
+                            "name":item.regional_saude,
+                            "mode":"lines",
+                            "type":"scatter",
+                            "x" : [], 
+                            "y": []
+                        };
+                    };
+
+                    regionais_casos_acumulados[item.id].x.push(item.data);
+                    regionais_casos_acumulados[item.id].y.push(item.casos_acumulados);
+
+                    regionais_obitos_acumulados[item.id].x.push(item.data);
+                    regionais_obitos_acumulados[item.id].y.push(item.obitos_acumulados);
                     
                 });
     
-                res.send({regionais})
+                res.send({regionais_casos_acumulados, regionais_obitos_acumulados})
 
              })    
         })

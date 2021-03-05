@@ -86,7 +86,7 @@ $(document).ready(() => {
     })
     .then((dados) => {
       //Limpa célculas vazias. 
-      dadosRegionais = $.grep(dados.regionais,function(n){ return n == 0 || n });
+      dadosRegionais = $.grep(dados.regionais_casos_acumulados,function(n){ return n == 0 || n });
       
       var mm_layout = {
         title: "Casos X Casos Média Móvel",
@@ -96,33 +96,17 @@ $(document).ready(() => {
       
       Plotly.newPlot("casos-graph", dadosRegionais, mm_layout, config);
 
-      /* Óbitos / Óbitos média móvel */
-      var obitos = {
-        type: "scatter",
-        mode: "lines",
-        x: dados.datas,
-        y: dados.obitos,
-        line: { color: "#17BECF" },
-        name: "Óbitos",
-      };
 
-      var obitos_media_movel = {
-        type: "scatter",
-        mode: "lines",
-        x: dados.datas,
-        y: dados.obitos_media_movel,
-        line: { color: "#FF0000" },
-        name: "Óbitos Média Móvel",
-      };
-      dados_obitos = [obitos, obitos_media_movel];
+      //Limpa célculas vazias. 
+      dadosRegionaisObitos = $.grep(dados.regionais_obitos_acumulados,function(n){ return n == 0 || n });
 
       var mm_layout = {
-        title: "Óbitos X Óbitos Média Móvel",
+        title: "Óbitos acumulados",
       };
 
       var config = { responsive: true };
-
-      Plotly.newPlot("obitos-graph", dados_obitos, mm_layout, config);
+      
+      Plotly.newPlot("obitos-graph", dadosRegionaisObitos, mm_layout, config);
 
       /* Ocupacao de Leitos */
       var ocupacao_leitos = [
