@@ -9,8 +9,8 @@ create.create_leitos()
 
 dadosDao = DadosDao()
 
-today = datetime.now()
-att = today.strftime('%Y-%m-%d %H:%M:%S')
+data = str(input("Digite a data, hora e minuto dos dados no seginte formato (dia-mes-ano hora:minuto) : "))
+data_format = datetime.strptime(data,'%d-%m-%Y %H:%M')
 
 print("Inserindo os dados de leitos...")
 with open('Leitos COVID - Leitos Geral+Covid.csv', 'r') as arquivo_leitos:
@@ -36,7 +36,7 @@ with open('Leitos COVID - Leitos Geral+Covid.csv', 'r') as arquivo_leitos:
             Utils.convert_to_int(hospital['leitos_disponiveis']),
             Utils.convert_to_float(hospital['taxa_ocupacao']),
             Utils.convert_to_int(hospital['pacientes_covid']),
-            att
+            data_format
         )
 
         dadosDao.leitos_Gerais_Covid(params)
@@ -64,7 +64,7 @@ with open('Leitos COVID - Apenas leitos COVID.csv', 'r') as arquivo_leitos:
             Utils.convert_to_int(hospital['Leitos Disponíveis']),
             Utils.convert_to_float(hospital['Taxa de Ocupação']),
             Utils.convert_to_int(hospital['Pacientes COVID']),
-            att
+            data_format
         )
 
         dadosDao.leitos_Covid(params)
