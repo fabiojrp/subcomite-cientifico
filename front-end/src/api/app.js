@@ -12,12 +12,11 @@ let port = 3000;
 app.use(cors())
 
 const pool = new Pool({
-    //user: 'postgres', 
-    user: 'covid', // postgres marcelo
+    user: 'postgres', // postgres marcelo
     host: 'localhost',
     database: 'covid', // covid - mauricio
     //password: 'postgres', // postgres mauricio
-    password: 'WEpJqsYMnHWB', // postgres marcelo WEpJqsYMnHWB
+    password: '!admpasswd@covid', // postgres marcelo WEpJqsYMnHWB
     port: 5432
 })
 
@@ -165,7 +164,6 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 regionais_casos_acumulados = [];
                 regionais_obitos_acumulados = [];
                 result.forEach(item => {
-                   const temp = {};
                    if (!regionais_casos_acumulados[item.id]) {
                         regionais_casos_acumulados[item.id] = {
                             "name":item.regional_saude,
@@ -207,7 +205,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         FROM REGIONAIS, RT
         WHERE DATA BETWEEN
                 (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT)
                 AND RT.REGIONAL = REGIONAIS.ID
                 AND RT.REGIONAL = $1
         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
@@ -290,7 +288,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         FROM REGIONAIS, RT
         WHERE DATA BETWEEN
                 (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT)
                 AND RT.REGIONAL = REGIONAIS.ID
                 AND REGIONAIS.ID <> 1
         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
@@ -305,7 +303,6 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 result = rows.rows;
                 regionais = [];
                 result.forEach(item => {
-                   const temp = {};
                    if (!regionais[item.id]) {
                         regionais[item.id] = {
                             "name":item.regional_saude,
@@ -333,7 +330,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         FROM RT
         WHERE DATA BETWEEN
                 (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) 
 				AND RT.REGIONAL = 1
         ORDER BY RT.DATA
             `,
@@ -354,6 +351,100 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 }
     
                 res.send({datas, rt})
+            })    
+    })
+
+    app.get('/api/leitos-por-regiao/:id', (req, res) => {  
+        id = req.params.id;
+        pool.query(
+            `SELECT SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                SUM(LEITOSGERAISCOVID.LEITOS_DISPONIVEIS) AS LEITOS_DISPONIVEIS,
+                LEITOSGERAISCOVID.ATUALIZACAO AS DATA
+            FROM LEITOSGERAISCOVID
+            WHERE LEITOSGERAISCOVID.INDEX_REGIONAL = $1
+            GROUP BY LEITOSGERAISCOVID.ATUALIZACAO
+            ORDER BY LEITOSGERAISCOVID.ATUALIZACAO
+            `,
+            [id],
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o valor de leitos da região: " + err)
+                    return
+                }
+    
+                region = regions[id]
+                if (typeof(region) === 'undefined') {
+                    res.send("Região não reconhecida. Informe um ID válido.")
+                    return;
+                }
+                
+                leitos_ativos = {
+                    "name":"Leitos Ativos",
+                    "type": "bar",
+                    "opacity": 0.5,
+                    "x" : [], 
+                    "y": []
+                };
+                leitos_disponiveis = {
+                    "name":"Leitos Disponíveis",
+                    "type": "bar",
+                    "opacity": 0.4,
+                    "x" : [], 
+                    "y": []
+                };
+
+                result = rows.rows;
+                result.forEach(item => {
+                    leitos_ativos.x.push(item.data);
+                    leitos_ativos.y.push(item.leitos_ativos);
+
+                    leitos_disponiveis.x.push(item.data);
+                    leitos_disponiveis.y.push(item.leitos_disponiveis);
+                });
+    
+                res.send({leitos_ativos, leitos_disponiveis})  
+            })    
+    })
+
+    app.get('/api/leitos-por-regiao/', (req, res) => {  
+        pool.query(
+            `SELECT REGIONAIS.REGIONAL_SAUDE,
+                REGIONAIS.ID as ID,
+                SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                LEITOSGERAISCOVID.ATUALIZACAO
+            FROM REGIONAIS,
+                LEITOSGERAISCOVID
+            WHERE LEITOSGERAISCOVID.INDEX_REGIONAL = REGIONAIS.ID
+            GROUP BY REGIONAIS.ID,
+                LEITOSGERAISCOVID.ATUALIZACAO,
+                REGIONAIS.REGIONAL_SAUDE
+            ORDER BY REGIONAIS.ID,
+                LEITOSGERAISCOVID.ATUALIZACAO
+            `,
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar o valor de leitos das regiões: " + err)
+                    return
+                }
+                result = rows.rows;
+                regionais = [];
+                result.forEach(item => {
+                   if (!regionais[item.id]) {
+                        regionais[item.id] = {
+                            "name":item.regional_saude,
+                            "type": "histogram",
+                            opacity: 0.5,
+                            "x" : [], 
+                            "y": []
+                        };
+                    };
+                    regionais[item.id].x.push(item.data);
+                    regionais[item.id].y.push(item.rt);
+                    
+                });
+    
+                res.send({regionais})  
             })    
     })
 

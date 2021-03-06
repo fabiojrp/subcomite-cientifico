@@ -36,7 +36,7 @@ class processaDados:
         if date == None:
             return -1
 
-        return datetime.datetime.strptime(date, '%m/%d/%Y').strftime("%Y-%m-%d")
+        return datetime.datetime.strptime(date, '%m/%d/%y').strftime("%Y-%m-%d")
         
 
 

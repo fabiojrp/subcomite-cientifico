@@ -13,7 +13,7 @@ data = str(input("Digite a data, hora e minuto dos dados no seginte formato (dia
 data_format = datetime.strptime(data,'%d-%m-%Y %H:%M')
 
 print("Inserindo os dados de leitos...")
-with open('Leitos COVID - Leitos Geral+Covid.csv', 'r') as arquivo_leitos:
+with open('Leitos COVID - histórico - Leitos Geral+Covid-6.csv', 'r') as arquivo_leitos:
     hospitais = csv.DictReader(arquivo_leitos, delimiter=",")
 
     for hospital in hospitais:
@@ -41,7 +41,7 @@ with open('Leitos COVID - Leitos Geral+Covid.csv', 'r') as arquivo_leitos:
 
         dadosDao.leitos_Gerais_Covid(params)
 
-with open('Leitos COVID - Apenas leitos COVID.csv', 'r') as arquivo_leitos:
+with open('Leitos COVID - histórico - Apenas leitos COVID-6.csv', 'r') as arquivo_leitos:
     hospitais = csv.DictReader(arquivo_leitos, delimiter=",")
 
     for hospital in hospitais:

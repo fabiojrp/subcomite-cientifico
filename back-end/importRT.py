@@ -10,8 +10,8 @@ processaDB.create_table()
 processaDados = processaDados()
 
 index = 0
-with open('RtSC.xlsx - site.csv', 'r') as arquivo:
-    dados = csv.DictReader(arquivo, delimiter=",")
+with open('RtSC.csv', 'r', encoding = 'utf-8-sig') as arquivo:
+    dados = csv.DictReader(arquivo, delimiter=";")
     header = dados.fieldnames;
     print("Inserindo os dados de RT: ", end='', flush=True)
     for value in dados:

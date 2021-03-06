@@ -11,17 +11,6 @@ var regionData = { "type": "FeatureCollection", "features": [
             "zoom" : 10,
         
         },
-        // $.ajax({
-        //     type: 'GET',
-        //     url: base_url + '/api/indicadores/' + 2,
-        //     success: function(data) {
-        //         dat = data.properties
-        //         var dat2 = JSON.stringify(dat);
-        //         console.log(dat2)
-        //         alert(dat2)
-        //         return dat2 
-        //    }
-        //  }),
         "geometry":{
             "type":"Polygon",
             "coordinates":[
@@ -157,53 +146,27 @@ $(document).ready(() => {
         title: 'Óbitos acumulados',
     };
     Plotly.newPlot('obitos-acumulados', obitosAcul, mm_layout, config);
-
-
-      /* Ocupacao de Leitos */
-      var ocupacao_leitos = [
-          {
-          x: ['2013-10-04 22:23:00', '2013-11-04 22:23:00', '2013-12-04 22:23:00'],
-          y: [80, 97, 100],
-          type: 'scatter'
-          }
-      ];
-
-      var ol_layout = {
-          title: 'Ocupação de Leitos (UTI) em porcentagem (%)',
-      };
-      
-      var config = {responsive: true}
-
-      Plotly.newPlot('leitos-graph', ocupacao_leitos, ol_layout, config);
-
-
-      /* CASOS ACUMULADOS 
-      var traco_casos = {
-        x: dados.datas,
-        y: dados.casos_acumulados,
-        type: "bar",
-        mode: "horizontal",
-        name: 'Incidência acumulada por 100 mil habitantes',
-        marker: {
-            color: 'rgba(222,45,38,0.8)',
-            opacity: 0.7
-          }, 
-        orientation: 'v'
-          
-      }
-
-      data = [traco_casos]
-
-      var layout = {
-          title: 'Incidência acumulada por 100 mil habitantes',
-          barmode: 'stack',
-      };
-
-      var config = {responsive: true}
-
-      Plotly.newPlot('casos-acumulados', data, layout, config);
-*/
   }).catch(err => console.error(err));
 
+  fetch(base_url + "/api/leitos-por-regiao/"+ id)
+    .then((response) => {
+      return response.json();
+    })
+    .then((dados) => {
+         /* Ocupacao de Leitos */
+      var ocupacao_leitos = [dados.leitos_ativos, dados.leitos_disponiveis];
+
+      var ol_layout = {
+        title: "Leitos Ativos / Ocupação de Leitos (UTI)",
+        barmode: "stack",
+        bargap: 0.5, 
+        bargroupgap: 0.2, 
+      };
+
+      var config = { responsive: true };
+
+      Plotly.newPlot("leitos-graph", ocupacao_leitos, ol_layout, config);
+    })
+    .catch((err) => console.error(err));
 
  });
