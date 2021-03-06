@@ -87,51 +87,32 @@ $(document).ready(() => {
     .then((dados) => {
       //Limpa célculas vazias. 
       dadosRegionais = $.grep(dados.regionais_casos_acumulados,function(n){ return n == 0 || n });
-      
       var mm_layout = {
-        title: "Casos X Casos Média Móvel",
+        title: "Casos acumulados",
       };
-
       var config = { responsive: true };
-      
       Plotly.newPlot("casos-graph", dadosRegionais, mm_layout, config);
 
 
       //Limpa célculas vazias. 
       dadosRegionaisObitos = $.grep(dados.regionais_obitos_acumulados,function(n){ return n == 0 || n });
-
       var mm_layout = {
         title: "Óbitos acumulados",
       };
-
       var config = { responsive: true };
-      
       Plotly.newPlot("obitos-graph", dadosRegionaisObitos, mm_layout, config);
 
-      /* CASOS ACUMULADOS */
-      var traco_casos = {
-        x: dados.datas,
-        y: dados.casos_acumulados_100mil,
-        type: "bar",
-        mode: "horizontal",
-        name: "Incidência acumulada por 100 mil habitantes",
-        marker: {
-          color: "rgba(222,45,38,0.8)",
-          opacity: 0.7,
-        },
-        orientation: "v",
+      //Limpa célculas vazias. 
+      dadosRegionaisIncidencia = $.grep(dados.regionais_incidencia,function(n){ return n == 0 || n });
+      var mm_layout = {
+        title: "Incidência acumulada por 100 mil habitantes",
       };
-
-      data = [traco_casos];
-
       var layout = {
         title: "Incidência acumulada por 100 mil habitantes",
         barmode: "stack",
       };
-
       var config = { responsive: true };
-
-      Plotly.newPlot("casos-acumulados", data, layout, config);
+      Plotly.newPlot("casos-acumulados", dadosRegionaisIncidencia, mm_layout, config);
     })
     .catch((err) => console.error(err));
 
@@ -140,26 +121,17 @@ $(document).ready(() => {
       return response.json();
     })
     .then((dados) => {
-         /* Ocupacao de Leitos */
-      var ocupacao_leitos = [
-        {
-          x: [
-            "2013-10-04 22:23:00",
-            "2013-11-04 22:23:00",
-            "2013-12-04 22:23:00",
-          ],
-          y: [80, 97, 100],
-          type: "scatter",
-        },
-      ];
-
-      var ol_layout = {
+       /* Ocupacao de Leitos */
+      //Limpa célculas vazias. 
+      ocupacao_leitos = $.grep(dados.regionais,function(n){ return n == 0 || n });
+  
+      var mm_layout = {
         title: "Ocupação de Leitos (UTI) em porcentagem (%)",
       };
 
       var config = { responsive: true };
-
-      Plotly.newPlot("leitos-graph", ocupacao_leitos, ol_layout, config);
+      
+      Plotly.newPlot("leitos-graph", ocupacao_leitos, mm_layout, config);
     })
     .catch((err) => console.error(err));
     
