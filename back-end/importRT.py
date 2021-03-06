@@ -1,4 +1,4 @@
-import csv
+﻿import csv
 import datetime
 from RT.processaBD import processaDB
 from RT.processaDados import processaDados
@@ -10,15 +10,16 @@ processaDB.create_table()
 processaDados = processaDados()
 
 index = 0
-with open('RtSC.csv', 'r') as arquivo:
-    dados = csv.DictReader(arquivo, delimiter=";")
+with open('RtSC.xlsx - site.csv', 'r') as arquivo:
+    dados = csv.DictReader(arquivo, delimiter=",")
     header = dados.fieldnames;
     print("Inserindo os dados de RT: ", end='', flush=True)
     for value in dados:
-
-        regiaoSaude = processaDados.buscaRegiao(value['\ufeffRegião da Saúde'])
+        
+        regiaoSaude = processaDados.buscaRegiao(value['Região da Saúde'])
         for v in value:
-            if v == '\ufeffRegião da Saúde': continue
+            print(v)
+            if v == 'Região da Saúde': continue
             if v == 'Instituto Federal Catarinense': continue
             valorRT = str(value[v].replace(',','.'))
             if valorRT:
