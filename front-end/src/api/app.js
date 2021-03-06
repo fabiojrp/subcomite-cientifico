@@ -76,10 +76,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
             SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS
         FROM REGIONAIS, CASOS
-        WHERE CASOS.DATA BETWEEN 
-            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '5 months' AND
-            (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '1 day'
-            AND CASOS.REGIONAL = REGIONAIS.ID
+        WHERE CASOS.REGIONAL = REGIONAIS.ID
             AND REGIONAIS.ID = $1
         GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
         ORDER BY CASOS.DATA
@@ -138,18 +135,12 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             `SELECT REGIONAIS.ID,
                     REGIONAIS.REGIONAL_SAUDE,
                     CASOS.DATA,
-                    SUM(CASOS.CASOS) AS CASOS_DIA,
-                    SUM(CASOS.OBITOS) AS OBITOS_DIAS,
-                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
-                    SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
                     SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
-                    SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS
+                    SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS,
+                    SUM(CASOS.POPULACAO) AS POPULACAO
                 FROM REGIONAIS, CASOS
-                WHERE CASOS.DATA BETWEEN 
-                    (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '5 months' AND
-                    (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '1 day'
-                    AND CASOS.REGIONAL = REGIONAIS.ID
-                    AND REGIONAIS.ID <> 0 AND REGIONAIS.ID <> 1 
+                WHERE CASOS.REGIONAL = REGIONAIS.ID
+                    AND REGIONAIS.ID <> 0
                 GROUP BY REGIONAIS.ID, REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
                 ORDER BY REGIONAIS.ID, CASOS.DATA
             `,
@@ -163,35 +154,81 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 result = rows.rows;
                 regionais_casos_acumulados = [];
                 regionais_obitos_acumulados = [];
+                regionais_incidencia = [];
                 result.forEach(item => {
                    if (!regionais_casos_acumulados[item.id]) {
-                        regionais_casos_acumulados[item.id] = {
-                            "name":item.regional_saude,
-                            "mode":"lines",
-                            "type":"scatter",
-                            "x" : [], 
-                            "y": []
-                        };
-                    };
+                        if (item.id == 1) {
+                            regionais_casos_acumulados[item.id] = {
+                                "name":"Estado de SC",
+                                "mode":"lines",
+                                "type":"scatter",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }else{
+                            regionais_casos_acumulados[item.id] = {
+                                "name":item.regional_saude,
+                                "mode":"lines",
+                                "type":"scatter",
+                                "visible": "legendonly",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }
+                    }
                     if (!regionais_obitos_acumulados[item.id]) {
-                        regionais_obitos_acumulados[item.id] = {
-                            "name":item.regional_saude,
-                            "mode":"lines",
-                            "type":"scatter",
-                            "x" : [], 
-                            "y": []
-                        };
-                    };
+                        if (item.id == 1) {
+                            regionais_obitos_acumulados[item.id] = {
+                                "name":"Estado de SC",
+                                "mode":"lines",
+                                "type":"scatter",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }else{
+                            regionais_obitos_acumulados[item.id] = {
+                                "name":item.regional_saude,
+                                "mode":"lines",
+                                "type":"scatter",
+                                "visible": "legendonly",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }
+                    }
+                    if (!regionais_incidencia[item.id]) {
+                        if (item.id == 1) {
+                            regionais_incidencia[item.id] = {
+                                "name":"Estado de SC",
+                                "mode":"lines",
+                                "type":"scatter",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }else{
+                            regionais_incidencia[item.id] = {
+                                "name":item.regional_saude,
+                                "mode":"lines",
+                                "type":"scatter",
+                                "visible": "legendonly",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }    
+                    }
 
                     regionais_casos_acumulados[item.id].x.push(item.data);
                     regionais_casos_acumulados[item.id].y.push(item.casos_acumulados);
 
                     regionais_obitos_acumulados[item.id].x.push(item.data);
                     regionais_obitos_acumulados[item.id].y.push(item.obitos_acumulados);
+
+                    regionais_incidencia[item.id].x.push(item.data);
+                    regionais_incidencia[item.id].y.push((item.casos_acumulados/item.populacao)*1e5);
                     
                 });
     
-                res.send({regionais_casos_acumulados, regionais_obitos_acumulados})
+                res.send({regionais_casos_acumulados, regionais_obitos_acumulados, regionais_incidencia})
 
              })    
         })
@@ -203,10 +240,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             `SELECT RT.DATA as data,
             RT.RT as rt
         FROM REGIONAIS, RT
-        WHERE DATA BETWEEN
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT)
-                AND RT.REGIONAL = REGIONAIS.ID
+        WHERE RT.REGIONAL = REGIONAIS.ID
                 AND RT.REGIONAL = $1
         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
             `,
@@ -284,14 +318,10 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     app.get('/api/rt-por-regiao/', (req, res) => {
         pool.query(
             `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
-            RT.RT as rt
-        FROM REGIONAIS, RT
-        WHERE DATA BETWEEN
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT)
-                AND RT.REGIONAL = REGIONAIS.ID
-                AND REGIONAIS.ID <> 1
-        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+                RT.RT as rt
+            FROM REGIONAIS, RT
+            WHERE RT.REGIONAL = REGIONAIS.ID
+            ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
             `,
             (err, rows) => {
 
@@ -304,13 +334,25 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 regionais = [];
                 result.forEach(item => {
                    if (!regionais[item.id]) {
+                       if (item.id == 1) {
                         regionais[item.id] = {
-                            "name":item.regional_saude,
+                            "name":"Estado de SC",
                             "mode":"lines",
                             "type":"scatter",
                             "x" : [], 
                             "y": []
                         };
+
+                       }else {
+                            regionais[item.id] = {
+                                "name":item.regional_saude,
+                                "mode":"lines",
+                                "type":"scatter",
+                                "visible": "legendonly",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }
                     };
                     regionais[item.id].x.push(item.data);
                     regionais[item.id].y.push(item.rt);
@@ -328,10 +370,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             `SELECT RT.DATA as data,
             RT.RT as rt
         FROM RT
-        WHERE DATA BETWEEN
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) 
-				AND RT.REGIONAL = 1
+        WHERE RT.REGIONAL = 1
         ORDER BY RT.DATA
             `,
             (err, rows) => {
@@ -412,7 +451,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 REGIONAIS.ID as ID,
                 SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
                 SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                LEITOSGERAISCOVID.ATUALIZACAO
+                LEITOSGERAISCOVID.ATUALIZACAO AS DATA
             FROM REGIONAIS,
                 LEITOSGERAISCOVID
             WHERE LEITOSGERAISCOVID.INDEX_REGIONAL = REGIONAIS.ID
@@ -429,20 +468,47 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 }
                 result = rows.rows;
                 regionais = [];
+                totalEstado = [];
                 result.forEach(item => {
                    if (!regionais[item.id]) {
                         regionais[item.id] = {
                             "name":item.regional_saude,
-                            "type": "histogram",
-                            opacity: 0.5,
+                            "mode":"lines",
+                            "type":"scatter",
+                            "visible": "legendonly",
                             "x" : [], 
                             "y": []
                         };
                     };
                     regionais[item.id].x.push(item.data);
-                    regionais[item.id].y.push(item.rt);
-                    
+                    regionais[item.id].y.push((item.leitos_ocupados/item.leitos_ativos)*100);
+
+                    if (!totalEstado[item.data]) {
+                        totalEstado[item.data] = {
+                            "leitos_ocupados" : 0,
+                            "leitos_ativos" : 0,
+                            "data": item.data
+
+                        };
+                    }
+                    totalEstado[item.data].leitos_ocupados += parseInt(item.leitos_ocupados);
+                    totalEstado[item.data].leitos_ativos += parseInt(item.leitos_ativos);
+
                 });
+
+                regionais[0] = {
+                    "name":"Estado de SC",
+                    "mode":"lines",
+                    "type":"scatter",
+                    "x" : [] , 
+                    "y": []
+                };
+
+                for (var [key, item] of Object.entries(totalEstado)) {
+                    regionais[0].x.push(item.data);
+                    regionais[0].y.push((item.leitos_ocupados/item.leitos_ativos)*100);
+                }
+                
     
                 res.send({regionais})  
             })    
