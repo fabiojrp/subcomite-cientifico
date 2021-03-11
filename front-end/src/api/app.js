@@ -502,13 +502,13 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     app.get('/api/leitos-por-regiao/:id', (req, res) => {  
         id = req.params.id;
         pool.query(
-            `SELECT SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                SUM(LEITOSGERAISCOVID.LEITOS_DISPONIVEIS) AS LEITOS_DISPONIVEIS,
-                LEITOSGERAISCOVID.ATUALIZACAO AS DATA
-            FROM LEITOSGERAISCOVID
-            WHERE LEITOSGERAISCOVID.INDEX_REGIONAL = $1
-            GROUP BY LEITOSGERAISCOVID.ATUALIZACAO
-            ORDER BY LEITOSGERAISCOVID.ATUALIZACAO
+            `SELECT SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                SUM(leitoscovid.LEITOS_DISPONIVEIS) AS LEITOS_DISPONIVEIS,
+                leitoscovid.ATUALIZACAO AS DATA
+            FROM leitoscovid
+            WHERE leitoscovid.INDEX_REGIONAL = $1
+            GROUP BY leitoscovid.ATUALIZACAO
+            ORDER BY leitoscovid.ATUALIZACAO
             `,
             [id],
             (err, rows) => {
@@ -555,17 +555,17 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
         pool.query(
             `SELECT REGIONAIS.REGIONAL_SAUDE,
                 REGIONAIS.ID as ID,
-                SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
-                SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                LEITOSGERAISCOVID.ATUALIZACAO AS DATA
+                SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                leitoscovid.ATUALIZACAO AS DATA
             FROM REGIONAIS,
-                LEITOSGERAISCOVID
-            WHERE LEITOSGERAISCOVID.INDEX_REGIONAL = REGIONAIS.ID
+            leitoscovid
+            WHERE leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
             GROUP BY REGIONAIS.ID,
-                LEITOSGERAISCOVID.ATUALIZACAO,
+                leitoscovid.ATUALIZACAO,
                 REGIONAIS.REGIONAL_SAUDE
             ORDER BY REGIONAIS.ID,
-                LEITOSGERAISCOVID.ATUALIZACAO
+                leitoscovid.ATUALIZACAO
             `,
             (err, rows) => {
                 if (err) {
@@ -657,7 +657,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     result = rows.rows;
                     for (var i = 0; i < result.length; i++) {   
                          mediamovel = result[i].variacao * 100;
-                         mediamovel = mediamovel.toFixed(0);
+                         /*mediamovel = mediamovel.toFixed(0);
                          if (mediamovel > 15){
                             mediamovel += "%";
                             mediamovel += " (EM ALTA)"
@@ -667,7 +667,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                          } else if (mediamovel < -15){
                             mediamovel += "%";
                             mediamovel += " (QUEDA)" 
-                         }
+                         }*/
                          
                         leitos = result[i].leitos_ocupados * 100;
                         
@@ -681,7 +681,8 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                                         "media_movel": mediamovel, 
                                         // result[i].variacao,
                                         
-                                        "ocupacao_leitos": leitos.toFixed(0) + "%",
+                                       // "ocupacao_leitos": leitos.toFixed(0) + "%",
+                                        "ocupacao_leitos": leitos,
                                         "path": result[i].url
                                     },
                                     "geometry": result[i].poligono

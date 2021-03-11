@@ -116,7 +116,7 @@ $(document).ready(() => {
           (props ? '<h4><b>Regional:</b> ' + props.name + 
           '</h4><p>Taxa de Transmissibilidade: ' + props.rt + 
           '</p><p>Média Móvel: ' + props.media_movel + 
-          '</p><p>Ocupação de Leitos: ' + props.ocupacao_leitos + 
+          '</p><p>Ocupação de Leitos Covid Adulto: ' + props.ocupacao_leitos + 
           '</p><p><a href="'+ props.path + '?region=1">Saiba mais sobre essa região</a></p>' : 
           '<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>');
     };
@@ -137,30 +137,19 @@ $(document).ready(() => {
         var oneNfav = "#FAD700";
         
         if (typeof d == "object"){
-            if (d.rt < 1 && d.media_movel < 0.15 && d.ocupacao_leitos < 0.6)
-                return fav;
-            
-            // if(d.rt > 1 && d.media_movel < 0.15 && d.ocupacao_leitos > 0.6)
-            //     return twoNfav;
+            var levelRegion = 0
+            levelRegion += d.rt > 1?1:0;
+            levelRegion += d.media_movel > 15?1:0;
+            levelRegion += d.ocupacao_leitos > 60?1:0;
 
-            // if(d.rt > 1 && d.media_movel > 0.15 && d.ocupacao_leitos < 0.6)
-            //     return twoNfav;
-
-            //  if(d.rt < 1 && d.media_movel > 0.15 && d.ocupacao_leitos > 0.6)
-            //     return twoNfav;
-
-            //  if(d.rt < 1 && d.media_movel < 0.15 && d.ocupacao_leitos > 0.6)
-            //     return oneNfav;
-
-            //  if(d.rt < 1 && d.media_movel > 0.15 && d.ocupacao_leitos < 0.6)
-            //     return oneNfav;
-
-            //  if(d.rt > 1 && d.media_movel < 0.15 && d.ocupacao_leitos < 0.6)
-            //     return oneNfav;
-
-            //  if (d.rt > 1 && d.media_movel > 0.15 && d.ocupacao_leitos > 0.6)
-            //     return threeNfav;
-            else return threeNfav
+            if (levelRegion==3)
+                return threeNfav;
+            else if (levelRegion==2)
+                return twoNfav;
+            else if (levelRegion==1)
+                return oneNfav;
+            else
+                fav;
         }
         return d >= 1 ? threeNfav :
                d < 1 && d >= 0 ? fav : "transparent";

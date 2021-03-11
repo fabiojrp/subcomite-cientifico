@@ -137,7 +137,7 @@ $(document).ready(() => {
       ocupacao_leitos = $.grep(dados.regionais,function(n){ return n == 0 || n });
   
       var mm_layout = {
-        title: "Ocupação de Leitos (UTI) em porcentagem (%)",
+        title: "Ocupação de Leitos (UTI) Covid Adulto em porcentagem (%)",
       };
 
       var config = { responsive: true};

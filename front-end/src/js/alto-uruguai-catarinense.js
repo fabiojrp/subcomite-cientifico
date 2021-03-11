@@ -174,7 +174,7 @@ $(document).ready(() => {
       var ocupacao_leitos = [dados.leitos_ocupados, dados.leitos_disponiveis];
 
       var ol_layout = {
-        title: "Leitos Disponíveis / Ocupados (UTI - Geral)",
+        title: "Leitos Disponíveis / Ocupados (UTI - Covid Adulto)",
         barmode: "stack",
         bargap: 0.5, 
         bargroupgap: 0.2, 

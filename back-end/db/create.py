@@ -149,13 +149,13 @@ class Create:
         self.db.execute_query(sql)
 
         sql = """CREATE VIEW view_leitos AS SELECT REGIONAIS.ID,
-                    SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
-                    SUM(LEITOSGERAISCOVID.leitos_ocupados) AS LEITOS_OCUPADOS,
-                    MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA
-                FROM REGIONAIS, LEITOSGERAISCOVID
-                WHERE LEITOSGERAISCOVID.ATUALIZACAO =
-                    (SELECT MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA FROM LEITOSGERAISCOVID)
-                    AND LEITOSGERAISCOVID.INDEX_REGIONAL = REGIONAIS.ID
+                    SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                    SUM(leitoscovid.leitos_ocupados) AS LEITOS_OCUPADOS,
+                    MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA
+                FROM REGIONAIS, leitoscovid
+                WHERE leitoscovid.ATUALIZACAO =
+                    (SELECT MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA FROM leitoscovid)
+                    AND leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
                 GROUP BY REGIONAIS.ID
         """
         self.db.execute_query(sql)
@@ -341,13 +341,13 @@ class Create:
         self.db.execute_query(sql)
 
         sql = """CREATE VIEW view_leitos AS SELECT REGIONAIS.ID,
-                    SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
-                    SUM(LEITOSGERAISCOVID.leitos_ocupados) AS LEITOS_OCUPADOS,
-                    MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA
-                FROM REGIONAIS, LEITOSGERAISCOVID
-                WHERE LEITOSGERAISCOVID.ATUALIZACAO =
-                    (SELECT MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA FROM LEITOSGERAISCOVID)
-                    AND LEITOSGERAISCOVID.INDEX_REGIONAL = REGIONAIS.ID
+                    SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                    SUM(leitoscovid.leitos_ocupados) AS LEITOS_OCUPADOS,
+                    MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA
+                FROM REGIONAIS, leitoscovid
+                WHERE leitoscovid.ATUALIZACAO =
+                    (SELECT MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA FROM leitoscovid)
+                    AND leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
                 GROUP BY REGIONAIS.ID
         """
         self.db.execute_query(sql)
