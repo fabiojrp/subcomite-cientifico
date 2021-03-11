@@ -1,9 +1,9 @@
 $(document).ready(() => {
-
+/*
   fetch(base_url + '/api/rt-estado/').then(response => {
     return response.json()
     }).then(dados => {
-        /* R(t) */
+        // R(t) 
         var rt = [
             {
             x: dados.datas,
@@ -19,7 +19,7 @@ $(document).ready(() => {
 
         Plotly.newPlot('rt-estado-graph', rt, rt_layout, config);
     }).catch(err => console.error(err));
-
+*/
  /*
   fetch(base_url + "/api/rt-por-regiao/")
     .then((response) => {
@@ -75,7 +75,7 @@ $(document).ready(() => {
   
         var config = { responsive: true };
         
-        Plotly.newPlot("rt-estado-regioes-graph", dadosRegionais, mm_layout, config);
+        Plotly.newPlot("rt-graph", dadosRegionais, mm_layout, config);
     })
     .catch((err) => console.error(err));
 
@@ -85,33 +85,47 @@ $(document).ready(() => {
       return response.json();
     })
     .then((dados) => {
-      //Limpa célculas vazias. 
-      // dadosRegionais = $.grep(dados.regionais_casos_acumulados,function(n){ return n == 0 || n });
-      // var mm_layout = {
-      //   title: "Casos acumulados",
-      // };
-      // var config = { responsive: true };
-      // Plotly.newPlot("casos-graph", dadosRegionais, mm_layout, config);
+      var d = new Date(dados.maxData); 
+      var datestring = ("0" + d.getDate()).slice(-2) + "/" + ("0"+(d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
+      $("#dataAtualizacao").text(datestring);
 
+      // Casos média Movel
+      dadosRegionaisCasosMediaMovel = $.grep(dados.regionais_casos_mediamovel,function(n){ return n == 0 || n });
+      var mm_layout = {
+        title: "Casos Média Móvel",
+      };
+      
+      var config = { responsive: true };
+      Plotly.newPlot("casos-graph", dadosRegionaisCasosMediaMovel, mm_layout, config);
 
-      // //Limpa célculas vazias. 
-      // dadosRegionaisObitos = $.grep(dados.regionais_obitos_acumulados,function(n){ return n == 0 || n });
-      // var mm_layout = {
-      //   title: "Óbitos acumulados",
-      // };
-      // var config = { responsive: true };
-      // Plotly.newPlot("obitos-graph", dadosRegionaisObitos, mm_layout, config);
+      // Óbitos média Movel
+      dadosRegionaisObitosMediaMovel = $.grep(dados.regionais_obitos_mediamovel,function(n){ return n == 0 || n });
+      var mm_layout = {
+        title: "Óbitos Média Móvel",
+      };
+      
+      var config = { responsive: true };
+      Plotly.newPlot("obitos-graph", dadosRegionaisObitosMediaMovel, mm_layout, config);
 
-      //Limpa célculas vazias. 
+      // Incidencia
       dadosRegionaisIncidencia = $.grep(dados.regionais_incidencia,function(n){ return n == 0 || n });
       var mm_layout = {
         title: "Incidência acumulada por 100 mil habitantes",
       };
       
       var config = { responsive: true };
-      Plotly.newPlot("incidencia", dadosRegionaisIncidencia, mm_layout, config);
-    })
-    .catch((err) => console.error(err));
+      Plotly.newPlot("incidencia-graph", dadosRegionaisIncidencia, mm_layout, config);
+
+      // Letalidade
+      dadosRegionaisLetalidade = $.grep(dados.regionais_letalidade,function(n){ return n == 0 || n });
+      var mm_layout = {
+        title: "Óbitos / número de casos (em %)",
+      };
+      
+      var config = { responsive: true };
+      Plotly.newPlot("letalidade-graph", dadosRegionaisLetalidade, mm_layout, config);
+      
+    }).catch((err) => console.error(err));
 
     fetch(base_url + "/api/leitos-por-regiao/")
     .then((response) => {
@@ -126,10 +140,9 @@ $(document).ready(() => {
         title: "Ocupação de Leitos (UTI) em porcentagem (%)",
       };
 
-      var config = { responsive: true };
+      var config = { responsive: true};
       
       Plotly.newPlot("leitos-graph", ocupacao_leitos, mm_layout, config);
-    })
-    .catch((err) => console.error(err));
+    }).catch((err) => console.error(err));
     
 });

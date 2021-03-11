@@ -16,7 +16,7 @@ const pool = new Pool({
     host: 'localhost',
     database: 'covid', // covid - mauricio
     //password: 'postgres', // postgres mauricio
-    password: 'zzdz0737', // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: '!admpasswd@covid', // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432
 })
 
@@ -69,12 +69,17 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
 
     pool.query(
         `SELECT CASOS.DATA,
-            SUM(CASOS.CASOS) AS CASOS_DIA,
-            SUM(CASOS.OBITOS) AS OBITOS_DIAS,
-            SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
-            SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
-            SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
-            SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS
+        SUM(CASOS.CASOS) AS CASOS_DIA,
+        SUM(CASOS.OBITOS) AS OBITOS_DIAS,
+        SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
+        SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
+        SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
+        SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS,
+        SUM(CASOS.POPULACAO) AS POPULACAO,
+        CASE WHEN (SUM(CASOS.CASOS_ACUMULADOS) < 100) 
+                THEN TO_CHAR(0,'99990d99')
+                ELSE TO_CHAR((SUM(CASOS.OBITOS_ACUMULADOS)::real / SUM(CASOS.CASOS_ACUMULADOS)::real) * 100,'99990d99')
+                END AS LETALIDADE
         FROM REGIONAIS, CASOS
         WHERE CASOS.REGIONAL = REGIONAIS.ID
             AND REGIONAIS.ID = $1
@@ -96,6 +101,11 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             }
 
             if (rows.rows.length > 0) {
+                maxData = 0;
+                rows.rows.forEach(item => {
+                    if (item.data > maxData)
+                        maxData = item.data;
+                });
                 datas = rows.rows.map(row => {
                     return row.data;
                 })
@@ -123,10 +133,18 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 obitos_acumulados = rows.rows.map(row => {
                     return row.obitos_acumulados;
                 })
+                incidencia = rows.rows.map(row => {
+                    return (row.casos_acumulados/row.populacao)*1e5;
+                })
+
+                letalidade = rows.rows.map(row => {
+                    return row.letalidade;
+                })
 
             }
 
-            res.send({region, datas, casos, casos_media_movel, obitos, obitos_media_movel, casos_acumulados, obitos_acumulados})
+            res.send({region, maxData, datas, casos, casos_media_movel, obitos, obitos_media_movel, 
+                casos_acumulados, obitos_acumulados, letalidade, incidencia})
         })    
     })
 
@@ -137,7 +155,13 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     CASOS.DATA,
                     SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
                     SUM(CASOS.OBITOS_ACUMULADOS) AS OBITOS_ACUMULADOS,
-                    SUM(CASOS.POPULACAO) AS POPULACAO
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
+                    SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
+                    SUM(CASOS.POPULACAO) AS POPULACAO,
+                    CASE WHEN (SUM(CASOS.CASOS_ACUMULADOS) < 100) 
+                        THEN TO_CHAR(0,'99990d99')
+                        ELSE TO_CHAR((SUM(CASOS.OBITOS_ACUMULADOS)::real / SUM(CASOS.CASOS_ACUMULADOS)::real) * 100,'99990d99')
+                        END AS LETALIDADE
                 FROM REGIONAIS, CASOS
                 WHERE CASOS.REGIONAL = REGIONAIS.ID
                     AND REGIONAIS.ID <> 0
@@ -154,7 +178,11 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 result = rows.rows;
                 regionais_casos_acumulados = [];
                 regionais_obitos_acumulados = [];
+                regionais_casos_mediamovel = [];
+                regionais_obitos_mediamovel = [];
                 regionais_incidencia = [];
+                regionais_letalidade = [];
+                maxData = 0;
                 result.forEach(item => {
                    if (!regionais_casos_acumulados[item.id]) {
                         if (item.id == 1) {
@@ -196,6 +224,51 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                             };
                         }
                     }
+                    // Casos média móvel
+                    if (!regionais_casos_mediamovel[item.id]) {
+                        if (item.id == 1) {
+                            regionais_casos_mediamovel[item.id] = {
+                                "name":"Estado de SC",
+                                "mode":"lines",
+                                "type":"scatter",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }else{
+                            regionais_casos_mediamovel[item.id] = {
+                                "name":item.regional_saude,
+                                "mode":"lines",
+                                "type":"scatter",
+                                "visible": "legendonly",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }
+                    }
+
+
+                    // Óbitos média móvel
+                    if (!regionais_obitos_mediamovel[item.id]) {
+                        if (item.id == 1) {
+                            regionais_obitos_mediamovel[item.id] = {
+                                "name":"Estado de SC",
+                                "mode":"lines",
+                                "type":"scatter",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }else{
+                            regionais_obitos_mediamovel[item.id] = {
+                                "name":item.regional_saude,
+                                "mode":"lines",
+                                "type":"scatter",
+                                "visible": "legendonly",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }
+                    }
+
                     if (!regionais_incidencia[item.id]) {
                         if (item.id == 1) {
                             regionais_incidencia[item.id] = {
@@ -217,18 +290,52 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                         }    
                     }
 
+                    if (!regionais_letalidade[item.id]) {
+                        if (item.id == 1) {
+                            regionais_letalidade[item.id] = {
+                                "name":"Estado de SC",
+                                "mode":"lines",
+                                "type":"scatter",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }else{
+                            regionais_letalidade[item.id] = {
+                                "name":item.regional_saude,
+                                "mode":"lines",
+                                "type":"scatter",
+                                "visible": "legendonly",
+                                "x" : [], 
+                                "y": []
+                            };
+                        }    
+                    }
+
                     regionais_casos_acumulados[item.id].x.push(item.data);
                     regionais_casos_acumulados[item.id].y.push(item.casos_acumulados);
 
                     regionais_obitos_acumulados[item.id].x.push(item.data);
                     regionais_obitos_acumulados[item.id].y.push(item.obitos_acumulados);
 
+                    regionais_casos_mediamovel[item.id].x.push(item.data);
+                    regionais_casos_mediamovel[item.id].y.push(item.casos_mediamovel);
+
+                    regionais_obitos_mediamovel[item.id].x.push(item.data);
+                    regionais_obitos_mediamovel[item.id].y.push(item.obitos_mediamovel);
+
                     regionais_incidencia[item.id].x.push(item.data);
                     regionais_incidencia[item.id].y.push((item.casos_acumulados/item.populacao)*1e5);
+
+                    regionais_letalidade[item.id].x.push(item.data);
+                    regionais_letalidade[item.id].y.push(item.letalidade);
                     
+                    if (item.data > maxData)
+                        maxData = item.data;
                 });
     
-                res.send({regionais_casos_acumulados, regionais_obitos_acumulados, regionais_incidencia})
+                
+                res.send({maxData, regionais_casos_acumulados, regionais_obitos_acumulados, regionais_casos_mediamovel,
+                    regionais_obitos_mediamovel, regionais_incidencia, regionais_letalidade})
 
              })    
         })
@@ -262,7 +369,6 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     datas = rows.rows.map(row => {
                         return row.data;
                     })
-        
                     rt = rows.rows.map(row => {
                         return row.rt;
                     })
@@ -396,7 +502,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
     app.get('/api/leitos-por-regiao/:id', (req, res) => {  
         id = req.params.id;
         pool.query(
-            `SELECT SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+            `SELECT SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
                 SUM(LEITOSGERAISCOVID.LEITOS_DISPONIVEIS) AS LEITOS_DISPONIVEIS,
                 LEITOSGERAISCOVID.ATUALIZACAO AS DATA
             FROM LEITOSGERAISCOVID
@@ -417,8 +523,8 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     return;
                 }
                 
-                leitos_ativos = {
-                    "name":"Leitos Ativos",
+                leitos_ocupados = {
+                    "name":"Leitos Ocupados",
                     "type": "bar",
                     "opacity": 0.5,
                     "x" : [], 
@@ -434,14 +540,14 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
 
                 result = rows.rows;
                 result.forEach(item => {
-                    leitos_ativos.x.push(item.data);
-                    leitos_ativos.y.push(item.leitos_ativos);
+                    leitos_ocupados.x.push(item.data);
+                    leitos_ocupados.y.push(item.leitos_ocupados);
 
                     leitos_disponiveis.x.push(item.data);
                     leitos_disponiveis.y.push(item.leitos_disponiveis);
                 });
     
-                res.send({leitos_ativos, leitos_disponiveis})  
+                res.send({leitos_disponiveis, leitos_ocupados})  
             })    
     })
 
