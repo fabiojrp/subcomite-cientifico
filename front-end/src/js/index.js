@@ -230,7 +230,7 @@ $(document).ready(() => {
             labels.push('<i style="background:' + getColor(0) + '"></i> (Favorável)<br />');
             labels.push('<i style="background:' + getColor(1) + '"></i> (1 Indicador não Favorável)<br />');
             labels.push('<i style="background:' + getColor(2) + '"></i> (2 Indicadores não Favoráveis)<br />');
-            labels.push('<i style="background:' + getColor(3) + '"></i> (3 Indicadores não Favoráveis');
+            labels.push('<i style="background:' + getColor(3) + '"></i> (3 Indicadores não Favoráveis)');
 		   	div.innerHTML = labels.join('<br>');
 		return div;
 	};
