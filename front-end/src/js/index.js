@@ -115,8 +115,8 @@ $(document).ready(() => {
         this._div.innerHTML = '' +  
           (props ? '<h4><b>Regional:</b> ' + props.name + 
           '</h4><p>Taxa de Transmissibilidade: ' + props.rt + 
-          '</p><p>Média Móvel: ' + props.media_movel + 
-          '</p><p>Ocupação de Leitos Covid Adulto: ' + props.ocupacao_leitos + 
+          '</p><p>Média Móvel: ' + props.media_movel.toFixed(2) + '%'  + 
+          '</p><p>Ocupação de Leitos Covid Adulto: ' + props.ocupacao_leitos.toFixed(2) + '%' + 
           '</p><p><a href="'+ props.path + '?region=1">Saiba mais sobre essa região</a></p>' : 
           '<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>');
     };
@@ -131,8 +131,8 @@ $(document).ready(() => {
     // UTI < 60%
 	// get color depending on rt value
 	function getColor(d) {
-        var threeNfav = "#ff7979";
         var fav = "#92efb6";
+        var threeNfav = "#ff7979";
         var twoNfav = "#FA9600";
         var oneNfav = "#FAD700";
         
@@ -151,8 +151,14 @@ $(document).ready(() => {
             else
                 fav;
         }
-        return d >= 1 ? threeNfav :
-               d < 1 && d >= 0 ? fav : "transparent";
+        switch(d){
+            case 3: return threeNfav;
+            case 2: return twoNfav;
+            case 1: return oneNfav;
+            case 0: return fav;
+            default: "transparent"
+
+        }
                
 	}
 
@@ -211,8 +217,6 @@ $(document).ready(() => {
         }).addTo(map);
     }
 
-	
-
 	map.attributionControl.addAttribution('Dados do Covid &copy; <a href="https://covid.saude.gov.br/">Ministério da Saúde</a>');
     map.attributionControl.addAttribution('Dados de UTI &copy; <a href="https://www.ciasc.sc.gov.br/">CIASC</a>');
 
@@ -224,7 +228,9 @@ $(document).ready(() => {
 		var div = L.DomUtil.create('div', 'map-info legend');
 			labels = ["<b>Condição de retorno das aulas</b> </br>"]
             labels.push('<i style="background:' + getColor(0) + '"></i> (Favorável)<br />');
-            labels.push('<i style="background:' + getColor(1) + '"></i> (Não Favorável)');
+            labels.push('<i style="background:' + getColor(1) + '"></i> (1 Indicador não Favorável)<br />');
+            labels.push('<i style="background:' + getColor(2) + '"></i> (2 Indicadores não Favoráveis)<br />');
+            labels.push('<i style="background:' + getColor(3) + '"></i> (3 Indicadores não Favoráveis');
 		   	div.innerHTML = labels.join('<br>');
 		return div;
 	};
