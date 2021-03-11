@@ -115,37 +115,6 @@ $(document).ready(() => {
       var config = {responsive: true}
       Plotly.newPlot('obitos-graph', dados_obitos, mm_layout, config);
 
-
-      /* Casos/óbitos acumulados */
-      var casosAcul = [{
-        type: "scatter",
-        mode: "lines",
-        x: dados.datas,                
-        y: dados.casos_acumulados,
-        line: {color: '#17BECF'},
-        name: "Casos acumulados"
-    }];
-
-    var obitosAcul = [{
-        type: "scatter",
-        mode: "lines",
-        x: dados.datas,
-        y: dados.obitos_acumulados,
-        line: {color: '#FF0000'},
-        name: "Óbitos acumulados"
-    }];
-
-    var mm_layout = {
-        title: 'Casos acumulados',
-    };
-    
-    var config = {responsive: true}
-    Plotly.newPlot('casos-acumulados', casosAcul, mm_layout, config);
-
-    var mm_layout = {
-        title: 'Óbitos acumulados',
-    };
-    Plotly.newPlot('obitos-acumulados', obitosAcul, mm_layout, config);
   }).catch(err => console.error(err));
 
   fetch(base_url + "/api/leitos-por-regiao/"+ id)

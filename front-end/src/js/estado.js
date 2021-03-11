@@ -86,33 +86,30 @@ $(document).ready(() => {
     })
     .then((dados) => {
       //Limpa célculas vazias. 
-      dadosRegionais = $.grep(dados.regionais_casos_acumulados,function(n){ return n == 0 || n });
-      var mm_layout = {
-        title: "Casos acumulados",
-      };
-      var config = { responsive: true };
-      Plotly.newPlot("casos-graph", dadosRegionais, mm_layout, config);
+      // dadosRegionais = $.grep(dados.regionais_casos_acumulados,function(n){ return n == 0 || n });
+      // var mm_layout = {
+      //   title: "Casos acumulados",
+      // };
+      // var config = { responsive: true };
+      // Plotly.newPlot("casos-graph", dadosRegionais, mm_layout, config);
 
 
-      //Limpa célculas vazias. 
-      dadosRegionaisObitos = $.grep(dados.regionais_obitos_acumulados,function(n){ return n == 0 || n });
-      var mm_layout = {
-        title: "Óbitos acumulados",
-      };
-      var config = { responsive: true };
-      Plotly.newPlot("obitos-graph", dadosRegionaisObitos, mm_layout, config);
+      // //Limpa célculas vazias. 
+      // dadosRegionaisObitos = $.grep(dados.regionais_obitos_acumulados,function(n){ return n == 0 || n });
+      // var mm_layout = {
+      //   title: "Óbitos acumulados",
+      // };
+      // var config = { responsive: true };
+      // Plotly.newPlot("obitos-graph", dadosRegionaisObitos, mm_layout, config);
 
       //Limpa célculas vazias. 
       dadosRegionaisIncidencia = $.grep(dados.regionais_incidencia,function(n){ return n == 0 || n });
       var mm_layout = {
         title: "Incidência acumulada por 100 mil habitantes",
       };
-      var layout = {
-        title: "Incidência acumulada por 100 mil habitantes",
-        barmode: "stack",
-      };
+      
       var config = { responsive: true };
-      Plotly.newPlot("casos-acumulados", dadosRegionaisIncidencia, mm_layout, config);
+      Plotly.newPlot("incidencia", dadosRegionaisIncidencia, mm_layout, config);
     })
     .catch((err) => console.error(err));
 
