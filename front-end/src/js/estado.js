@@ -119,7 +119,7 @@ $(document).ready(() => {
       // Letalidade
       dadosRegionaisLetalidade = $.grep(dados.regionais_letalidade,function(n){ return n == 0 || n });
       var mm_layout = {
-        title: "Óbitos / número de casos (em %)",
+        title: "Letalidade - Óbitos / número de casos (em %)",
       };
       
       var config = { responsive: true };

@@ -161,7 +161,7 @@ fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
   }];
 
   var mm_layout = {
-      title: "Óbitos / número de casos (em %)",
+      title: "Letalidade - Óbitos / número de casos (em %)",
   };
   
   var config = {responsive: true}

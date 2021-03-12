@@ -162,7 +162,7 @@ $(document).ready(() => {
       }];
   
       var mm_layout = {
-          title: "Óbitos / número de casos (em %)",
+          title: "Letalidade - Óbitos / número de casos (em %)",
       };
       
       var config = {responsive: true}
