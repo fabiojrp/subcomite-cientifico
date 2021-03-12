@@ -1,12 +1,25 @@
-var stateData = null;
+
+$.ajax({
+    type: 'GET',
+    url: base_url + '/api/dados-estado/',
+    async: false,
+    success: function(data) {
+        rt = data.stateData.features[0].properties.rt;
+        media_movel = data.stateData.features[0].properties.media_movel;
+        leitos = data.stateData.features[0].properties.ocupacao_leitos;
+        
+    },error: function(result) {
+        console.log("Erro");
+    }
+  });
 var regionData = { "type": "FeatureCollection", "features": [ 
     {
         "type": "Feature",
         "properties":{
             "name": "Alto Uruguai Catarinense", 
-            "rt": 1.3,
-            "media_movel": '55%', 
-            "ocupacao_leitos": "120%",
+            "rt": rt,
+            "media_movel": media_movel.toFixed(2), 
+            "ocupacao_leitos": leitos.toFixed(2),
             "center" : [-27.142063934075992, -52.060554383313196],
             "zoom" : 10,
         
