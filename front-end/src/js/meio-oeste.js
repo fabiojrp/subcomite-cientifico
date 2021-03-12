@@ -43,97 +43,142 @@ var regionData = { "type": "FeatureCollection", "features": [
 
 $(document).ready(() => {
   var id = 12; /* MEIO OESTE */
-
+  
   fetch(base_url + '/api/rt-por-regiao/' + id).then(response => {
-      return response.json()
-  }).then(dados => {
-      /* R(t) */
-      var rt = [
-          {
-          x: dados.datas,
-          y: dados.rt,
-          type: 'scatter'
-          }
-      ];
-      var rt_layout = {
-          title: 'Taxa de Transmissibilidade R(t)',
-      };
-
-      var config = {responsive: true};
-
-      Plotly.newPlot('rt-graph', rt, rt_layout, config);
-  }).catch(err => console.error(err));
-
-  fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
-      return response.json()
-  }).then(dados => {
-          /* Casos / Casos média móvel */
-          var casos= {
-            type: "scatter",
-            mode: "lines",
-            x: dados.datas,                
-            y: dados.casos,
-            line: {color: '#17BECF'},
-            name: "Casos"
+    return response.json()
+}).then(dados => {
+    /* R(t) */
+    var rt = [
+        {
+        x: dados.datas,
+        y: dados.rt,
+        type: 'scatter'
         }
-  
-        var casos_media_movel = {
-            type: "scatter",
-            mode: "lines",
-            x: dados.datas,
-            y: dados.casos_media_movel,
-            line: {color: '#FF0000'},
-            name: "Casos Média Móvel"
-        }
-        dados_casos = [casos, casos_media_movel]
-  
-        var mm_layout = {
-            title: 'Casos X Casos Média Móvel',
-        };
+    ];
+    var rt_layout = {
+        title: 'Taxa de Transmissibilidade R(t)',
+    };
+    var config = {responsive: true}
+    Plotly.newPlot('rt-graph', rt, rt_layout, config);
+}).catch(err => console.error(err));
 
-        var config = {responsive: true};
-        
-        Plotly.newPlot('casos-graph', dados_casos, mm_layout, config);
-
-      /* Óbitos / Óbitos média móvel */
-      var obitos = {
+fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
+    return response.json()
+}).then(dados => {
+  var d = new Date(dados.maxData); 
+  var datestring = ("0" + d.getDate()).slice(-2) + "/" + ("0"+(d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
+  $("#dataAtualizacao").text(datestring);
+  
+        /* Casos / Casos média móvel */
+        var casos= {
           type: "scatter",
           mode: "lines",
           x: dados.datas,                
-          y: dados.obitos,
+          y: dados.casos,
           line: {color: '#17BECF'},
-          name: "Óbitos"
+          name: "Casos"
       }
 
-      var obitos_media_movel = {
+      var casos_media_movel = {
           type: "scatter",
           mode: "lines",
           x: dados.datas,
-          y: dados.obitos_media_movel,
+          y: dados.casos_media_movel,
           line: {color: '#FF0000'},
-          name: "Óbitos Média Móvel"
+          name: "Casos Média Móvel"
       }
-      dados_obitos = [obitos, obitos_media_movel]
+      dados_casos = [casos, casos_media_movel]
 
       var mm_layout = {
-          title: 'Óbitos X Óbitos Média Móvel',
+          title: 'Casos X Casos Média Móvel',
       };
+
+      var config = {responsive: true}
+      Plotly.newPlot('casos-graph', dados_casos, mm_layout, config);
+
+    /* Óbitos / Óbitos média móvel */
+    var obitos = {
+        type: "scatter",
+        mode: "lines",
+        x: dados.datas,                
+        y: dados.obitos,
+        line: {color: '#17BECF'},
+        name: "Óbitos"
+    }
+
+    var obitos_media_movel = {
+        type: "scatter",
+        mode: "lines",
+        x: dados.datas,
+        y: dados.obitos_media_movel,
+        line: {color: '#FF0000'},
+        name: "Óbitos Média Móvel"
+    }
+    dados_obitos = [obitos, obitos_media_movel]
+
+    var mm_layout = {
+        title: 'Óbitos X Óbitos Média Móvel',
+    };
+    
+    var casos_media_movel = {
+      type: "scatter",
+      mode: "lines",
+      x: dados.datas,
+      y: dados.casos_media_movel,
+      line: {color: '#FF0000'},
+      name: "Casos Média Móvel"
+  }
+  
+  var config = {responsive: true}
+  Plotly.newPlot('obitos-graph', dados_obitos, mm_layout, config);
+
+  // Incidência
+  var dados_incidencia = [{
+      type: "scatter",
+      mode: "lines",
+      x: dados.datas,
+      y: dados.incidencia,
+      line: {color: '#FF0000'},
+      name: "Casos Média Móvel"
+  }];
+
+  var mm_layout = {
+      title: "Incidência acumulada por 100 mil habitantes"
+  };
+  
+  var config = {responsive: true}
+  Plotly.newPlot('incidencia-graph', dados_incidencia, mm_layout, config);
+
       
-      var config = {responsive: true};
+  // Letalidade
+  var dados_letalidade = [{
+      type: "scatter",
+      mode: "lines",
+      x: dados.datas,
+      y: dados.letalidade,
+      line: {color: '#FF0000'},
+      name: "Casos Média Móvel"
+  }];
 
-      Plotly.newPlot('obitos-graph', dados_obitos, mm_layout, config);
+  var mm_layout = {
+      title: "Óbitos / número de casos (em %)",
+  };
+  
+  var config = {responsive: true}
+  Plotly.newPlot('letalidade-graph', dados_letalidade, mm_layout, config);
 
-  }).catch(err => console.error(err));
-  fetch(base_url + "/api/leitos-por-regiao/"+ id)
+}).catch(err => console.error(err));
+
+fetch(base_url + "/api/leitos-por-regiao/"+ id)
   .then((response) => {
     return response.json();
   })
   .then((dados) => {
        /* Ocupacao de Leitos */
-    var ocupacao_leitos = [dados.leitos_ativos, dados.leitos_disponiveis];
+    var ocupacao_leitos = [dados.leitos_ocupados, dados.leitos_disponiveis];
 
     var ol_layout = {
-      title: "Leitos Ativos / Ocupação de Leitos (UTI)",
+      title: "Leitos Disponíveis / Ocupados (UTI - Covid Adulto)",
       barmode: "stack",
       bargap: 0.5, 
       bargroupgap: 0.2, 
@@ -145,4 +190,4 @@ $(document).ready(() => {
   })
   .catch((err) => console.error(err));
 
- });
+});
