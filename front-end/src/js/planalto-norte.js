@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Planalto Norte", 
-            "rt": 0.8, 
-            "media_movel": '30%', 
-            "ocupacao_leitos": "60%",
+            "rt": 1.28, 
+            "media_movel": 38.98, 
+            "ocupacao_leitos": 100,
             "center" : [-26.280640948943162, -50.1248335041546],
             "zoom" : 9
         },

@@ -7,9 +7,9 @@ var regionData = {
             "type":"Feature",
             "properties":{
                 "name": "Extremo Sul Catarinense", 
-                "rt": 1, 
-				"media_movel": '15%', 
-				"ocupacao_leitos": "90%",
+                "rt": 1.01, 
+				"media_movel": 30.55, 
+				"ocupacao_leitos": 100,
                 "path": "extremo-sul.html",
                 "center" : [-29.00946723555038, -49.76401454530074],
                 "zoom" : 10,

@@ -4,9 +4,9 @@ var regionData = {"type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Alto Vale do Itajai", 
-            "rt": 3.3, 
-            "media_movel": '65%', 
-            "ocupacao_leitos": "100%",
+            "rt": 1.39, 
+            "media_movel": 127, 
+            "ocupacao_leitos": 100,
             "center" : [-27.07280897042314, -49.8651433951103],
             "zoom" : 9
         },

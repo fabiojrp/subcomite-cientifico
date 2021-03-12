@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
 		"type":"Feature",
 		"properties":{
 			"name": "Médio Vale do Itajai", 
-			"rt": 0.5, 
-			"media_movel": '15%', 
-			"ocupacao_leitos": "60%",
+			"rt": 1, 
+			"media_movel": 14.24, 
+			"ocupacao_leitos": 100,
 			"center" : [-26.933663870543782, -49.252571375796535],
          	"zoom" : 10
 		},

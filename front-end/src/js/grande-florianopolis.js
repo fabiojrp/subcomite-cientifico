@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
 		"type":"Feature",
 		"properties": {
 			"name": "Grande Florianópolis", 
-			"rt": 1.5, 
-			"media_movel": '12%', 
-			"ocupacao_leitos": "70%",
+			"rt": 1.11, 
+			"media_movel": 28.65, 
+			"ocupacao_leitos": 99.29,
 			"center" : [-27.59890073595106, -48.88699011879245],
          	"zoom" : 9
 		},

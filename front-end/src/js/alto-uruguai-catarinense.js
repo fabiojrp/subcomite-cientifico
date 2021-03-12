@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
         "type": "Feature",
         "properties":{
             "name": "Alto Uruguai Catarinense", 
-            "rt": 1.3,
-            "media_movel": '55%', 
-            "ocupacao_leitos": "120%",
+            "rt": 0.89,
+            "media_movel": -10.0, 
+            "ocupacao_leitos": 100,
             "center" : [-27.142063934075992, -52.060554383313196],
             "zoom" : 10,
         

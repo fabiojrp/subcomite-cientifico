@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Laguna", 
-            "rt": 0.3, 
-            "media_movel": '10%', 
-            "ocupacao_leitos": "50%",
+            "rt": 1.22, 
+            "media_movel": 112.15, 
+            "ocupacao_leitos": 100,
             "center" : [-28.40297402651703, -49.00760143153358],
             "zoom" : 10
         },

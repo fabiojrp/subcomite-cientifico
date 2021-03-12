@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Nordeste", 
-            "rt": 0.6, 
-            "media_movel": '15%', 
-            "ocupacao_leitos": "40%",
+            "rt": 1.25, 
+            "media_movel": 44.97, 
+            "ocupacao_leitos": 100,
             "center" : [-26.350789998171162, -48.92227369592519],
             "zoom" : 10
         },

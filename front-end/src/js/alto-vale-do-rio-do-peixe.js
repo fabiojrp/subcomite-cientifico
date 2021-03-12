@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Alto Vale do Rio do Peixe", 
-            "rt": 0.5, 
-            "media_movel": '19%', 
-            "ocupacao_leitos": "60%",
+            "rt": 0.85, 
+            "media_movel": -16, 
+            "ocupacao_leitos": 100,
             "center" : [-26.866667078574356, -50.77761735201712],
             "zoom" : 9
         },

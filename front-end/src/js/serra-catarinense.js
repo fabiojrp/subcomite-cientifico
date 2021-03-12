@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Serra Catarinense", 
-            "rt": 1.9, 
-            "media_movel": '65%', 
-            "ocupacao_leitos": "85%",
+            "rt": 1.44, 
+            "media_movel": 143.21, 
+            "ocupacao_leitos": 100,
             "center" : [-27.93299278490772, -50.14702533520223],
             "zoom" : 9
         },

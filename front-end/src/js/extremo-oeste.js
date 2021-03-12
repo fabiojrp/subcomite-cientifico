@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
 		"type":"Feature",
 		"properties": {
 			"name": "Extremo Oeste", 
-			"rt": 0.5, 
-			"media_movel": '25%', 
-			"ocupacao_leitos": "50%",
+			"rt": 0.97, 
+			"media_movel": 9.39, 
+			"ocupacao_leitos": 100,
 			"center" : [-26.725216440165212, -53.412620640732044],
 			"zoom" : 10,
 		},

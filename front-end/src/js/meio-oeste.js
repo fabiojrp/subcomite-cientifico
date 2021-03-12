@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Meio Oeste", 
-            "rt": 1.5, 
-            "media_movel": '85%', 
-            "ocupacao_leitos": "90%",
+            "rt": 0.95, 
+            "media_movel": 19.82, 
+            "ocupacao_leitos": 100,
             "center" : [-27.12793486070362, -51.507642293462474],
             "zoom" : 9
         },

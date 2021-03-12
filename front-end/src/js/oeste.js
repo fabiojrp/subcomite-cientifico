@@ -4,9 +4,9 @@ var regionData = {"type": "FeatureCollection", "features": [
         "type":"Feature",
         "properties":{
             "name": "Oeste", 
-            "rt": 0.4, 
-            "media_movel": '20%', 
-            "ocupacao_leitos": "50%",
+            "rt": 0.71, 
+            "media_movel": -34.76, 
+            "ocupacao_leitos": 100,
             "center" : [-26.958137518698145, -52.774897463756076],
             "zoom":10
         },

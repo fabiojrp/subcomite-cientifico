@@ -4,9 +4,9 @@ var regionData = { "type": "FeatureCollection", "features": [
 		"type":"Feature",
 		"properties":{
 			"name": "Foz do Rio Itajai", 
-			"rt": 1.3, 
-			"media_movel": '45%', 
-			"ocupacao_leitos": "95%",
+			"rt": 1.21, 
+			"media_movel": 32.98, 
+			"ocupacao_leitos": 100,
 			"center" : [-26.92700944399338, -48.72234551257507],
          	"zoom" : 10
 		},

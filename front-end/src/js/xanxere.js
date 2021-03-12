@@ -4,9 +4,9 @@ var regionData = {"type": "FeatureCollection", "features": [
       "type":"Feature",
       "properties":{
          "name": "Xanxerê", 
-         "rt": 1.8, 
-         "media_movel": '60%', 
-         "ocupacao_leitos": "80%",
+         "rt": 0.9, 
+         "media_movel": 3.86, 
+         "ocupacao_leitos": 100,
          "center" : [-26.708503105255016, -52.490971775150854],
          "zoom" : 10
       },
