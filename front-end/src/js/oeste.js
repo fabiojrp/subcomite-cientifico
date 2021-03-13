@@ -72,6 +72,9 @@ $(document).ready(() => {
   fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
       return response.json()
   }).then(dados => {
+        var d = new Date(dados.maxData); 
+        var datestring = ("0" + d.getDate()).slice(-2) + "/" + ("0"+(d.getMonth()+1)).slice(-2) + "/" + d.getFullYear();
+        $("#dataAtualizacao").text(datestring);
           /* Casos / Casos média móvel */
           var casos= {
             type: "scatter",
@@ -128,27 +131,63 @@ $(document).ready(() => {
       
       Plotly.newPlot('obitos-graph', dados_obitos, mm_layout, config);
 
-  }).catch(err => console.error(err));
-  fetch(base_url + "/api/leitos-por-regiao/"+ id)
-  .then((response) => {
-    return response.json();
-  })
-  .then((dados) => {
-       /* Ocupacao de Leitos */
-    var ocupacao_leitos = [dados.leitos_ativos, dados.leitos_disponiveis];
+      // Incidência
+    var dados_incidencia = [{
+        type: "scatter",
+        mode: "lines",
+        x: dados.datas,
+        y: dados.incidencia,
+        line: {color: '#FF0000'},
+        name: "Casos Média Móvel"
+    }];
 
-    var ol_layout = {
-      title: "Leitos Ativos / Ocupação de Leitos (UTI)",
-      barmode: "stack",
-      bargap: 0.5, 
-      bargroupgap: 0.2, 
+    var mm_layout = {
+        title: "Incidência acumulada por 100 mil habitantes"
     };
+    
+    var config = {responsive: true}
+    Plotly.newPlot('incidencia-graph', dados_incidencia, mm_layout, config);
 
-    var config = { responsive: true };
+        
+    // Letalidade
+    var dados_letalidade = [{
+        type: "scatter",
+        mode: "lines",
+        x: dados.datas,
+        y: dados.letalidade,
+        line: {color: '#FF0000'},
+        name: "Casos Média Móvel"
+    }];
 
-    Plotly.newPlot("leitos-graph", ocupacao_leitos, ol_layout, config);
-  })
-  .catch((err) => console.error(err));
+    var mm_layout = {
+        title: "Óbitos / número de casos (em %)",
+    };
+    
+    var config = {responsive: true}
+    Plotly.newPlot('letalidade-graph', dados_letalidade, mm_layout, config);
+
+  }).catch(err => console.error(err));
+
+  fetch(base_url + "/api/leitos-por-regiao/"+ id)
+    .then((response) => {
+      return response.json();
+    })
+    .then((dados) => {
+         /* Ocupacao de Leitos */
+      var ocupacao_leitos = [dados.leitos_ocupados, dados.leitos_disponiveis];
+
+      var ol_layout = {
+        title: "Leitos Disponíveis / Ocupados (UTI - Covid Adulto)",
+        barmode: "stack",
+        bargap: 0.5, 
+        bargroupgap: 0.2, 
+      };
+
+      var config = { responsive: true };
+
+      Plotly.newPlot("leitos-graph", ocupacao_leitos, ol_layout, config);
+    })
+    .catch((err) => console.error(err));
 
 
  });
