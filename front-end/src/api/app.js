@@ -16,7 +16,7 @@ const pool = new Pool({
     host: 'localhost',
     database: 'covid', // covid - mauricio
     //password: 'postgres', // postgres mauricio
-    password: 'zzdz0737', // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: '!admpasswd@covid', // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432
 })
 
@@ -95,7 +95,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
 
             region = regions[id]
 
-            if (typeof(region) === 'undefined') {
+            if (typeof (region) === 'undefined') {
                 res.send("Região não reconhecida. Informe um ID válido.")
                 return;
             }
@@ -109,7 +109,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 datas = rows.rows.map(row => {
                     return row.data;
                 })
-    
+
                 casos = rows.rows.map(row => {
                     return row.casos_dia;
                 })
@@ -134,7 +134,7 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                     return row.obitos_acumulados;
                 })
                 incidencia = rows.rows.map(row => {
-                    return (row.casos_acumulados/row.populacao)*1e5;
+                    return (row.casos_acumulados / row.populacao) * 1e5;
                 })
 
                 letalidade = rows.rows.map(row => {
@@ -143,14 +143,16 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
 
             }
 
-            res.send({region, maxData, datas, casos, casos_media_movel, obitos, obitos_media_movel, 
-                casos_acumulados, obitos_acumulados, letalidade, incidencia})
-        })    
-    })
+            res.send({
+                region, maxData, datas, casos, casos_media_movel, obitos, obitos_media_movel,
+                casos_acumulados, obitos_acumulados, letalidade, incidencia
+            })
+        })
+})
 
-    app.get('/api/casos-por-regiao/', (req, res) => {
-        pool.query(
-            `SELECT REGIONAIS.ID,
+app.get('/api/casos-por-regiao/', (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.ID,
                     REGIONAIS.REGIONAL_SAUDE,
                     CASOS.DATA,
                     SUM(CASOS.CASOS_ACUMULADOS) AS CASOS_ACUMULADOS,
@@ -168,341 +170,343 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                 GROUP BY REGIONAIS.ID, REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
                 ORDER BY REGIONAIS.ID, CASOS.DATA
             `,
-            (err, rows) => {
+        (err, rows) => {
 
-                if (err) {
-                    console.log("Erro ao buscar o casos por região: " + err)
-                    return
+            if (err) {
+                console.log("Erro ao buscar o casos por região: " + err)
+                return
+            }
+
+            result = rows.rows;
+            regionais_casos_acumulados = [];
+            regionais_obitos_acumulados = [];
+            regionais_casos_mediamovel = [];
+            regionais_obitos_mediamovel = [];
+            regionais_incidencia = [];
+            regionais_letalidade = [];
+            maxData = 0;
+            result.forEach(item => {
+                if (!regionais_casos_acumulados[item.id]) {
+                    if (item.id == 1) {
+                        regionais_casos_acumulados[item.id] = {
+                            "name": "Estado de SC",
+                            "mode": "lines",
+                            "type": "scatter",
+                            "x": [],
+                            "y": []
+                        };
+                    } else {
+                        regionais_casos_acumulados[item.id] = {
+                            "name": item.regional_saude,
+                            "mode": "lines",
+                            "type": "scatter",
+                            "visible": "legendonly",
+                            "x": [],
+                            "y": []
+                        };
+                    }
                 }
-                
-                result = rows.rows;
-                regionais_casos_acumulados = [];
-                regionais_obitos_acumulados = [];
-                regionais_casos_mediamovel = [];
-                regionais_obitos_mediamovel = [];
-                regionais_incidencia = [];
-                regionais_letalidade = [];
-                maxData = 0;
-                result.forEach(item => {
-                   if (!regionais_casos_acumulados[item.id]) {
-                        if (item.id == 1) {
-                            regionais_casos_acumulados[item.id] = {
-                                "name":"Estado de SC",
-                                "mode":"lines",
-                                "type":"scatter",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }else{
-                            regionais_casos_acumulados[item.id] = {
-                                "name":item.regional_saude,
-                                "mode":"lines",
-                                "type":"scatter",
-                                "visible": "legendonly",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }
+                if (!regionais_obitos_acumulados[item.id]) {
+                    if (item.id == 1) {
+                        regionais_obitos_acumulados[item.id] = {
+                            "name": "Estado de SC",
+                            "mode": "lines",
+                            "type": "scatter",
+                            "x": [],
+                            "y": []
+                        };
+                    } else {
+                        regionais_obitos_acumulados[item.id] = {
+                            "name": item.regional_saude,
+                            "mode": "lines",
+                            "type": "scatter",
+                            "visible": "legendonly",
+                            "x": [],
+                            "y": []
+                        };
                     }
-                    if (!regionais_obitos_acumulados[item.id]) {
-                        if (item.id == 1) {
-                            regionais_obitos_acumulados[item.id] = {
-                                "name":"Estado de SC",
-                                "mode":"lines",
-                                "type":"scatter",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }else{
-                            regionais_obitos_acumulados[item.id] = {
-                                "name":item.regional_saude,
-                                "mode":"lines",
-                                "type":"scatter",
-                                "visible": "legendonly",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }
+                }
+                // Casos média móvel
+                if (!regionais_casos_mediamovel[item.id]) {
+                    if (item.id == 1) {
+                        regionais_casos_mediamovel[item.id] = {
+                            "name": "Estado de SC",
+                            "mode": "lines",
+                            "type": "scatter",
+                            "x": [],
+                            "y": []
+                        };
+                    } else {
+                        regionais_casos_mediamovel[item.id] = {
+                            "name": item.regional_saude,
+                            "mode": "lines",
+                            "type": "scatter",
+                            "visible": "legendonly",
+                            "x": [],
+                            "y": []
+                        };
                     }
-                    // Casos média móvel
-                    if (!regionais_casos_mediamovel[item.id]) {
-                        if (item.id == 1) {
-                            regionais_casos_mediamovel[item.id] = {
-                                "name":"Estado de SC",
-                                "mode":"lines",
-                                "type":"scatter",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }else{
-                            regionais_casos_mediamovel[item.id] = {
-                                "name":item.regional_saude,
-                                "mode":"lines",
-                                "type":"scatter",
-                                "visible": "legendonly",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }
+                }
+
+
+                // Óbitos média móvel
+                if (!regionais_obitos_mediamovel[item.id]) {
+                    if (item.id == 1) {
+                        regionais_obitos_mediamovel[item.id] = {
+                            "name": "Estado de SC",
+                            "mode": "lines",
+                            "type": "scatter",
+                            "x": [],
+                            "y": []
+                        };
+                    } else {
+                        regionais_obitos_mediamovel[item.id] = {
+                            "name": item.regional_saude,
+                            "mode": "lines",
+                            "type": "scatter",
+                            "visible": "legendonly",
+                            "x": [],
+                            "y": []
+                        };
                     }
+                }
 
-
-                    // Óbitos média móvel
-                    if (!regionais_obitos_mediamovel[item.id]) {
-                        if (item.id == 1) {
-                            regionais_obitos_mediamovel[item.id] = {
-                                "name":"Estado de SC",
-                                "mode":"lines",
-                                "type":"scatter",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }else{
-                            regionais_obitos_mediamovel[item.id] = {
-                                "name":item.regional_saude,
-                                "mode":"lines",
-                                "type":"scatter",
-                                "visible": "legendonly",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }
+                if (!regionais_incidencia[item.id]) {
+                    if (item.id == 1) {
+                        regionais_incidencia[item.id] = {
+                            "name": "Estado de SC",
+                            "mode": "lines",
+                            "type": "scatter",
+                            "x": [],
+                            "y": []
+                        };
+                    } else {
+                        regionais_incidencia[item.id] = {
+                            "name": item.regional_saude,
+                            "mode": "lines",
+                            "type": "scatter",
+                            "visible": "legendonly",
+                            "x": [],
+                            "y": []
+                        };
                     }
+                }
 
-                    if (!regionais_incidencia[item.id]) {
-                        if (item.id == 1) {
-                            regionais_incidencia[item.id] = {
-                                "name":"Estado de SC",
-                                "mode":"lines",
-                                "type":"scatter",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }else{
-                            regionais_incidencia[item.id] = {
-                                "name":item.regional_saude,
-                                "mode":"lines",
-                                "type":"scatter",
-                                "visible": "legendonly",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }    
+                if (!regionais_letalidade[item.id]) {
+                    if (item.id == 1) {
+                        regionais_letalidade[item.id] = {
+                            "name": "Estado de SC",
+                            "mode": "lines",
+                            "type": "scatter",
+                            "x": [],
+                            "y": []
+                        };
+                    } else {
+                        regionais_letalidade[item.id] = {
+                            "name": item.regional_saude,
+                            "mode": "lines",
+                            "type": "scatter",
+                            "visible": "legendonly",
+                            "x": [],
+                            "y": []
+                        };
                     }
+                }
 
-                    if (!regionais_letalidade[item.id]) {
-                        if (item.id == 1) {
-                            regionais_letalidade[item.id] = {
-                                "name":"Estado de SC",
-                                "mode":"lines",
-                                "type":"scatter",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }else{
-                            regionais_letalidade[item.id] = {
-                                "name":item.regional_saude,
-                                "mode":"lines",
-                                "type":"scatter",
-                                "visible": "legendonly",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }    
-                    }
+                regionais_casos_acumulados[item.id].x.push(item.data);
+                regionais_casos_acumulados[item.id].y.push(item.casos_acumulados);
 
-                    regionais_casos_acumulados[item.id].x.push(item.data);
-                    regionais_casos_acumulados[item.id].y.push(item.casos_acumulados);
+                regionais_obitos_acumulados[item.id].x.push(item.data);
+                regionais_obitos_acumulados[item.id].y.push(item.obitos_acumulados);
 
-                    regionais_obitos_acumulados[item.id].x.push(item.data);
-                    regionais_obitos_acumulados[item.id].y.push(item.obitos_acumulados);
+                regionais_casos_mediamovel[item.id].x.push(item.data);
+                regionais_casos_mediamovel[item.id].y.push(item.casos_mediamovel);
 
-                    regionais_casos_mediamovel[item.id].x.push(item.data);
-                    regionais_casos_mediamovel[item.id].y.push(item.casos_mediamovel);
+                regionais_obitos_mediamovel[item.id].x.push(item.data);
+                regionais_obitos_mediamovel[item.id].y.push(item.obitos_mediamovel);
 
-                    regionais_obitos_mediamovel[item.id].x.push(item.data);
-                    regionais_obitos_mediamovel[item.id].y.push(item.obitos_mediamovel);
+                regionais_incidencia[item.id].x.push(item.data);
+                regionais_incidencia[item.id].y.push((item.casos_acumulados / item.populacao) * 1e5);
 
-                    regionais_incidencia[item.id].x.push(item.data);
-                    regionais_incidencia[item.id].y.push((item.casos_acumulados/item.populacao)*1e5);
+                regionais_letalidade[item.id].x.push(item.data);
+                regionais_letalidade[item.id].y.push(item.letalidade);
 
-                    regionais_letalidade[item.id].x.push(item.data);
-                    regionais_letalidade[item.id].y.push(item.letalidade);
-                    
-                    if (item.data > maxData)
-                        maxData = item.data;
-                });
-    
-                
-                res.send({maxData, regionais_casos_acumulados, regionais_obitos_acumulados, regionais_casos_mediamovel,
-                    regionais_obitos_mediamovel, regionais_incidencia, regionais_letalidade})
+                if (item.data > maxData)
+                    maxData = item.data;
+            });
 
-             })    
+
+            res.send({
+                maxData, regionais_casos_acumulados, regionais_obitos_acumulados, regionais_casos_mediamovel,
+                regionais_obitos_mediamovel, regionais_incidencia, regionais_letalidade
+            })
+
         })
+})
 
-    app.get('/api/rt-por-regiao/:id', (req, res) => {
-        id = req.params.id;
-    
-        pool.query(
-            `SELECT RT.DATA as data,
+app.get('/api/rt-por-regiao/:id', (req, res) => {
+    id = req.params.id;
+
+    pool.query(
+        `SELECT RT.DATA as data,
             RT.RT as rt
         FROM REGIONAIS, RT
         WHERE RT.REGIONAL = REGIONAIS.ID
                 AND RT.REGIONAL = $1
         ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
             `,
-            [id],
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar o R(T) por região: " + err)
-                    return
-                }
-    
-                region = regions[id]
-    
-                if (typeof(region) === 'undefined') {
-                    res.send("Região não reconhecida. Informe um ID válido.")
-                    return;
-                }
-    
-                if (rows.rows.length > 0) {
-                    datas = rows.rows.map(row => {
-                        return row.data;
-                    })
-                    rt = rows.rows.map(row => {
-                        return row.rt;
-                    })
-    
-                }
-    
-                res.send({region, datas, rt})
-            })    
-    })
+        [id],
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o R(T) por região: " + err)
+                return
+            }
 
-    /*
-    app.get('/api/rt-por-regiao/', (req, res) => {  
-        pool.query(
-            `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
-            RT.RT as rt
-        FROM REGIONAIS, RT
-        WHERE DATA BETWEEN
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
-                (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
-                AND RT.REGIONAL = REGIONAIS.ID
-                AND REGIONAIS.ID <> 1
-        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
-            `,
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar o R(T) por região: " + err)
-                    return
-                }
+            region = regions[id]
+
+            if (typeof (region) === 'undefined') {
+                res.send("Região não reconhecida. Informe um ID válido.")
+                return;
+            }
+
+            if (rows.rows.length > 0) {
+                datas = rows.rows.map(row => {
+                    return row.data;
+                })
+                rt = rows.rows.map(row => {
+                    return row.rt;
+                })
+
+            }
+
+            res.send({ region, datas, rt })
+        })
+})
+
+/*
+app.get('/api/rt-por-regiao/', (req, res) => {  
+    pool.query(
+        `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
+        RT.RT as rt
+    FROM REGIONAIS, RT
+    WHERE DATA BETWEEN
+            (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '5 months' AND
+            (SELECT MAX(RT.DATA) AS MAX_DATA FROM RT) - interval '1 day'
+            AND RT.REGIONAL = REGIONAIS.ID
+            AND REGIONAIS.ID <> 1
+    ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+        `,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o R(T) por região: " + err)
+                return
+            }
+            
+            result = rows.rows;
+            regionais = {};
+            result.forEach(item => {
+               const temp = {};
+               if (!regionais[item.regional_saude]) {
+                    regionais[item.regional_saude] = [{
+                        "name":item.regional_saude,
+                        "mode":"lines",
+                        "type":"scatter",
+                        "x" : [], 
+                        "y": []
+                    }];
+                };
+                regionais[item.regional_saude][0].x.push(item.data);
+                regionais[item.regional_saude][0].y.push(item.rt);
                 
-                result = rows.rows;
-                regionais = {};
-                result.forEach(item => {
-                   const temp = {};
-                   if (!regionais[item.regional_saude]) {
-                        regionais[item.regional_saude] = [{
-                            "name":item.regional_saude,
-                            "mode":"lines",
-                            "type":"scatter",
-                            "x" : [], 
-                            "y": []
-                        }];
-                    };
-                    regionais[item.regional_saude][0].x.push(item.data);
-                    regionais[item.regional_saude][0].y.push(item.rt);
-                    
-                });
-    
-                res.send({regionais})
-            })    
-    })
+            });
+ 
+            res.send({regionais})
+        })    
+})
 */
 
-    app.get('/api/rt-por-regiao/', (req, res) => {
-        pool.query(
-            `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
+app.get('/api/rt-por-regiao/', (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
                 RT.RT as rt
             FROM REGIONAIS, RT
             WHERE RT.REGIONAL = REGIONAIS.ID
             ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
             `,
-            (err, rows) => {
+        (err, rows) => {
 
-                if (err) {
-                    console.log("Erro ao buscar o valor de R(t) por região: " + err)
-                    return
-                }
-                
-                result = rows.rows;
-                regionais = [];
-                result.forEach(item => {
-                   if (!regionais[item.id]) {
-                       if (item.id == 1) {
+            if (err) {
+                console.log("Erro ao buscar o valor de R(t) por região: " + err)
+                return
+            }
+
+            result = rows.rows;
+            regionais = [];
+            result.forEach(item => {
+                if (!regionais[item.id]) {
+                    if (item.id == 1) {
                         regionais[item.id] = {
-                            "name":"Estado de SC",
-                            "mode":"lines",
-                            "type":"scatter",
-                            "x" : [], 
+                            "name": "Estado de SC",
+                            "mode": "lines",
+                            "type": "scatter",
+                            "x": [],
                             "y": []
                         };
 
-                       }else {
-                            regionais[item.id] = {
-                                "name":item.regional_saude,
-                                "mode":"lines",
-                                "type":"scatter",
-                                "visible": "legendonly",
-                                "x" : [], 
-                                "y": []
-                            };
-                        }
-                    };
-                    regionais[item.id].x.push(item.data);
-                    regionais[item.id].y.push(item.rt);
-                    
-                });
-    
-                res.send({regionais})
+                    } else {
+                        regionais[item.id] = {
+                            "name": item.regional_saude,
+                            "mode": "lines",
+                            "type": "scatter",
+                            "visible": "legendonly",
+                            "x": [],
+                            "y": []
+                        };
+                    }
+                };
+                regionais[item.id].x.push(item.data);
+                regionais[item.id].y.push(item.rt);
 
-             })    
+            });
+
+            res.send({ regionais })
+
         })
+})
 
 
-    app.get('/api/rt-estado/', (req, res) => {  
-        pool.query(
-            `SELECT RT.DATA as data,
+app.get('/api/rt-estado/', (req, res) => {
+    pool.query(
+        `SELECT RT.DATA as data,
             RT.RT as rt
         FROM RT
         WHERE RT.REGIONAL = 1
         ORDER BY RT.DATA
             `,
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar o R(T) por região: " + err)
-                    return
-                }
-       
-                if (rows.rows.length > 0) {
-                    datas = rows.rows.map(row => {
-                        return row.data;
-                    })
-        
-                    rt = rows.rows.map(row => {
-                        return row.rt;
-                    })
-                }
-    
-                res.send({datas, rt})
-            })    
-    })
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o R(T) por região: " + err)
+                return
+            }
 
-    app.get('/api/leitos-por-regiao/:id', (req, res) => {  
-        id = req.params.id;
-        pool.query(
-            `SELECT SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+            if (rows.rows.length > 0) {
+                datas = rows.rows.map(row => {
+                    return row.data;
+                })
+
+                rt = rows.rows.map(row => {
+                    return row.rt;
+                })
+            }
+
+            res.send({ datas, rt })
+        })
+})
+
+app.get('/api/leitos-por-regiao/:id', (req, res) => {
+    id = req.params.id;
+    pool.query(
+        `SELECT SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
                 SUM(leitoscovid.LEITOS_DISPONIVEIS) AS LEITOS_DISPONIVEIS,
                 leitoscovid.ATUALIZACAO AS DATA
             FROM leitoscovid
@@ -510,50 +514,50 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             GROUP BY leitoscovid.ATUALIZACAO
             ORDER BY leitoscovid.ATUALIZACAO
             `,
-            [id],
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar o valor de leitos da região: " + err)
-                    return
-                }
-    
-                region = regions[id]
-                if (typeof(region) === 'undefined') {
-                    res.send("Região não reconhecida. Informe um ID válido.")
-                    return;
-                }
-                
-                leitos_ocupados = {
-                    "name":"Leitos Ocupados",
-                    "type": "bar",
-                    "opacity": 0.5,
-                    "x" : [], 
-                    "y": []
-                };
-                leitos_disponiveis = {
-                    "name":"Leitos Disponíveis",
-                    "type": "bar",
-                    "opacity": 0.4,
-                    "x" : [], 
-                    "y": []
-                };
+        [id],
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valor de leitos da região: " + err)
+                return
+            }
 
-                result = rows.rows;
-                result.forEach(item => {
-                    leitos_ocupados.x.push(item.data);
-                    leitos_ocupados.y.push(item.leitos_ocupados);
+            region = regions[id]
+            if (typeof (region) === 'undefined') {
+                res.send("Região não reconhecida. Informe um ID válido.")
+                return;
+            }
 
-                    leitos_disponiveis.x.push(item.data);
-                    leitos_disponiveis.y.push(item.leitos_disponiveis);
-                });
-    
-                res.send({leitos_disponiveis, leitos_ocupados})  
-            })    
-    })
+            leitos_ocupados = {
+                "name": "Leitos Ocupados",
+                "type": "bar",
+                "opacity": 0.5,
+                "x": [],
+                "y": []
+            };
+            leitos_disponiveis = {
+                "name": "Leitos Disponíveis",
+                "type": "bar",
+                "opacity": 0.4,
+                "x": [],
+                "y": []
+            };
 
-    app.get('/api/leitos-por-regiao/', (req, res) => {  
-        pool.query(
-            `SELECT REGIONAIS.REGIONAL_SAUDE,
+            result = rows.rows;
+            result.forEach(item => {
+                leitos_ocupados.x.push(item.data);
+                leitos_ocupados.y.push(item.leitos_ocupados);
+
+                leitos_disponiveis.x.push(item.data);
+                leitos_disponiveis.y.push(item.leitos_disponiveis);
+            });
+
+            res.send({ leitos_disponiveis, leitos_ocupados })
+        })
+})
+
+app.get('/api/leitos-por-regiao/', (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.REGIONAL_SAUDE,
                 REGIONAIS.ID as ID,
                 SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
                 SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
@@ -567,63 +571,63 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
             ORDER BY REGIONAIS.ID,
                 leitoscovid.ATUALIZACAO
             `,
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar o valor de leitos das regiões: " + err)
-                    return
-                }
-                result = rows.rows;
-                regionais = [];
-                totalEstado = [];
-                result.forEach(item => {
-                   if (!regionais[item.id]) {
-                        regionais[item.id] = {
-                            "name":item.regional_saude,
-                            "mode":"lines",
-                            "type":"scatter",
-                            "visible": "legendonly",
-                            "x" : [], 
-                            "y": []
-                        };
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valor de leitos das regiões: " + err)
+                return
+            }
+            result = rows.rows;
+            regionais = [];
+            totalEstado = [];
+            result.forEach(item => {
+                if (!regionais[item.id]) {
+                    regionais[item.id] = {
+                        "name": item.regional_saude,
+                        "mode": "lines",
+                        "type": "scatter",
+                        "visible": "legendonly",
+                        "x": [],
+                        "y": []
                     };
-                    regionais[item.id].x.push(item.data);
-                    regionais[item.id].y.push((item.leitos_ocupados/item.leitos_ativos)*100);
-
-                    if (!totalEstado[item.data]) {
-                        totalEstado[item.data] = {
-                            "leitos_ocupados" : 0,
-                            "leitos_ativos" : 0,
-                            "data": item.data
-
-                        };
-                    }
-                    totalEstado[item.data].leitos_ocupados += parseInt(item.leitos_ocupados);
-                    totalEstado[item.data].leitos_ativos += parseInt(item.leitos_ativos);
-
-                });
-
-                regionais[0] = {
-                    "name":"Estado de SC",
-                    "mode":"lines",
-                    "type":"scatter",
-                    "x" : [] , 
-                    "y": []
                 };
+                regionais[item.id].x.push(item.data);
+                regionais[item.id].y.push((item.leitos_ocupados / item.leitos_ativos) * 100);
 
-                for (var [key, item] of Object.entries(totalEstado)) {
-                    regionais[0].x.push(item.data);
-                    regionais[0].y.push((item.leitos_ocupados/item.leitos_ativos)*100);
+                if (!totalEstado[item.data]) {
+                    totalEstado[item.data] = {
+                        "leitos_ocupados": 0,
+                        "leitos_ativos": 0,
+                        "data": item.data
+
+                    };
                 }
-                
-    
-                res.send({regionais})  
-            })    
-    })
+                totalEstado[item.data].leitos_ocupados += parseInt(item.leitos_ocupados);
+                totalEstado[item.data].leitos_ativos += parseInt(item.leitos_ativos);
 
-    app.get('/api/dados-estado/', (req, res) => {
-    
-        pool.query(
-            `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
+            });
+
+            regionais[0] = {
+                "name": "Estado de SC",
+                "mode": "lines",
+                "type": "scatter",
+                "x": [],
+                "y": []
+            };
+
+            for (var [key, item] of Object.entries(totalEstado)) {
+                regionais[0].x.push(item.data);
+                regionais[0].y.push((item.leitos_ocupados / item.leitos_ativos) * 100);
+            }
+
+
+            res.send({ regionais })
+        })
+})
+
+app.get('/api/dados-estado/', (req, res) => {
+
+    pool.query(
+        `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
             VIEW_RT.ID AS ID,
             VIEW_RT.DATA AS RT_DATA,
             VIEW_RT.RT AS RT_VALOR,
@@ -642,58 +646,96 @@ app.get('/api/casos-por-regiao/:id', (req, res) => {
                         AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
                         AND VIEW_RT.ID = VIEW_LEITOS.ID
             `,
-            (err, rows) => {
-                if (err) {
-                    console.log("Erro ao buscar os dados do estado: " + err)
-                    return
-                }
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados do estado: " + err)
+                return
+            }
 
-                stateData = {
-                    "type":"FeatureCollection",
-                    "features":[]
+            stateData = {
+                "type": "FeatureCollection",
+                "features": []
+            };
+
+            if (rows.rows.length > 0) {
+                result = rows.rows;
+                for (var i = 0; i < result.length; i++) {
+                    mediamovel = result[i].variacao * 100;
+                    /*mediamovel = mediamovel.toFixed(0);
+                    if (mediamovel > 15){
+                       mediamovel += "%";
+                       mediamovel += " (EM ALTA)"
+                    } else if((mediamovel <= 15) && (mediamovel >= -15)) {
+                       mediamovel += "%";
+                       mediamovel += " (ESTÁVEL)" 
+                    } else if (mediamovel < -15){
+                       mediamovel += "%";
+                       mediamovel += " (QUEDA)" 
+                    }*/
+
+                    leitos = result[i].leitos_ocupados * 100;
+
+                    stateData.features.push(
+                        {
+                            "type": "Feature",
+                            "regional_id": result[i].id,
+                            "properties": {
+                                "name": result[i].regionais,
+                                "rt": Number(result[i].rt_valor),
+                                "media_movel": mediamovel,
+                                // result[i].variacao,
+
+                                // "ocupacao_leitos": leitos.toFixed(0) + "%",
+                                "ocupacao_leitos": leitos,
+                                "path": result[i].url
+                            },
+                            "geometry": result[i].poligono
+                        }
+                    );
+                }
+            }
+
+            res.send({ stateData })
+        })
+})
+
+app.get('/api/dados-regiao/:id', (req, res) => {
+    id = req.params.id;
+    pool.query(
+        `SELECT  VIEW_RT.RT AS RT_VALOR,
+            1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO
+        FROM VIEW_RT,
+            VIEW_CASOS_ATUAL,
+            VIEW_CASOS_ANTERIOR,
+            VIEW_LEITOS
+        WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
+                        AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+                        AND VIEW_RT.ID = VIEW_LEITOS.ID
+						AND VIEW_RT.ID = $1
+            `,
+        [id],
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados do estado: " + err)
+                return
+            }
+
+            if (rows.rows.length > 0) {
+                result = rows.rows;
+                mediamovel = result[0].variacao * 100;
+                leitos = result[0].leitos_ocupados * 100;
+
+                dados = {
+                    "rt": (result[0].rt_valor * 1).toFixed(2),
+                    "media_movel": mediamovel.toFixed(2),
+                    "ocupacao_leitos": leitos.toFixed(2)
                 };
 
-                if (rows.rows.length > 0) {
-                    result = rows.rows;
-                    for (var i = 0; i < result.length; i++) {   
-                         mediamovel = result[i].variacao * 100;
-                         /*mediamovel = mediamovel.toFixed(0);
-                         if (mediamovel > 15){
-                            mediamovel += "%";
-                            mediamovel += " (EM ALTA)"
-                         } else if((mediamovel <= 15) && (mediamovel >= -15)) {
-                            mediamovel += "%";
-                            mediamovel += " (ESTÁVEL)" 
-                         } else if (mediamovel < -15){
-                            mediamovel += "%";
-                            mediamovel += " (QUEDA)" 
-                         }*/
-                         
-                        leitos = result[i].leitos_ocupados * 100;
-                        
-                        stateData.features.push(
-                                {
-                                    "type": "Feature",
-                                    "regional_id": result[i].id, 
-                                    "properties":{
-                                        "name": result[i].regionais, 
-                                        "rt": Number(result[i].rt_valor), 
-                                        "media_movel": mediamovel, 
-                                        // result[i].variacao,
-                                        
-                                       // "ocupacao_leitos": leitos.toFixed(0) + "%",
-                                        "ocupacao_leitos": leitos,
-                                        "path": result[i].url
-                                    },
-                                    "geometry": result[i].poligono
-                                }
-                        );
-                    }
-                }
-   
-                res.send({stateData})
-            })    
-    })
+                res.send(dados)
+            }
+        })
+})
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)

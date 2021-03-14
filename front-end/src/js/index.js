@@ -33,6 +33,20 @@ $(document).ready(() => {
     });
     L.geoJson(stateData).addTo(map);
   } else {
+    $.ajax({
+      type: "GET",
+      url: base_url + '/api/dados-regiao/' + id,
+      async: false,
+      success: function (dados) {
+        regionData.features[0].properties.rt = dados.rt;
+        regionData.features[0].properties.media_movel = dados.media_movel;
+        regionData.features[0].properties.ocupacao_leitos = dados.ocupacao_leitos;
+      },
+      error: function (result) {
+        console.log("Erro");
+      },
+    });
+
     map = L.map("map", {
       zoomControl: false,
       center: regionData.features[0].properties.center,
@@ -68,7 +82,7 @@ $(document).ready(() => {
 
   L.tileLayer(
     "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=" +
-      mapboxAccessToken,
+    mapboxAccessToken,
     {
       id: "mapbox/light-v10",
       attribution: "Subcomitê Ciêntifico",
@@ -172,18 +186,18 @@ $(document).ready(() => {
       "" +
       (props
         ? "<h4><b>Regional:</b> " +
-          props.name +
-          "</h4><p>Taxa de Transmissibilidade: " +
-          props.rt +
-          "</p><p>Média Móvel: " +
-          props.media_movel.toFixed(2) +
-          "%" +
-          "</p><p>Ocupação de Leitos Covid Adulto: " +
-          props.ocupacao_leitos.toFixed(2) +
-          "%" +
-          '</p><p><a href="' +
-          props.path +
-          '?region=1">Saiba mais sobre essa região</a></p>'
+        props.name +
+        "</h4><p>Taxa de Transmissibilidade: " +
+        props.rt +
+        "</p><p>Média Móvel: " +
+        props.media_movel.toFixed(2) +
+        "%" +
+        "</p><p>Ocupação de Leitos Covid Adulto: " +
+        props.ocupacao_leitos.toFixed(2) +
+        "%" +
+        '</p><p><a href="' +
+        props.path +
+        '?region=1">Saiba mais sobre essa região</a></p>'
         : "<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>");
   };
 
@@ -298,18 +312,18 @@ $(document).ready(() => {
     );
     labels.push(
       '<i style="background:' +
-        getColor(1) +
-        '"></i> <p>(1 Indicador não Favorável)</p>',
+      getColor(1) +
+      '"></i> <p>(1 Indicador não Favorável)</p>',
     );
     labels.push(
       '<i style="background:' +
-        getColor(2) +
-        '"></i> <p>(2 Indicadores não Favoráveis)</p>',
+      getColor(2) +
+      '"></i> <p>(2 Indicadores não Favoráveis)</p>',
     );
     labels.push(
       '<i style="background:' +
-        getColor(3) +
-        '"></i> <p>(3 Indicadores não Favoráveis)</p>',
+      getColor(3) +
+      '"></i> <p>(3 Indicadores não Favoráveis)</p>',
     );
     div.innerHTML = labels.join("<br>");
     return div;
