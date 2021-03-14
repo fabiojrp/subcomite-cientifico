@@ -22,15 +22,38 @@
 
 @media only screen and (max-width: 787px) {
   .header h1 {
-    font-size: 2rem;
+    font-size: 1rem;
     font-family: "Oswald", sans-serif;
     margin-top: 12px;
     letter-spacing: 0.4rem;
+    margin-bottom: 15px;
   }
 
   .header h3 {
-    font-size: 1rem;
+    font-size: .7rem;
     letter-spacing: 0.1rem;
+    margin-top: 15px;
+  }
+
+  .map-info.legend.leaflet-control b{
+    font-size: .7em;
+  }
+
+  .map-info.legend.leaflet-control i {
+    width: 12px;
+    height: 12px;
+  }
+
+ .leaflet-control-container h4 {
+    font-size: 1em;
+  }
+
+  .leaflet-control-container p {
+    font-size: .8em;
+  }
+
+  .leaflet-left .leaflet-control{
+    margin: 0;
   }
 
   .section-title {
