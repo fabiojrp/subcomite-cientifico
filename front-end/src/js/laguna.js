@@ -1,3 +1,4 @@
+var id = 10; /* LAGUNA */
 var stateData = null;
 var regionData = { "type": "FeatureCollection", "features": [
     {

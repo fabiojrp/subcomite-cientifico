@@ -1,3 +1,4 @@
+var id = 15; /* PLANALTO NORTE */
 var stateData = null;
 var regionData = { "type": "FeatureCollection", "features": [
     {

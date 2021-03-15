@@ -1,3 +1,4 @@
+var id = 5; /* CARBONIFERA */
 var stateData = null;
 var regionData = { "type": "FeatureCollection", "features": [
     { 

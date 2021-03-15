@@ -1,3 +1,4 @@
+var id = 9; /* GRANDE FLORIANOPOLIS */
 var stateData = null;
 var regionData = { "type": "FeatureCollection", "features": [
 	{

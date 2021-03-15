@@ -1,3 +1,4 @@
+var id = 8; /* FOZ DO RIO ITAJAI */
 var stateData = null;
 var regionData = { "type": "FeatureCollection", "features": [
 	{

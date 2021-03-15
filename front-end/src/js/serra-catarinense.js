@@ -1,5 +1,4 @@
 var id = 16; /* SERRA CATARINENSE */
-
 var stateData = null;
 var regionData = {
   "type": "FeatureCollection", "features": [

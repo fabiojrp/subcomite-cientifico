@@ -1,5 +1,4 @@
 var id = 12; /* MEIO OESTE */
-
 var stateDate = null;
 var regionData = {
     "type": "FeatureCollection", "features": [

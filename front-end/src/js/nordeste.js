@@ -1,4 +1,5 @@
-var stateData = null;
+var id = 13; /* NORDESTE */
+var stateData = null; 
 var regionData = { "type": "FeatureCollection", "features": [
     {
         "type":"Feature",

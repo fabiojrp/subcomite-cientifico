@@ -1,3 +1,4 @@
+var id = 11; /* MEDIO VALE ITAJAI */
 var stateData = null;
 var regionData = { "type": "FeatureCollection", "features": [
 	{

@@ -1,3 +1,4 @@
+var id = 14; /* OESTE */
 var stateData = null;
 var regionData = {"type": "FeatureCollection", "features": [
     {

@@ -1,3 +1,4 @@
+var id = 7; /* EXTREMO SUL CATARINENSE */
 var stateData = null;
 var regionData = {
     "type":"FeatureCollection",

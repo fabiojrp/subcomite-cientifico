@@ -1,3 +1,4 @@
+var id = 6; /* EXTREMO OESTE */
 var stateData = null;
 var regionData = { "type": "FeatureCollection", "features": [ 
 	{
