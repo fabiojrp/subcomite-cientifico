@@ -27,9 +27,8 @@ class processaDados:
         try:
             regional = regional[regiao_nome]
         except KeyError as ex:
-            print("!--- Erro processando: ", regiao_nome, " ---!")
-            regional = -1
-            exit
+            print("!--- Erro processando: {", regiao_nome, "} ---!")
+            regional = -1   
         return regional
         
 

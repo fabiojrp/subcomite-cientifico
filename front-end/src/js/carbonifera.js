@@ -59,9 +59,7 @@ $(document).ready(() => {
     fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
         return response.json()
     }).then(dados => {
-        var d = new Date(dados.maxData);
-        var datestring = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
-        $("#dataAtualizacao").text(datestring);
+        $("#dataAtualizacao").text(dados.maiorData);
 
         /* Casos / Casos média móvel */
         var casos = {

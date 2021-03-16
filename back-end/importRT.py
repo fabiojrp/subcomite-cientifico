@@ -17,6 +17,9 @@ with open('RtSC.csv', 'r', encoding = 'utf-8-sig') as arquivo:
     for value in dados:
         
         regiaoSaude = processaDados.buscaRegiao(value['Região da Saúde'])
+        if regiaoSaude == -1:
+            break;
+
         for v in value:
             print(v)
             if v == 'Região da Saúde': continue

@@ -16,7 +16,7 @@ const pool = new Pool({
   host: "localhost",
   database: "covid", // covid - mauricio
   //password: 'postgres', // postgres mauricio
-  password: "zzdz0737", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+  password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
   port: 5432,
 });
 
@@ -140,10 +140,12 @@ app.get("/api/casos-por-regiao/:id", (req, res) => {
           return row.letalidade;
         });
       }
+      var d = new Date(maxData);
+      var maiorData = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
 
       res.send({
         region,
-        maxData,
+        maiorData,
         datas,
         casos,
         casos_media_movel,
@@ -341,9 +343,11 @@ app.get("/api/casos-por-regiao/", (req, res) => {
 
         if (item.data > maxData) maxData = item.data;
       });
+      var d = new Date(maxData);
+      var maiorData = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
 
       res.send({
-        maxData,
+        maiorData,
         regionais_casos_acumulados,
         regionais_obitos_acumulados,
         regionais_casos_mediamovel,
