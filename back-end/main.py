@@ -32,6 +32,13 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
     dados = csv.DictReader(arquivo, delimiter=";")
     #LinhasTotaisCsv = len(dados)
     for value in dados:
+        index = index + 1
+        if index % 100000 == 0:
+            print(index, flush=True)
+        elif index % 10000 == 0:
+            print(index, end='', flush=True)
+        elif index % 1000 == 0:
+            print('.', end='', flush=True)
             
         data_publicacao = Utils.datetime_format(value['data_publicacao'])
         if (data_publicacao == -1):
@@ -209,18 +216,12 @@ with open('boavista_covid_dados_abertos.csv', 'r') as arquivo:
         #    if datasPesquisa >= data_referencia:
         #        casos_municipios[codigo_ibge_municipio]['datas'][datasPesquisa]['casos_acumulados']+=1
 
-        index = index + 1
-        if index % 100000 == 0:
-            print(index, flush=True)
-        elif index % 10000 == 0:
-            print(index, end='', flush=True)
-        elif index % 1000 == 0:
-            print('.', end='', flush=True)
+        
 print('Fim', flush=True)        
-estatistica.processamento(casos_municipios)
+#estatistica.processamento(casos_municipios)
 print("\n\nInserido os casos filtrados na tabela...") 
 
-dadosDao.casos_municipios(casos_municipios)
+#dadosDao.casos_municipios(casos_municipios)
 
 print("\n\nConcluido\n")
 print("\n--- %s seconds ---\n" % (time.time() - start_time))

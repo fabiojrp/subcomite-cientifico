@@ -87,6 +87,21 @@ header .logo {
   opacity: 0.7;
 }
 
+.clear {
+  display: none;
+}
+
+.map-info.legend.leaflet-control {
+  width: 100%;
+  float: left;
+  overflow: hidden;
+}
+
+.map-info.legend.leaflet-control p{
+  margin: 0;
+}
+
+
 .region {
   width: 100%;
   display: block;
@@ -373,6 +388,11 @@ section .section-title {
 
 .card {
   height: 352px;
+
+}
+
+.card-body{
+  background-color: #f5f5f5;
 }
 
 .card a {
@@ -390,4 +410,5 @@ section .section-title {
   height: 120px;
   border-radius: 50%;
 }
+
 /* END EQUIPE */

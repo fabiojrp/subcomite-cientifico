@@ -6,8 +6,56 @@ class Create:
     def __init__(self):
         self.db = Database.get_instance()
 
+    def create_leitos(self):
+        print("Limpando e criando as tabelas de leitos...")
+
+
+        # Limpa as tabelas
+
+        sql = """CREATE TABLE IF NOT EXISTS leitosGeraisCovid (
+                    macrorregiao varchar(100) DEFAULT NULL,
+                    hospital varchar(100) DEFAULT NULL,
+                    municipio varchar(100) DEFAULT NULL,
+                    codigo_ibge_municipio integer DEFAULT NULL,
+                    regional_saude varchar(100) DEFAULT NULL,
+                    index_regional integer DEFAULT NULL,
+                    leitos_ativos integer DEFAULT NULL,
+                    leitos_ocupados integer DEFAULT NULL,
+                    leitos_disponiveis integer DEFAULT NULL,
+                    taxa_ocupacao NUMERIC(5,2) DEFAULT NULL,
+                    pacientes_covid integer DEFAULT NULL,
+                    atualizacao timestamp DEFAULT NULL
+                )
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE TABLE IF NOT EXISTS leitosCovid (
+                    macrorregiao varchar(100) DEFAULT NULL,
+                    hospital varchar(100) DEFAULT NULL,
+                    municipio varchar(100) DEFAULT NULL,
+                    codigo_ibge_municipio integer DEFAULT NULL,
+                    regional_saude varchar(100) DEFAULT NULL,
+                    index_regional integer DEFAULT NULL,
+                    leitos_ativos integer DEFAULT NULL,
+                    leitos_ocupados integer DEFAULT NULL,
+                    leitos_disponiveis integer DEFAULT NULL,
+                    taxa_ocupacao NUMERIC(5,2) DEFAULT NULL,
+                    pacientes_covid integer DEFAULT NULL,
+                    atualizacao timestamp DEFAULT NULL
+                )
+        """
+        self.db.execute_query(sql)
+
+        print("OK")
+
     def create_table_brasil(self):
         print("Limpando e criando as tabelas...")
+        # Apagando as views
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ANTERIOR")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ATUAL")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
+
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
@@ -59,11 +107,74 @@ class Create:
         """
         self.db.execute_query(sql)
 
+        sql = """CREATE VIEW view_rt AS SELECT REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID,
+                    REGIONAIS.POLIGONO::JSONB,
+                    REGIONAIS.URL AS URL,
+                    RT.DATA AS DATA,
+                    RT.RT AS RT
+                FROM REGIONAIS, RT
+                WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT)
+                                AND RT.REGIONAL = REGIONAIS.ID
+                ORDER BY REGIONAIS.REGIONAL_SAUDE,
+                    RT.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_casos_atual AS SELECT REGIONAIS.ID,
+                    CASOS.DATA,
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                FROM REGIONAIS,
+                    CASOS
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) - interval '1 day' AS MAX_DATA FROM CASOS)
+                                AND CASOS.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID,
+                    CASOS.DATA
+                ORDER BY CASOS.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_casos_anterior AS SELECT REGIONAIS.ID,
+                    CASOS.DATA,
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                FROM REGIONAIS,
+                    CASOS
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '14 day'
+                                AND CASOS.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID,
+                    CASOS.DATA
+                ORDER BY CASOS.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_leitos AS SELECT REGIONAIS.ID,
+                    SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                    SUM(leitoscovid.leitos_ocupados) AS LEITOS_OCUPADOS,
+                    MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA
+                FROM REGIONAIS, leitoscovid
+                WHERE leitoscovid.ATUALIZACAO =
+                    (SELECT MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA FROM leitoscovid)
+                    AND leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+
+
+
         print("OK")
 
     def create_table(self):
         print("Limpando e criando as tabelas...")
         # Limpa as tabelas
+
+                # Apagando as views
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ANTERIOR")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ATUAL")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
+
+
         self.db.execute_query("DROP TABLE IF EXISTS dados")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
         
@@ -185,6 +296,59 @@ class Create:
                     letalidade_100_confirmados NUMERIC(10,5) DEFAULT NULL,
                     casos_ativos integer DEFAULT NULL
                 )
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_rt AS SELECT REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID,
+                    REGIONAIS.POLIGONO::JSONB,
+                    REGIONAIS.URL AS URL,
+                    RT.DATA AS DATA,
+                    RT.RT AS RT
+                FROM REGIONAIS, RT
+                WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT)
+                                AND RT.REGIONAL = REGIONAIS.ID
+                ORDER BY REGIONAIS.REGIONAL_SAUDE,
+                    RT.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_casos_atual AS SELECT REGIONAIS.ID,
+                    CASOS.DATA,
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                FROM REGIONAIS,
+                    CASOS
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) - interval '1 day' AS MAX_DATA FROM CASOS)
+                                AND CASOS.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID,
+                    CASOS.DATA
+                ORDER BY CASOS.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_casos_anterior AS SELECT REGIONAIS.ID,
+                    CASOS.DATA,
+                    SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                FROM REGIONAIS,
+                    CASOS
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS) - interval '14 day'
+                                AND CASOS.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID,
+                    CASOS.DATA
+                ORDER BY CASOS.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_leitos AS SELECT REGIONAIS.ID,
+                    SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                    SUM(leitoscovid.leitos_ocupados) AS LEITOS_OCUPADOS,
+                    MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA
+                FROM REGIONAIS, leitoscovid
+                WHERE leitoscovid.ATUALIZACAO =
+                    (SELECT MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA FROM leitoscovid)
+                    AND leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID
         """
         self.db.execute_query(sql)
 

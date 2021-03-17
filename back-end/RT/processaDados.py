@@ -8,7 +8,7 @@ class processaDados:
             'Ignorado':0,
             'SANTA CATARINA':1,
             'Alto Uruguai Catarinense':2,
-            'Alto Vale do Itajaí ':3,
+            'Alto Vale do Itajaí':3,
             'Alto Vale do Rio do Peixe':4,
             'Carbonífera':5,
             'Extremo Oeste':6,
@@ -27,8 +27,8 @@ class processaDados:
         try:
             regional = regional[regiao_nome]
         except KeyError as ex:
-            print("!--- Erro processando: ", regiao_nome, " ---!")
-            regional = -1
+            print("!--- Erro processando: {", regiao_nome, "} ---!")
+            regional = -1   
         return regional
         
 
@@ -36,7 +36,7 @@ class processaDados:
         if date == None:
             return -1
 
-        return datetime.datetime.strptime(date, '%d/%m/%y').strftime("%Y-%m-%d")
+        return datetime.datetime.strptime(date, '%m/%d/%y').strftime("%Y-%m-%d")
         
 
 

@@ -165,6 +165,50 @@ class DadosDao(Dao):
                 elif index % 1000 == 0:
                     print('.', end='', flush=True)
         print('Fim', flush=True)
+
+    def leitos_Gerais_Covid(self, params):
+        sql = """
+            INSERT INTO leitosGeraisCovid ( 
+            macrorregiao,
+            hospital,
+            municipio,
+            codigo_ibge_municipio,
+            regional_saude,
+            index_regional,
+            leitos_ativos,
+            leitos_ocupados,
+            leitos_disponiveis,
+            taxa_ocupacao,
+            pacientes_covid,
+            atualizacao
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        self.db.execute_query(sql, params)
+        self.db.conn.commit()    
+
+    def leitos_Covid(self, params):
+        sql = """
+            INSERT INTO leitosCovid ( 
+            macrorregiao,
+            hospital,
+            municipio,
+            codigo_ibge_municipio,
+            regional_saude,
+            index_regional,
+            leitos_ativos,
+            leitos_ocupados,
+            leitos_disponiveis,
+            taxa_ocupacao,
+            pacientes_covid,
+            atualizacao
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        self.db.execute_query(sql, params)
+        self.db.conn.commit()  
+
+
         ''' 
 
          ## SQL para obter casos  por região:
