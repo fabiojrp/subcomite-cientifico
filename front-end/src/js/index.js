@@ -302,34 +302,55 @@ $(document).ready(() => {
     'Dados de UTI &copy; <a href="https://www.ciasc.sc.gov.br/">CIASC</a>',
   );
 
-  var legend = L.control({ position: "bottomleft" });
+  var legend = L.control({ position: "bottomleft"});
 
   legend.onAdd = function (map) {
     var div = L.DomUtil.create("div", "map-info legend");
-    labels = ["<b>Condição de retorno das aulas</b> </br>"];
+    labels = ['<h6><b>Condição de retorno das aulas</b><img class="close-map-info" src="img/close-icon.png" /></h6> '];
     labels.push(
-      '<i style="background:' + getColor(0) + '"></i> <p>(Favorável)</p>',
+      '<p><i style="background:' + getColor(0) + '"></i> (Favorável)</p>',
     );
     labels.push(
-      '<i style="background:' +
+      '<p><i style="background:' +
       getColor(1) +
-      '"></i> <p>(1 Indicador não Favorável)</p>',
+      '"></i> (1 Indicador não Favorável)</p>',
     );
     labels.push(
-      '<i style="background:' +
+      '<p><i style="background:' +
       getColor(2) +
-      '"></i> <p>(2 Indicadores não Favoráveis)</p>',
+      '"></i> (2 Indicadores não Favoráveis)</p>',
     );
     labels.push(
-      '<i style="background:' +
+      '<p><i style="background:' +
       getColor(3) +
-      '"></i> <p>(3 Indicadores não Favoráveis)</p>',
+      '"></i> (3 Indicadores não Favoráveis)</p>',
     );
-    div.innerHTML = labels.join("<br>");
+    div.innerHTML = labels.join("");
     return div;
   };
 
   legend.addTo(map);
+
+  var btnLegend = L.control({ position: "bottomleft"});
+  btnLegend.onAdd = function (map) {
+    var div = L.DomUtil.create("div", "btnLegend");
+    div.innerHTML = '<h6><b>Legenda</b></h6><p><img src="img/legend.svg" /></p>'
+    return div;
+  }
+  btnLegend.addTo(map)
+
+  $('.map-info.legend').hide();
+
+
+  $('.btnLegend').on('click', function() {
+    $('.btnLegend').hide();
+    $('.map-info.legend').show();
+  })
+
+  $('.close-map-info').on('click', function() {
+    $('.btnLegend').show();
+    $('.map-info.legend').hide();
+  })
 
   // END LEAF
 });

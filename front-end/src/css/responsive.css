@@ -45,11 +45,21 @@
   }
 
  .leaflet-control-container h4 {
-    font-size: 1em;
+    font-size: 0.8;
+    margin-bottom: 8px;
   }
 
   .leaflet-control-container p {
     font-size: .8em;
+    margin-bottom: 3px;
+  }
+
+  .leaflet-control-container p:last-child {
+    margin-top: 10px;
+  }
+
+  .leaflet-container .leaflet-control-attribution, .leaflet-container .leaflet-control-scale {
+    font-size: 7px;
   }
 
   .leaflet-left .leaflet-control{
