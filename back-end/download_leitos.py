@@ -7,11 +7,12 @@ import urllib
 from leitos.processaLeitos import processaLeitos
 from dao.DadosDao import DadosDao
 from db.create import Create
-from datetime import date
+from datetime import datetime
 
 create = Create()
 create.create_leitos()
 dadosDao = DadosDao()
+dataAtualizacao = datetime.now()
 
 url = ' https://wabi-brazil-south-api.analysis.windows.net/public/reports/querydata?synchronous=true'
 
@@ -93,6 +94,12 @@ for tipo in range(1, 3):
                 infoHospital['leitos_ocupados'] = valorHospital[1]
                 infoHospital['leitos_disponiveis'] = valorHospital[2]
                 infoHospital['pacientes_covid'] = valorHospital[4]
+            elif valores[i]['R'] == 10:
+                infoHospital['leitos_ativos'] = valorHospital[1]
+                infoHospital['leitos_ocupados'] = valorHospital[1]
+                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                    valorHospital[2]
+                infoHospital['pacientes_covid'] = valorHospital[3]
             elif valores[i]['R'] == 18:
                 infoHospital['leitos_ativos'] = valorHospital[1]
                 infoHospital['leitos_ocupados'] = valorHospital[2]
@@ -164,7 +171,7 @@ for tipo in range(1, 3):
             infoHospital['leitos_disponiveis'],
             infoHospital['taxa_ocupacao'],
             infoHospital['pacientes_covid'],
-            date.today()
+            dataAtualizacao
         )
     if tipo == 1:
         dadosDao.leitos_Gerais_Covid(params)
