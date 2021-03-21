@@ -15,7 +15,7 @@ const pool = new Pool({
   user: "postgres", // postgres marcelo
   host: "localhost",
   database: "covid", // covid - mauricio
-  password: 'postgres', // postgres mauricio
+  password: '!admpasswd@covid', // postgres mauricio
   //password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
   port: 5432,
 });
@@ -519,7 +519,7 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
   id = req.params.id;
   pool.query(
     `SELECT SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                SUM(leitoscovid.LEITOS_DISPONIVEIS) AS LEITOS_DISPONIVEIS,
+                SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
                 leitoscovid.ATUALIZACAO AS DATA
             FROM leitoscovid
             WHERE leitoscovid.INDEX_REGIONAL = $1
@@ -541,14 +541,16 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
 
       leitos_ocupados = {
         name: "Leitos Ocupados",
-        type: "bar",
+        type: "scatter",
+        fill: 'tozeroy',
         opacity: 0.5,
         x: [],
         y: [],
       };
       leitos_disponiveis = {
-        name: "Leitos Disponíveis",
-        type: "bar",
+        name: "Leitos Totais",
+        type: "scatter",
+        fill: 'tonextx',
         opacity: 0.4,
         x: [],
         y: [],
@@ -560,7 +562,7 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
         leitos_ocupados.y.push(item.leitos_ocupados);
 
         leitos_disponiveis.x.push(item.data);
-        leitos_disponiveis.y.push(item.leitos_disponiveis);
+        leitos_disponiveis.y.push(item.leitos_ativos);
       });
 
       res.send({ leitos_disponiveis, leitos_ocupados });

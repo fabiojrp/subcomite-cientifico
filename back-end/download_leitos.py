@@ -61,7 +61,7 @@ for tipo in range(1, 3):
         valorHospital = valores[i]['C']
 
         if not('R' in valores[i]):
-            # print(i, ";", hospitais[i], ";", valorHospital)
+            print(i, ";", hospitais[i], ";", valorHospital)
             infoHospital['leitos_ativos'] = valorHospital[2]
             infoHospital['leitos_ocupados'] = valorHospital[3]
             infoHospital['leitos_disponiveis'] = valorHospital[2] - \
@@ -153,11 +153,11 @@ for tipo in range(1, 3):
                 print("!-- Erro processando: ", i, ";", hospitais[i], ";",
                       valorHospital, ";", valores[i]['R'])
                 break
+            print(i, ";", hospitais[i], ";",
+                  valorHospital, ";", valores[i]['R'])
 
         infoHospital['taxa_ocupacao'] = infoHospital['leitos_disponiveis'] / \
             infoHospital['leitos_ativos']
-      #  print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-      #        infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
 
         params = (
             "NULL",
@@ -173,9 +173,12 @@ for tipo in range(1, 3):
             infoHospital['pacientes_covid'],
             dataAtualizacao
         )
-    if tipo == 1:
-        dadosDao.leitos_Gerais_Covid(params)
-        print("OK")
-    if tipo == 2:
-        dadosDao.leitos_Covid(params)
-        print("OK")
+        if tipo == 1:
+            dadosDao.leitos_Gerais_Covid(params)
+            print(i, ",", end='', flush=True)
+        if tipo == 2:
+            dadosDao.leitos_Covid(params)
+            print(i, ",", end='', flush=True)
+        # print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
+        #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
+    print("Ok")
