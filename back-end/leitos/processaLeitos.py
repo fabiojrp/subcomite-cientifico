@@ -52,10 +52,13 @@ class processaLeitos:
             'HOSPITAL SANTA ISABEL': {'municipio': 420240, 'index_regional': 11},
             'HOSPITAL SANTO ANTONIO': {'municipio': 420240, 'index_regional': 11},
             'HOSPITAL WALDOMIRO COLAUTTI': {'municipio': 420690, 'index_regional': 3},
+            'HOSPITAL RIO NEGRINHO': {'municipio': 421500, 'index_regional': 15},
         }
         try:
             hospital = hospital[nome_hospital]
         except KeyError as ex:
-            print("!--- Erro processando: {", nome_hospital, "} ---!")
+            #print("!--- Hospital não encontrado: {", nome_hospital, "} ---!")
             hospital = -1
+            raise Exception(
+                "!--- Hospital não encontrado: {", nome_hospital, "} ---!")
         return hospital
