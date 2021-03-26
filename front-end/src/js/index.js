@@ -91,64 +91,142 @@ $(document).ready(() => {
     },
   ).addTo(map);
 
-  var videira = L.marker([-27.026555588666362, -51.14521223224076]).bindPopup(
+  var iconBase = L.Icon.extend({
+    options: {
+      shadowUrl:"../css/images/marker-shadow.png",
+      iconSize:[25,41],
+      iconAnchor:[12,41]
+    }
+  });
+  
+  var iconIf = new iconBase({
+    iconUrl:"../css/images/marker-icon.png",
+  });
+
+  var iconIfsc = new iconBase({
+    iconUrl:"../css/images/marker-icon-ifsc.png",
+    
+  });
+
+  var videira = L.marker([-27.026555588666362, -51.14521223224076], {icon: iconIf}).bindPopup(
     "IFC - Campus Videira",
   );
-  var luzerna = L.marker([-27.132361991407368, -51.46302556370465]).bindPopup(
+  var luzerna = L.marker([-27.132361991407368, -51.46302556370465], {icon: iconIf}).bindPopup(
     "IFC - Campus Luzerna",
   );
-  var fraiburgo = L.marker([-27.030183953471692, -50.91809746417005]).bindPopup(
+  var fraiburgo = L.marker([-27.030183953471692, -50.91809746417005], {icon: iconIf}).bindPopup(
     "IFC - Campus Fraiburgo",
   );
-  var riodosul = L.marker([-27.21220797789442, -49.639967538355734]).bindPopup(
+  var riodosul = L.marker([-27.21220797789442, -49.639967538355734], {icon: iconIf}).bindPopup(
     "IFC - Campus Rio do Sul - Unidade Urbana",
   );
-  var riodosul2 = L.marker([-27.18469255860665, -49.66081786276957]).bindPopup(
+  var riodosul2 = L.marker([-27.18469255860665, -49.66081786276957], {icon: iconIf}).bindPopup(
     "IFC - Campus Rio do Sul - Sede",
   );
-  var riodosul3 = L.marker([-27.211806140692513, -49.65704082501049]).bindPopup(
+  var riodosul3 = L.marker([-27.211806140692513, -49.65704082501049], {icon: iconIf}).bindPopup(
     "IFC - Campus Rio do Sul - Unidade Tecnológica",
   );
-  var sombrio = L.marker([-29.101905323823694, -49.63864611448503]).bindPopup(
+  var sombrio = L.marker([-29.101905323823694, -49.63864611448503], {icon: iconIf}).bindPopup(
     "IFC - Campus Sombrio",
   );
-  var sao_francisco_do_sul = L.marker([
-    -26.21763874417492,
-    -48.57035665361086,
-  ]).bindPopup("IFC - Campus São Francisco de Sul");
-  var araquari = L.marker([-26.394781055206387, -48.73823989999723]).bindPopup(
+  var sao_francisco_do_sul = L.marker([ -26.21763874417492, -48.57035665361086,], {icon: iconIf}).bindPopup(
+    "IFC - Campus São Francisco de Sul");
+  var araquari = L.marker([-26.394781055206387, -48.73823989999723], {icon: iconIf}).bindPopup(
     "IFC - Campus Araquari",
   );
-  var abelardo_luz = L.marker([
-    -26.586521596148813,
-    -52.10501674417086,
-  ]).bindPopup("IFC - Campus Abelardo Luz (Avançado)");
-  var sao_bento_do_sul = L.marker([
-    -26.25027687276346,
-    -49.35088784121336,
-  ]).bindPopup("IFC - Campus São Bento do Sul");
-  var santa_rosa_do_sul = L.marker([
-    -29.0954650121907,
-    -49.81419731861792,
-  ]).bindPopup("IFC - Campus Santa Rosa do Sul");
-  var ibirama = L.marker([-27.04909677497824, -49.53896279407205]).bindPopup(
+  var abelardo_luz = L.marker([ -26.586521596148813, -52.10501674417086], {icon: iconIf}).bindPopup(
+    "IFC - Campus Abelardo Luz (Avançado)");
+  var sao_bento_do_sul = L.marker([ -26.25027687276346, -49.35088784121336], {icon: iconIf}).bindPopup(
+    "IFC - Campus São Bento do Sul");
+  var santa_rosa_do_sul = L.marker([ -29.0954650121907, -49.81419731861792 ], {icon: iconIf}).bindPopup(
+    "IFC - Campus Santa Rosa do Sul");
+  var ibirama = L.marker([-27.04909677497824, -49.53896279407205], {icon: iconIf}).bindPopup(
     "IFC - Campus Ibirama",
   );
-  var blumenau = L.marker([-26.881739150584163, -49.137095301484216]).bindPopup(
+  var blumenau = L.marker([-26.881739150584163, -49.137095301484216], {icon: iconIf}).bindPopup(
     "IFC - Campus Blumenau",
   );
-  var concordia = L.marker([-27.201912072094206, -52.08319161549669]).bindPopup(
+  var concordia = L.marker([-27.201912072094206, -52.08319161549669], {icon: iconIf}).bindPopup(
     "IFC - Campus Concórdia",
   );
-  var blumenau2 = L.marker([-26.912126542043502, -49.0664407730001]).bindPopup(
+  var blumenau2 = L.marker([-26.912126542043502, -49.0664407730001], {icon: iconIf}).bindPopup(
     "IFC - Reitoria",
   );
-  var camboriu = L.marker([-27.015680100497377, -48.65878562611805]).bindPopup(
+  var camboriu = L.marker([-27.015680100497377, -48.65878562611805], {icon: iconIf}).bindPopup(
     "IFC - Campus Camboriú",
   );
-  var brusque = L.marker([-27.09941598304748, -48.92860645226999]).bindPopup(
+  var brusque = L.marker([-27.09941598304748, -48.92860645226999], {icon: iconIf}).bindPopup(
     "IFC - Campus Brusque",
   );
+
+ //IFSC
+  var ifscsaomigueloeste = L.marker([ -26.741901957217408, -53.52609855884629 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus São Miguel do Oeste",
+  );
+  var ifscsaocarlos = L.marker([ -27.091910843991037, -53.01319594534334 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus São Carlos",
+  );
+  var ifscsaolourenco = L.marker([ -26.34874569633562, -52.84645603757906 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus São Lourenço do Oeste",
+  );
+  var ifscchapeco = L.marker([ -27.13732883700056, -52.598267716505994 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Chapecó",
+  );
+  var ifscxanxere = L.marker([ -26.876463944597976, -52.41823904535004 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Xanxerê",
+  );
+  var ifsccacador = L.marker([ -26.77903961642183, -51.03877490302486 ], {icon: iconIfsc}).bindPopup(
+    "IFSC -  Câmpus Caçador",
+  );
+  var ifsccanoinhas = L.marker([ -26.183083657376354, -50.367038060714734 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Canoinhas",
+  );
+  var ifsclages = L.marker([ -27.80497873077295, -50.337622747172794 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Lages",
+  );
+  var ifscurupema = L.marker([ -27.957562151114153, -49.87245555880857 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Urupema",
+  );
+  var ifscararangua = L.marker([ -28.94721817158039, -49.49345364713646 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Araranguá",
+  );
+  var ifsccriciuma = L.marker([ -28.678035700825063, -49.3314548434419 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Criciúma",
+  );
+  var ifsctubarao = L.marker([ -28.47414960790433, -49.025392745299946 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Tubarão",
+  );
+  var ifscgaropaba = L.marker([ -28.09864097503046, -48.67534507599955 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Garopaba",
+  );
+  var ifscgaspar = L.marker([ -26.90052577846774, -49.004026831857054 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Gaspar",
+  );
+  var ifscitajai = L.marker([ -26.93053145730176, -48.685177460692096 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Itajaí",
+  );
+  var ifscjoinvile = L.marker([ -26.278238302174334, -48.880652103040084 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Joinville",
+  );
+  var ifscjaraguadosul = L.marker([ -26.467905846640125, -49.11405536070609 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Jaraguá do Sul - Rau",
+  );
+  var ifscjaraguacentro = L.marker([ -26.476921205814246, -49.089831131870014 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Jaraguá do Sul - Centro",
+  );
+  var ifscpalhoca = L.marker([ -27.630125844831145, -48.68894680299862 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Palhoça - Bilíngue",
+  );
+  var ifscsaojose = L.marker([ -27.608215302586004, -48.63321567416328 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus São José",
+  );
+  var ifscreitoriafloripa = L.marker([ -27.599500291641426, -48.572364229983826 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Florianópolis - Continente e Reitoria",
+  );
+  var ifscflorianopolis = L.marker([ -27.59403720556465, -48.54317238950758 ], {icon: iconIfsc}).bindPopup(
+    "IFSC - Câmpus Florianópolis",
+  );
+  
 
   var campus = L.layerGroup([
     videira,
@@ -169,6 +247,28 @@ $(document).ready(() => {
     blumenau2,
     camboriu,
     brusque,
+    ifscsaomigueloeste,
+    ifscsaocarlos,
+    ifscsaolourenco,
+    ifscchapeco,
+    ifscxanxere,
+    ifsccacador,
+    ifsccanoinhas,
+    ifsclages,
+    ifscurupema,
+    ifscararangua,
+    ifsccriciuma,
+    ifsctubarao,
+    ifscgaropaba,
+    ifscgaspar,
+    ifscitajai,
+    ifscjoinvile,
+    ifscjaraguadosul,
+    ifscjaraguacentro,
+    ifscpalhoca,
+    ifscsaojose,
+    ifscreitoriafloripa,
+    ifscflorianopolis
   ]).addTo(map);
 
   // control that shows state info on hover

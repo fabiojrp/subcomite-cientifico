@@ -15,7 +15,7 @@ const pool = new Pool({
   user: "postgres", // postgres marcelo
   host: "localhost",
   database: "covid", // covid - mauricio
-  password: '!admpasswd@covid', // postgres mauricio
+  password: 'zzdz0737', // postgres mauricio
   //password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
   port: 5432,
 });
