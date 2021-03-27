@@ -1,5 +1,5 @@
 
-from Database import Database
+from covid.processa.dao.Database import Database
 
 
 class Create:
@@ -7,8 +7,7 @@ class Create:
         self.db = Database.get_instance()
 
     def create_leitos(self):
-        print("Limpando e criando as tabelas de leitos...")
-
+        print("Limpando e criando as tabelas de leitos...", end='', flush=True)
 
         # Limpa as tabelas
 
@@ -160,24 +159,20 @@ class Create:
         """
         self.db.execute_query(sql)
 
-
-
         print("OK")
 
     def create_table(self):
         print("Limpando e criando as tabelas...")
         # Limpa as tabelas
 
-                # Apagando as views
+        # Apagando as views
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ANTERIOR")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ATUAL")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
 
-
         self.db.execute_query("DROP TABLE IF EXISTS dados")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
-        
 
         sql = """
         DO $$
@@ -353,6 +348,3 @@ class Create:
         self.db.execute_query(sql)
 
         print("OK")
-
-
-

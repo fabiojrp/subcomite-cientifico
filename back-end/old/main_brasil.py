@@ -9,8 +9,8 @@ from dados import tabelas
 from processa import processa
 
 create = Create()
-tabelas = tabelas.Tabelas();
-estatistica = processa.estatistica();
+tabelas = tabelas.Tabelas()
+estatistica = processa.estatistica()
 dadosDao = DadosDao()
 
 create.create_table_brasil()
@@ -21,13 +21,14 @@ casos_municipios = {}
 casos_acumulados_municipios = {}
 
 # Para montagem da média móvel
-data_inicio = datetime.datetime(2020,2,25, 0, 0)
+data_inicio = datetime.datetime(2020, 2, 25, 0, 0)
 data_fim = datetime.datetime.today()
-datas_casos = [ data_inicio + datetime.timedelta(n) for n in range(int ((data_fim - data_inicio).days)+1)]
+datas_casos = [data_inicio + datetime.timedelta(n)
+               for n in range(int((data_fim - data_inicio).days)+1)]
 
-start_time = time.time();
+start_time = time.time()
 print("Inserido os dados na tabela...")
-#with open('HIST_PAINEL_COVIDBR_27jan2021.csv', 'r') as arquivo:
+# with open('HIST_PAINEL_COVIDBR_27jan2021.csv', 'r') as arquivo:
 with open('HIST_PAINEL_COVIDBR.csv', 'r') as arquivo:
     dados = csv.DictReader(arquivo, delimiter=";")
     #LinhasTotaisCsv = len(dados)
@@ -41,14 +42,14 @@ with open('HIST_PAINEL_COVIDBR.csv', 'r') as arquivo:
             print('.', end='', flush=True)
 
         if (value['estado'] != 'SC'):
-            continue;
+            continue
 
         try:
             data = Utils.date_format(value['data'])
         except ValueError as ex:
             data = datetime.datetime(2020, 1, 1, 0, 0)
 
-        codigo_ibge_municipio =  Utils.convert_to_int(value['codmun'])
+        codigo_ibge_municipio = Utils.convert_to_int(value['codmun'])
 
         val = (
             value['regiao'],
@@ -71,46 +72,48 @@ with open('HIST_PAINEL_COVIDBR.csv', 'r') as arquivo:
         )
 
         dadosDao.insertBrasil(val)
-        
-        #Controe um dicionário no formato:
+
+        # Controe um dicionário no formato:
         # Municipio : {Data : Casos}
-        if casos_municipios.get(codigo_ibge_municipio)==None: 
+        if casos_municipios.get(codigo_ibge_municipio) == None:
             casos_municipios[codigo_ibge_municipio] = {
                 'regional': tabelas.getRegionalMunicipioBrasil(codigo_ibge_municipio),
                 'populacao': Utils.convert_to_int(value['populacaoTCU2019']),
-                'datas':{}}
+                'datas': {}}
 
-            for key in datas_casos: 
+            for key in datas_casos:
                 casos_municipios[codigo_ibge_municipio]['datas'][key] = dict(
-                    casos =  0, 
-                    obitos = 0 , 
-                    casos_acumulados = 0, 
-                    obitos_acumulados = 0,
-                    casos_mediaMovel = 0,
-                    obitos_mediaMovel = 0,
-                    variacao_mediaMovel_casos = 0,
-                    casos_acumulados_100mil = 0, 
-                    obitos_acumulados_100mil = 0,
-                    casos_variacao_14dias = 0,
-                    obitos_variacao_14dias = 0,
-                    incidencia_casos_diarios_100mil = 0,
-                    incidencia_obitos_diarios_100mil = 0,
-                    letalidade_100_confirmados = 0,
-                    incidencia_100mil = 0,
-                    dt_letalidade = 0,
-                    casos_ativos = 0
+                    casos=0,
+                    obitos=0,
+                    casos_acumulados=0,
+                    obitos_acumulados=0,
+                    casos_mediaMovel=0,
+                    obitos_mediaMovel=0,
+                    variacao_mediaMovel_casos=0,
+                    casos_acumulados_100mil=0,
+                    obitos_acumulados_100mil=0,
+                    casos_variacao_14dias=0,
+                    obitos_variacao_14dias=0,
+                    incidencia_casos_diarios_100mil=0,
+                    incidencia_obitos_diarios_100mil=0,
+                    letalidade_100_confirmados=0,
+                    incidencia_100mil=0,
+                    dt_letalidade=0,
+                    casos_ativos=0
                 )
 
-        casos_municipios[codigo_ibge_municipio]['datas'][data]['casos'] =  Utils.convert_to_int(value['casosNovos'])
-        casos_municipios[codigo_ibge_municipio]['datas'][data]['obitos'] =  Utils.convert_to_int(value['obitosNovos'])
+        casos_municipios[codigo_ibge_municipio]['datas'][data]['casos'] = Utils.convert_to_int(
+            value['casosNovos'])
+        casos_municipios[codigo_ibge_municipio]['datas'][data]['obitos'] = Utils.convert_to_int(
+            value['obitosNovos'])
         #casos_municipios[codigo_ibge_municipio]['datas'][data]['casos_acumulados'] =  Utils.convert_to_int(value['casosAcumulado'])
         #casos_municipios[codigo_ibge_municipio]['datas'][data]['obitos_acumulados'] =  Utils.convert_to_int(value['obitosAcumulado'])
 
 
-print('Fim', flush=True)      
+print('Fim', flush=True)
 
 estatistica.processamento(casos_municipios)
-print("\n\nInserido os casos filtrados na tabela...") 
+print("\n\nInserido os casos filtrados na tabela...")
 
 dadosDao.casos_municipios(casos_municipios)
 

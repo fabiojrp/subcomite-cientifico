@@ -1,8 +1,5 @@
-import json
-from dao.Dao import Dao
-from dados.tabelas import Tabelas
+from covid.processa.dao.Dao import Dao
 
-tabelas = Tabelas();
 
 class DadosDao(Dao):
 
@@ -81,10 +78,10 @@ class DadosDao(Dao):
 
         self.db.execute_query(sql, params)
         self.db.conn.commit()
-    
+
     def casos_municipios(self, dict_municipios):
-        index = 0;
-        #with open('casos.json', 'w') as arquivo_casos:
+        index = 0
+        # with open('casos.json', 'w') as arquivo_casos:
         #    json.dump(dict_municipios, arquivo_casos)
         #print(json.dumps(dict_municipios, indent=4))
         for municipio, linha in dict_municipios.items():
@@ -117,37 +114,37 @@ class DadosDao(Dao):
                 # (case when %s < %s or %s = 0 then 0.00000 else (cast(%s as numeric(10,5))/cast(%s as numeric(10,5))) end), %s)
                 #dt_letalidade = tabelas.getDataLetalidadeRegional(regional)
                 parametros = [
-                        municipio, 
-                        linha['populacao'],
-                        regional, 
-                        data_sintoma, 
-                        dados['casos'], 
-                        dados['obitos'], 
-                        dados['casos_acumulados'], 
-                        dados['obitos_acumulados'],
-                        dados['casos_mediaMovel'],
-                        dados['obitos_mediaMovel'],
-                        dados['variacao_mediaMovel_casos'],
-                        dados['casos_acumulados_100mil'],
-                        dados['obitos_acumulados_100mil'],
-                        dados['casos_variacao_14dias'],
-                        dados['obitos_variacao_14dias'],
-                        dados['incidencia_casos_diarios_100mil'],
-                        dados['incidencia_obitos_diarios_100mil'],
-                     #   data_sintoma,
-                        dados['dt_letalidade'],
-                     #   dados['obitos_acumulados'],
-                     #   dados['obitos_acumulados'],
-                     #   dados['casos_acumulados'],
-                        dados['casos_ativos']
+                    municipio,
+                    linha['populacao'],
+                    regional,
+                    data_sintoma,
+                    dados['casos'],
+                    dados['obitos'],
+                    dados['casos_acumulados'],
+                    dados['obitos_acumulados'],
+                    dados['casos_mediaMovel'],
+                    dados['obitos_mediaMovel'],
+                    dados['variacao_mediaMovel_casos'],
+                    dados['casos_acumulados_100mil'],
+                    dados['obitos_acumulados_100mil'],
+                    dados['casos_variacao_14dias'],
+                    dados['obitos_variacao_14dias'],
+                    dados['incidencia_casos_diarios_100mil'],
+                    dados['incidencia_obitos_diarios_100mil'],
+                    #   data_sintoma,
+                    dados['dt_letalidade'],
+                    #   dados['obitos_acumulados'],
+                    #   dados['obitos_acumulados'],
+                    #   dados['casos_acumulados'],
+                    dados['casos_ativos']
                 ]
                 self.db.execute_query(sql, parametros)
                 self.db.conn.commit()
 
-                # sql = """UPDATE casos SET letalidade_100_confirmados = 
-                #             (case when data < %s or obitos_acumulados = 0 then 0.00000 
+                # sql = """UPDATE casos SET letalidade_100_confirmados =
+                #             (case when data < %s or obitos_acumulados = 0 then 0.00000
                 #                 else (cast(obitos_acumulados as numeric(10,5))/cast(casos_acumulados as numeric(10,5))) end) where codigo_ibge_municipio = %s and data = %s"""
-                
+
                 # parametros = [dt_letalidade,
                 #         municipio,
                 #         data_sintoma
@@ -156,7 +153,7 @@ class DadosDao(Dao):
                 # self.db.conn.commit()
 
                 #print("\t\t", key2, ' : ', value2)
-             
+
                 index = index + 1
                 if index % 100000 == 0:
                     print(index, flush=True)
@@ -165,6 +162,32 @@ class DadosDao(Dao):
                 elif index % 1000 == 0:
                     print('.', end='', flush=True)
         print('Fim', flush=True)
+
+    def casos_municipio(self, params):
+        sql = """INSERT INTO casos(
+            codigo_ibge_municipio,
+            populacao,
+            regional,
+            data,
+            casos, 
+            obitos,
+            casos_acumulados,
+            obitos_acumulados,
+            casos_mediaMovel,
+            obitos_mediaMovel,
+            variacao_mediaMovel_casos,
+            casos_acumulados_100mil,
+            obitos_acumulados_100mil,
+            casos_variacao_14dias,
+            obitos_variacao_14dias,
+            incidencia_casos_diarios_100mil,
+            incidencia_obitos_diarios_100mil,
+            letalidade_100_confirmados,
+            casos_ativos
+        ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+        self.db.execute_query(sql, params)
+        self.db.conn.commit()
 
     def leitos_Gerais_Covid(self, params):
         sql = """
@@ -185,7 +208,7 @@ class DadosDao(Dao):
         """
 
         self.db.execute_query(sql, params)
-        self.db.conn.commit()    
+        self.db.conn.commit()
 
     def leitos_Covid(self, params):
         sql = """
@@ -206,8 +229,7 @@ class DadosDao(Dao):
         """
 
         self.db.execute_query(sql, params)
-        self.db.conn.commit()  
-
+        self.db.conn.commit()
 
         ''' 
 
@@ -301,7 +323,6 @@ GROUP BY REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
     ORDER BY REGIONAIS.REGIONAL_SAUDE
 
         '''
-
 
     def exibe_alertas(self):
         self.db.execute_query("SHOW WARNINGS")
