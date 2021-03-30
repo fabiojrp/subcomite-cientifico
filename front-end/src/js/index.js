@@ -226,9 +226,8 @@ $(document).ready(() => {
   var ifscflorianopolis = L.marker([ -27.59403720556465, -48.54317238950758 ], {icon: iconIfsc}).bindPopup(
     "IFSC - Câmpus Florianópolis",
   );
-  
 
-  var campus = L.layerGroup([
+  var campusIFC = L.layerGroup([
     videira,
     luzerna,
     fraiburgo,
@@ -247,6 +246,9 @@ $(document).ready(() => {
     blumenau2,
     camboriu,
     brusque,
+  ]);
+
+  var campusIFSC = L.layerGroup([
     ifscsaomigueloeste,
     ifscsaocarlos,
     ifscsaolourenco,
@@ -269,7 +271,24 @@ $(document).ready(() => {
     ifscsaojose,
     ifscreitoriafloripa,
     ifscflorianopolis
-  ]).addTo(map);
+  ]);
+
+  //SELECT INSTITUTO
+    document.getElementById('confirm').onclick =  () => {
+    const SelectInstituto = document.getElementById("SelectInstituto").value; 
+    
+    campusIFC.addTo(map);
+    campusIFSC.addTo(map);
+
+    if (SelectInstituto === "IFC"){ 
+      map.removeLayer(campusIFSC);
+      var tokensIfc = campusIFC;
+    }
+    else {
+      map.removeLayer(campusIFC);
+      var tokensIfsc = campusIFSC
+    }
+  };
 
   // control that shows state info on hover
   var info = L.control({ position: "topleft" });
@@ -453,4 +472,6 @@ $(document).ready(() => {
   })
 
   // END LEAF
+
+  
 });
