@@ -43,7 +43,7 @@ class importRT:
                                     ]
                         processaDB.insert_value_rt2(dadosSql)
                     index = index + 1
-                    if index % 1000 == 0:
+                    if index % 100 == 0:
                         print('.', end='', flush=True)
 
             print("Ok")

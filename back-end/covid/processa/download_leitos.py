@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 class download_leitos:
-    def __init__(self):
+    def __init__(self, simulacao=0):
         create = Create()
         create.create_leitos()
         dadosDao = DadosDao()
@@ -96,13 +96,16 @@ class download_leitos:
                         # print(i, ";", hospitais[i], ";", valorHospital,
                         #   ";", valores[i]['R'], ";", valores[i]['Ø'])
                     elif valores[i]['R'] == 6:
-                        infoHospital['leitos_ativos'] = valorHospital[1] + \
-                            valorHospital[2]
-                        infoHospital['leitos_ocupados'] = valorHospital[1]
-                        infoHospital['leitos_disponiveis'] = valorHospital[2]
                         if 'Ø' in valores[i]:
-                            infoHospital['pacientes_covid'] = -1
+                            infoHospital['leitos_ativos'] = valorHospital[1]
+                            infoHospital['leitos_ocupados'] = valorHospital[1]
+                            infoHospital['leitos_disponiveis'] = 0
+                            infoHospital['pacientes_covid'] = valorHospital[3]
                         else:
+                            infoHospital['leitos_ativos'] = valorHospital[1] + \
+                                valorHospital[2]
+                            infoHospital['leitos_ocupados'] = valorHospital[1]
+                            infoHospital['leitos_disponiveis'] = valorHospital[2]
                             infoHospital['pacientes_covid'] = valorHospital[4]
 
                     elif valores[i]['R'] == 10:
@@ -197,15 +200,9 @@ class download_leitos:
                     dataAtualizacao=dataAtualizacao
                 )
 
-                # if tipo == 1:
-                # dadosDao.leitos_Gerais_Covid(params)
-                # (infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
-                # if tipo == 2:
-                #    dadosDao.leitos_Covid(params)
                 # print(i, ",", end='', flush=True)
-                print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
+                # print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
+                #       infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'], "-> ", valores[i])
             print("Ok")
 
         for tipo in range(1, 3):
@@ -232,6 +229,8 @@ class download_leitos:
             if somaDisponiveis != totais[2]:
                 raise Exception(
                     "!--- Leitos Disponíveis não fecha {encontrado:", somaDisponiveis, ", deveria ser: ", totais[2], "} ---!")
+        if simulacao == 1:
+            return
 
         for tipo in range(1, 3):
             if tipo == 1:

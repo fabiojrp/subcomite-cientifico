@@ -5,6 +5,7 @@ from covid.processa.dados.Utils import Utils
 from covid.processa.dao.Database import Database
 from covid.processa.dao.DadosDao import DadosDao
 from covid.processa.dados import tabelas
+from covid.processa.db.create import Create
 
 dadosDao = DadosDao()
 tabelas = tabelas.Tabelas()
@@ -13,6 +14,8 @@ tabelas = tabelas.Tabelas()
 class processaCSV:
     def __init__(self):
         self.db = Database.get_instance()
+        create = Create()
+        create.create_table_brasil()
 
     def readStoreCSVFile(self):
         # Para montagem da média móvel
