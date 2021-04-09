@@ -274,21 +274,62 @@ $(document).ready(() => {
   ]);
 
   //SELECT INSTITUTO
-    document.getElementById('confirm').onclick =  () => {
-    const SelectInstituto = document.getElementById("SelectInstituto").value; 
+    var mapControlsContainer = document.getElementsByClassName("leaflet-top leaflet-right")[0];
+    var SelectContainer = document.getElementById("SelectContainer");
+    mapControlsContainer.appendChild(SelectContainer);
+    $('.btnSelect').on('click', function() {
+      document.querySelector('.modal-overlay')
+        .classList
+        .add('active');
+    });  
     
-    campusIFC.addTo(map);
-    campusIFSC.addTo(map);
+    $('.IFSC').on('click', () => {
+      campusIFSC.addTo(map);
+      map.removeLayer(campusIFC);
+      var tokensIfsc = campusIFSC;
+      document.querySelector('.modal-overlay')
+        .classList
+        .remove('active');
 
-    if (SelectInstituto === "IFC"){ 
+      document.querySelector('.modal-overlay')
+        .classList
+        .add('off');
+      
+      document.querySelector('.selectIFSC')
+        .classList
+        .remove('none');
+
+      //remover a imagem anterior
+      const testIFC = document.querySelector('.selectIFC.none');
+      if(!testIFC){
+        document.querySelector('.selectIFC')
+          .classList
+          .add('none');
+      }
+    });
+
+    $('.IFC').on('click', () => {
+      campusIFC.addTo(map);
       map.removeLayer(campusIFSC);
       var tokensIfc = campusIFC;
-    }
-    else {
-      map.removeLayer(campusIFC);
-      var tokensIfsc = campusIFSC
-    }
-  };
+      document.querySelector('.modal-overlay')
+        .classList
+        .remove('active');
+      document.querySelector('.modal-overlay')
+        .classList
+        .add('off');
+      document.querySelector('.selectIFC')
+        .classList
+        .remove('none');
+
+      //remover a imagem anterior
+      const testIFC = document.querySelector('.selectIFSC.none');
+      if(!testIFC){
+        document.querySelector('.selectIFSC')
+          .classList
+          .add('none');
+      }
+    });
 
   // control that shows state info on hover
   var info = L.control({ position: "topleft" });

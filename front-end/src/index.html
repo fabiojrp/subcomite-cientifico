@@ -41,16 +41,16 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
-					<form>
-						Selecione a instituição que deseja:
-						<select id="SelectInstituto">
-							<option value="IFC">Instituto Federal Catarinense</option>
-							<option value="IFSC">Instituto Federal de Santa Catarina</option>
-						</select>
-						<button id="confirm" type="button">Confirmar</button>
-					</form>
 					<div id="map"></div>
 					<p class="info2">Dados compilados em: <span id="dataAtualizacao"></span></p>
+					<!--Icones Select-->
+					<a href="">
+						<div id="SelectContainer" class="leaflet-control btnSelect">
+							<img src="./img/if.png" alt="" class="selectIFC none">
+							<img src="./img/ifsc.png" alt="" class="selectIFSC none">
+						</div>
+					</a>
+
 				</div>
 			</div>
 			<hr />
@@ -67,6 +67,17 @@
 			</div>
 		</div>
 	</section>
+	<div id="modal" class="modal-overlay active">
+		<div class="modal">
+			<div class="image">
+				<p>Selecione a instituição que deseja:</p>
+				<img src="./img/ifsclogonova.png" alt="" class="IFSC btnInst">
+				<img src="./img/ifclogonova.png" alt="" class="IFC btnInst">
+			</div>
+
+		</div>
+	</div>
+
 
 	<footer>
 		<div class="footerst">
