@@ -38,14 +38,12 @@ class download_leitos:
         for tipo in range(1, 3):
             leitos[tipo] = {}
             if tipo == 1:
-                print("Validando os leitos COVID apenas Adulto... ",
-                      end='', flush=True)
+                print("Validando os leitos COVID apenas Adulto... ")
                 # Consulta de casos Covid Tipo de Leito: Adulto, Apenas Leitos COVID
                 data = {"version": "1.0.0", "queries": [{"Query": {"Commands": [{"SemanticQueryDataShapeCommand": {"Query": {"Version": 2, "From": [{"Name": "f", "Entity": "fat_leitos_hospitalares", "Type": 0}, {"Name": "#", "Entity": "#Medidas 1 - Quantitativos Gerais", "Type": 0}, {"Name": "d", "Entity": "dim_macrorregioes", "Type": 0}], "Select": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "hospital"}, "Name": "fat_leitos_hospitalares.hospital"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Ativos"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Ativos"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Ocupados"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Ocupados"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Disponíveis"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Disponíveis"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Taxa de Ocupação"}, "Name": "#Medidas 1 - Quantitativos Gerais.Taxa de Ocupação"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Pacientes COVID Internados"},
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           "Name": "#Medidas 1 - Quantitativos Gerais.{GAL} Internados COVID (Conf&Susp)"}, {"Column": {"Expression": {"SourceRef": {"Source": "d"}}, "Property": "macro_desc_ac"}, "Name": "dim_macrorregioes.macro_desc_ac"}], "Where": [{"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "Leito COVID 2"}}], "Values": [[{"Literal": {"Value": "'COVID'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "classificacao"}}], "Values": [[{"Literal": {"Value": "'uti'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "leito_tipo"}}], "Values": [[{"Literal": {"Value": "'ADULTO'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "leito_sus"}}], "Values": [[{"Literal": {"Value": "true"}}]]}}}], "OrderBy": [{"Direction": 1, "Expression": {"Column": {"Expression": {"SourceRef": {"Source": "d"}}, "Property": "macro_desc_ac"}}}]}, "Binding": {"Primary": {"Groupings": [{"Projections": [0, 1, 2, 3, 4, 5, 6], "Subtotal":1}]}, "DataReduction":{"DataVolume": 3, "Primary": {"Window": {"Count": 500}}}, "Version": 1}}}]}, "QueryId": "", "ApplicationContext": {"DatasetId": "0c400f04-4bb2-4414-867e-790bdd9dcd5f", "Sources": [{"ReportId": "e585da1e-bcb4-46d8-ad92-6dc8640f59ed"}]}}], "cancelQueries": [], "modelId": 2604433}
             if tipo == 2:
-                print("Validando os leitos GERAL apenas Adulto... ",
-                      end='', flush=True)
+                print("Validando os leitos GERAL apenas Adulto... ")
                 # Consulta de casos Covid Tipo de Leito: Adulto, Leitos Geral
                 data = {"version": "1.0.0", "queries": [{"Query": {"Commands": [{"SemanticQueryDataShapeCommand": {"Query": {"Version": 2, "From": [{"Name": "f", "Entity": "fat_leitos_hospitalares", "Type": 0}, {"Name": "#", "Entity": "#Medidas 1 - Quantitativos Gerais", "Type": 0}, {"Name": "d", "Entity": "dim_macrorregioes", "Type": 0}], "Select": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "hospital"}, "Name": "fat_leitos_hospitalares.hospital"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Ativos"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Ativos"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Ocupados"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Ocupados"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Disponíveis"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Disponíveis"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Taxa de Ocupação"}, "Name": "#Medidas 1 - Quantitativos Gerais.Taxa de Ocupação"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Pacientes COVID Internados"},
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           "Name": "#Medidas 1 - Quantitativos Gerais.{GAL} Internados COVID (Conf&Susp)"}, {"Column": {"Expression": {"SourceRef": {"Source": "d"}}, "Property": "macro_desc_ac"}, "Name": "dim_macrorregioes.macro_desc_ac"}], "Where": [{"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "Leito COVID 2"}}], "Values": [[{"Literal": {"Value": "'COVID'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "classificacao"}}], "Values": [[{"Literal": {"Value": "'uti'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "leito_tipo"}}], "Values": [[{"Literal": {"Value": "'ADULTO'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "leito_sus"}}], "Values": [[{"Literal": {"Value": "true"}}]]}}}], "OrderBy": [{"Direction": 1, "Expression": {"Column": {"Expression": {"SourceRef": {"Source": "d"}}, "Property": "macro_desc_ac"}}}]}, "Binding": {"Primary": {"Groupings": [{"Projections": [0, 1, 2, 3, 4, 5, 6], "Subtotal":1}]}, "DataReduction":{"DataVolume": 3, "Primary": {"Window": {"Count": 500}}}, "Version": 1}}}]}, "QueryId": "", "ApplicationContext": {"DatasetId": "0c400f04-4bb2-4414-867e-790bdd9dcd5f", "Sources": [{"ReportId": "e585da1e-bcb4-46d8-ad92-6dc8640f59ed"}]}}], "cancelQueries": [], "modelId": 2604433}
@@ -78,20 +76,32 @@ class download_leitos:
                         infoHospital['pacientes_covid'] = valorHospital[5]
                     elif len(valorHospital) == 7:
                         infoHospital['pacientes_covid'] = valorHospital[6]
+                    elif valores[i]['Ø'] == 80:
+                        infoHospital['pacientes_covid'] = 0
                     else:
                         raise Exception("!-- Erro processando: ", i, ";",
                                         hospitais[i], ";", valorHospital)
                 else:
                     if valores[i]['R'] == 2:
-                        infoHospital['leitos_ativos'] = valorHospital[1]
-                        infoHospital['leitos_ocupados'] = valorHospital[2]
-                        infoHospital['leitos_disponiveis'] = valorHospital[1] - \
-                            valorHospital[2]
                         if 'Ø' in valores[i]:
-                            infoHospital['pacientes_covid'] = valorHospital[4]
+                            if valores[i]['Ø'] == 104:
+                                infoHospital['leitos_ativos'] = valorHospital[1]
+                                infoHospital['leitos_ocupados'] = 0
+                                infoHospital['leitos_disponiveis'] = valorHospital[2]
+                                infoHospital['pacientes_covid'] = 0
+                            else:
+                                infoHospital['leitos_ativos'] = valorHospital[1]
+                                infoHospital['leitos_ocupados'] = valorHospital[2]
+                                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                                    valorHospital[2]
+                                infoHospital['pacientes_covid'] = valorHospital[4]
                             # print(i, ";", hospitais[i], ";",
                             #  valorHospital, ";", valores[i]['R'])
                         else:
+                            infoHospital['leitos_ativos'] = valorHospital[1]
+                            infoHospital['leitos_ocupados'] = valorHospital[2]
+                            infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                                valorHospital[2]
                             infoHospital['pacientes_covid'] = valorHospital[5]
                         # print(i, ";", hospitais[i], ";", valorHospital,
                         #   ";", valores[i]['R'], ";", valores[i]['Ø'])
@@ -111,8 +121,11 @@ class download_leitos:
                     elif valores[i]['R'] == 10:
                         infoHospital['leitos_ativos'] = valorHospital[1]
                         infoHospital['leitos_ocupados'] = valorHospital[1]
-                        infoHospital['leitos_disponiveis'] = valorHospital[1] - \
-                            valorHospital[2]
+                        if 'Ø' in valores[i]:
+                            infoHospital['leitos_disponiveis'] = 0
+                        else:
+                            infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                                valorHospital[2]
                         infoHospital['pacientes_covid'] = valorHospital[3]
                     elif valores[i]['R'] == 16:
                         infoHospital['leitos_ativos'] = valorHospital[2]
@@ -126,12 +139,20 @@ class download_leitos:
                         infoHospital['leitos_disponiveis'] = valorHospital[1] - \
                             valorHospital[2]
                         infoHospital['pacientes_covid'] = valorHospital[4]
+                    elif valores[i]['R'] == 34:
+                        infoHospital['leitos_ativos'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
+                        infoHospital['leitos_disponiveis'] = valorHospital[3]
+                        infoHospital['pacientes_covid'] = valorHospital[4]
                     elif valores[i]['R'] == 48:
                         infoHospital['leitos_ativos'] = valorHospital[2]
                         infoHospital['leitos_ocupados'] = valorHospital[3]
                         infoHospital['leitos_disponiveis'] = valorHospital[2] - \
                             valorHospital[3]
-                        infoHospital['pacientes_covid'] = valorHospital[4]
+                        if 'Ø' in valores[i]:
+                            infoHospital['pacientes_covid'] = 0
+                        else:
+                            infoHospital['pacientes_covid'] = valorHospital[4]
                     elif valores[i]['R'] == 50:
                         infoHospital['leitos_ativos'] = valorHospital[1]
                         infoHospital['leitos_ocupados'] = valorHospital[1]
@@ -162,9 +183,11 @@ class download_leitos:
                         infoHospital['pacientes_covid'] = -1
                     elif valores[i]['R'] == 74:
                         infoHospital['leitos_ativos'] = valorHospital[1]
-                        infoHospital['leitos_ocupados'] = valorHospital[1]
-                        infoHospital['leitos_disponiveis'] = 0
-                        infoHospital['pacientes_covid'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = valorHospital[1] - \
+                            valorHospital[2]
+                        infoHospital['leitos_disponiveis'] = valorHospital[2]
+                        infoHospital['pacientes_covid'] = valorHospital[1] - \
+                            valorHospital[2]
                     elif valores[i]['R'] == 114:
                         infoHospital['leitos_ativos'] = valorHospital[1]
                         infoHospital['leitos_ocupados'] = valorHospital[2]
@@ -183,7 +206,7 @@ class download_leitos:
                                         valorHospital, ";", valores[i]['R'])
                         break
                     # print(i, ";", hospitais[i], ";",
-                    #     valorHospital, ";", valores[i]['R'])
+                    #       valorHospital, ";", valores[i]['R'])
 
                 infoHospital['taxa_ocupacao'] = infoHospital['leitos_disponiveis'] / \
                     infoHospital['leitos_ativos']
@@ -201,8 +224,8 @@ class download_leitos:
                 )
 
                 # print(i, ",", end='', flush=True)
-                # print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                #       infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'], "-> ", valores[i])
+                print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
+                      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'], ";", valores[i])
             print("Ok")
 
         for tipo in range(1, 3):

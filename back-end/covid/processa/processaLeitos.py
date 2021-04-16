@@ -91,6 +91,8 @@ class processaLeitos:
             'MATERNIDADE DARCY VARGAS': {'municipio': 420910, 'index_regional': 13},
             'SOCIEDADE HOSPITALAR ITAPIRANGA': {'municipio': 420840, 'index_regional': 6},
             'HOSPITAL NOSSA SENHORA DOS PRAZERES': {'municipio': 420930, 'index_regional': 16},
+            'HOSPITAL MONSENHOR JOSE LOCKS DE SAO JOAO BATISTA': {'municipio': 421630, 'index_regional': 9},
+            
         }
         try:
             hospital = hospital[nome_hospital]
