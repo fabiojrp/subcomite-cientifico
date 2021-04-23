@@ -45,6 +45,14 @@ class processaMunicipios:
 
                 if i > 0:
 
+                    if listaDatas[i][1]['casos'] < 0:
+
+                        try:
+                            listaDatas[i+1][1]['casos'] += listaDatas[i][1]['casos']
+                            listaDatas[i][1]['casos'] = 0
+                        except Exception as error:
+                            listaDatas[i][1]['casos'] = 0
+
                     # Casos e óbitos acumulados
                     valores[i]['casos_acumulados'] = listaDatas[i][1]['casos'] + \
                         valores[i-1]['casos_acumulados']
