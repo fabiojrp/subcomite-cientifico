@@ -103,8 +103,3 @@ class atualizaPlanilhaRT:
         request = service.spreadsheets().values().update(spreadsheetId=SAMPLE_SPREADSHEET_ID,
                                                          range=SAMPLE_RANGE_NAME, valueInputOption=value_input_option, body=value_range_body)
         response = request.execute()
-
-
-att = atualizaPlanilhaRT()
-
-att.carregaPlanilhaRt()
