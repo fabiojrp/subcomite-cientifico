@@ -1,4 +1,4 @@
-from covid.processa.dao.Database import Database
+from .Database import Database
 
 
 class Dao_RT:
@@ -43,3 +43,14 @@ class Dao_RT:
         sql = """INSERT INTO rt VALUES (%s,%s)"""
         self.db.execute_query(sql, params)
         self.db.conn.commit()
+
+    def buscaDatas(self):
+        curs = self.db.conn.cursor()
+        curs.execute("SELECT DISTINCT(data) FROM rt_regional ORDER BY data")
+        return curs.fetchall()
+
+    def buscaDadosRegionais(self, regional):
+        curs = self.db.conn.cursor()
+        curs.execute(
+            "SELECT * FROM rt_regional WHERE regional = %s ORDER BY data", (regional,))
+        return curs.fetchall()
