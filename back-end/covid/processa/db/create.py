@@ -6,6 +6,25 @@ class Create:
     def __init__(self):
         self.db = Database.get_instance()
 
+    def create_rt(self):
+        print("Criando as tabelas de rt...", end='', flush=True)
+
+        self.db.execute_query("""CREATE TABLE IF NOT EXISTS rt_municipio(
+                                    regional integer,
+                                    codigo_ibge_municipio integer,
+                                    data date,
+                                    valor_r NUMERIC(17,2) DEFAULT NULL::numeric)
+                            """)
+
+        self.db.execute_query("""CREATE TABLE IF NOT EXISTS rt_regional(
+                                    regional integer,
+                                    data date,
+                                    valor_r NUMERIC(17,2) DEFAULT NULL::numeric
+                                )
+                            """)
+
+        print("OK")
+
     def create_leitos(self):
         print("Limpando e criando as tabelas de leitos...", end='', flush=True)
 

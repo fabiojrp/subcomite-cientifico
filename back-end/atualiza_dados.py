@@ -8,12 +8,14 @@ from covid.processa.processaMunicipios import processaMunicipios
 from covid.processa.download_leitos import download_leitos
 from covid.processa.atualizaPlanilhaRT import atualizaPlanilhaRT
 from covid.processa.importLeitos import importLeitos
+from covid.processa.calculaRT import calculaRT
 
 with open('covid.log', 'w') as f:
     # sys.stdout = f  # Change the standard output to the file we created.from covid.processa.download_leitos import download_leitos
 
     processaCSV = processaCSV()
     processaMunicipios = processaMunicipios()
+    calculaRT = calculaRT()
     # atualizaPlanilhaComRt = atualizaPlanilhaRT()
 
     try:
@@ -41,8 +43,11 @@ with open('covid.log', 'w') as f:
         # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
         casos_municipios = processaCSV.readStoreCSVFile()
 
-        # # # Faz o processado dos dados
+        # # # # Faz o processado dos dados
         processaMunicipios.processamento(casos_municipios)
+
+        # Faz o calculo da RT
+        calculaRT.gerarRT()
 
         # Faz a inserção do rt do banco na planilha no sheets
         # atualizaPlanilhaComRt.carregaPlanilhaRt()
