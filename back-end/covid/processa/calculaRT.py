@@ -9,7 +9,7 @@ import time
 
 class calculaRT:
 
-    # CLASSE COM MÉTODOS PARA INSERÇÃO E SELEÇÃO DE VALORES
+    # CLASSE COM MÉTODOS PARA CRIAÇÃO, INSERÇÃO E SELEÇÃO DE VALORES
     bd = TestadorBD()
     create = Create()
     create.create_rt()
@@ -61,7 +61,7 @@ class calculaRT:
     Incidence = []
     RMedian = []
 
-    # LISTA DAS CLASSES COM SEUS DEVIDOS VALORES
+    # OBJETOS COM DADOS DO BANCO
     municipio = 0
     regional = 0
 
@@ -342,7 +342,6 @@ class calculaRT:
 
             while (t <= self.TimeMax - Step):
                 t = int(t + Step)
-                # print(self.TimeMax,self.startTime[self.TimePeriodNb - 1], "   ", self.endTime[self.TimePeriodNb - 1])
                 self.TimePeriodNb = self.TimePeriodNb + 1
                 self.endTime.insert(self.TimePeriodNb - 1, t)
                 self.startTime.insert(
@@ -369,9 +368,12 @@ class calculaRT:
         cumulativeProvability = gamma.cdf(k, a, 0, b)
         return cumulativeProvability
 
-    def gerarRT(self):
+    def gerarRTRegionais(self):
         for i in range(1, 18):
+
             print("Calculando RT Regional ", processaRegiao.buscaNomeRegiao(
                 i), "...", end='', flush=True)
+
             self.estimar_R_Regional(i)
+
             print("Ok")

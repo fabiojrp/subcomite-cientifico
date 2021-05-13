@@ -18,16 +18,16 @@ class atualizaPlanilhaRT:
         self.dao_rt = Dao_RT()
 
     def processaDatas(self, regional):
-        dados = []
+        datas = []
         rows = self.dao_rt.buscaDatas()
 
-        dados.append(processaRegiao.buscaNomeRegiaoPlanilha(regional))
-        dados.append(processaRegiao.buscaCampusRegiaoPlanilha(regional))
+        datas.append(processaRegiao.buscaNomeRegiaoPlanilha(regional))
+        datas.append(processaRegiao.buscaCampusRegiaoPlanilha(regional))
 
         for i in rows:
-            dados.append(i[0].strftime("%-m/%-d/%Y"))
+            datas.append(i[0].strftime("%-m/%-d/%Y"))
 
-        return dados
+        return datas
 
     @staticmethod
     def processaRegionais(self):

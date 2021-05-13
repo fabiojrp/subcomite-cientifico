@@ -46,8 +46,8 @@ with open('covid.log', 'w') as f:
         # # # # Faz o processado dos dados
         processaMunicipios.processamento(casos_municipios)
 
-        # Faz o calculo da RT
-        calculaRT.gerarRT()
+        # Faz o calculo da RT para as regionais
+        calculaRT.gerarRTRegionais()
 
         # Faz a inserção do rt do banco na planilha no sheets
         # atualizaPlanilhaComRt.carregaPlanilhaRt()
