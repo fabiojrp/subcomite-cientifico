@@ -7,8 +7,6 @@ from covid.processa.processaLeitos import processaLeitos
 from covid.processa.dao.DadosDao import DadosDao
 from covid.processa.db.create import Create
 from datetime import datetime
-
-
 class download_leitos:
     def __init__(self, simulacao=0):
         create = Create()
@@ -65,7 +63,7 @@ class download_leitos:
                 infoHospital['hospital'] = hospitais[i]
                 valorHospital = valores[i]['C']
                 # print(i, ";", hospitais[i], ";", valorHospital)
-                
+
                 if not('R' in valores[i]):
                     # print(i, ";", hospitais[i], ";", valorHospital)
                     infoHospital['leitos_ativos'] = valorHospital[2]
@@ -92,13 +90,14 @@ class download_leitos:
                             elif valores[i]['Ø'] == 80:
                                 infoHospital['leitos_ativos'] = valorHospital[1]
                                 infoHospital['leitos_ocupados'] = valorHospital[2]
-                                infoHospital['leitos_disponiveis'] = valorHospital[1] - valorHospital[2]
-                                infoHospital['pacientes_covid'] = 0  
+                                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                                    valorHospital[2]
+                                infoHospital['pacientes_covid'] = 0
                             elif valores[i]['Ø'] == 64:
                                 infoHospital['leitos_ativos'] = valorHospital[1]
                                 infoHospital['leitos_ocupados'] = valorHospital[2]
                                 infoHospital['leitos_disponiveis'] = valorHospital[3]
-                                infoHospital['pacientes_covid'] = 0    
+                                infoHospital['pacientes_covid'] = 0
                             else:
                                 infoHospital['leitos_ativos'] = valorHospital[1]
                                 infoHospital['leitos_ocupados'] = valorHospital[2]
@@ -115,6 +114,11 @@ class download_leitos:
                             infoHospital['pacientes_covid'] = valorHospital[5]
                         # print(i, ";", hospitais[i], ";", valorHospital,
                         #   ";", valores[i]['R'], ";", valores[i]['Ø'])
+                    elif valores[i]['R'] == 4:
+                        infoHospital['leitos_ativos'] = valorHospital[2]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
+                        infoHospital['leitos_disponiveis'] = 0
+                        infoHospital['pacientes_covid'] = valorHospital[4]
                     elif valores[i]['R'] == 6:
                         if 'Ø' in valores[i]:
                             infoHospital['leitos_ativos'] = valorHospital[1]
@@ -129,14 +133,27 @@ class download_leitos:
                             infoHospital['pacientes_covid'] = valorHospital[4]
 
                     elif valores[i]['R'] == 10:
-                        infoHospital['leitos_ativos'] = valorHospital[1]
-                        infoHospital['leitos_ocupados'] = valorHospital[1]
-                        if 'Ø' in valores[i]:
-                            infoHospital['leitos_disponiveis'] = 0
-                        else:
-                            infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                        if len(valorHospital) == 5:
+                            infoHospital['leitos_ativos'] = valorHospital[1]
+                            infoHospital['leitos_ocupados'] = valorHospital[1] - \
                                 valorHospital[2]
-                        infoHospital['pacientes_covid'] = valorHospital[3]
+                            infoHospital['leitos_disponiveis'] = valorHospital[2]
+                            infoHospital['pacientes_covid'] = valorHospital[4]
+                        else:
+                            infoHospital['leitos_ativos'] = valorHospital[1]
+                            infoHospital['leitos_ocupados'] = valorHospital[1]
+                            if 'Ø' in valores[i]:
+                                if valores[i]['Ø'] == 16:
+                                    infoHospital['pacientes_covid'] = valorHospital[3]
+                                    infoHospital['leitos_disponiveis'] = 0
+                                else:
+                                    infoHospital['pacientes_covid'] = valorHospital[5]
+                                    infoHospital['leitos_disponiveis'] = 0
+                            else:
+                                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                                    valorHospital[2]
+                                infoHospital['pacientes_covid'] = valorHospital[5]
+                            infoHospital['pacientes_covid'] = valorHospital[3]
                     elif valores[i]['R'] == 16:
                         infoHospital['leitos_ativos'] = valorHospital[2]
                         infoHospital['leitos_ocupados'] = valorHospital[3]
@@ -185,17 +202,42 @@ class download_leitos:
                         infoHospital['leitos_disponiveis'] = valorHospital[1] - \
                             valorHospital[2]
                         infoHospital['pacientes_covid'] = -1
+                    elif valores[i]['R'] == 68:
+                        infoHospital['leitos_ativos'] = valorHospital[2]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
+                        infoHospital['leitos_disponiveis'] = 0
+                        infoHospital['pacientes_covid'] = valorHospital[2] - valorHospital[3]
                     elif valores[i]['R'] == 70:
                         infoHospital['leitos_ativos'] = valorHospital[1]
                         infoHospital['leitos_ocupados'] = valorHospital[1] - \
                             valorHospital[2]
                         infoHospital['leitos_disponiveis'] = valorHospital[2]
                         infoHospital['pacientes_covid'] = -1
+                    elif valores[i]['R'] == 72:
+                        infoHospital['leitos_ativos'] = valorHospital[2]
+                        infoHospital['leitos_ocupados'] = valorHospital[2] - \
+                            valorHospital[3]
+                        infoHospital['leitos_disponiveis'] = valorHospital[3]
+                        infoHospital['pacientes_covid'] = valorHospital[2] - \
+                            valorHospital[3]
                     elif valores[i]['R'] == 74:
                         infoHospital['leitos_ativos'] = valorHospital[1]
-                        infoHospital['leitos_ocupados'] = valorHospital[1] - \
+                        if 'Ø' in valores[i]:
+                            if valores[i]['Ø'] == 16:
+                                infoHospital['leitos_ocupados'] = valorHospital[1]
+                                infoHospital['leitos_disponiveis'] = 0
+                                infoHospital['pacientes_covid'] = valorHospital[1]
+                        else:
+                            infoHospital['leitos_ocupados'] = valorHospital[1] - \
+                                valorHospital[2]
+                            infoHospital['leitos_disponiveis'] = valorHospital[2]
+                            infoHospital['pacientes_covid'] = valorHospital[1] - \
+                                valorHospital[2]
+                    elif valores[i]['R'] == 82:
+                        infoHospital['leitos_ativos'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
+                        infoHospital['leitos_disponiveis'] = valorHospital[1] - \
                             valorHospital[2]
-                        infoHospital['leitos_disponiveis'] = valorHospital[2]
                         infoHospital['pacientes_covid'] = valorHospital[1] - \
                             valorHospital[2]
                     elif valores[i]['R'] == 114:
@@ -204,6 +246,13 @@ class download_leitos:
                         infoHospital['leitos_disponiveis'] = valorHospital[1] - \
                             valorHospital[2]
                         infoHospital['pacientes_covid'] = -1
+                    elif valores[i]['R'] == 124:
+                        valorHospital = valores[i-1]['C']
+                        infoHospital['leitos_ativos'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
+                        infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                            valorHospital[2]
+                        infoHospital['pacientes_covid'] = valorHospital[1]
                     elif valores[i]['R'] == 126:
                         valorHospital = valores[i-1]['C']
                         infoHospital['leitos_ativos'] = valorHospital[1]
@@ -264,14 +313,14 @@ class download_leitos:
                     "!--- Leitos Disponíveis não fecha {encontrado:", somaDisponiveis, ", deveria ser: ", totais[2], "} ---!")
         if simulacao == 1:
             return
-        try: 
+        try:
             for tipo in range(1, 3):
                 if tipo == 1:
                     print("Importando os leitos COVID apenas Adulto... ",
-                        end='', flush=True)
+                          end='', flush=True)
                 if tipo == 2:
                     print("Importando os leitos GERAL apenas Adulto... ",
-                        end='', flush=True)
+                          end='', flush=True)
                 for i in leitos[tipo]:
                     params = (
                         "NULL",
@@ -306,5 +355,5 @@ class download_leitos:
                             '''
         except Exception as mensagem:
             print("Erro: ", mensagem)
-        
+
         print("Ok")
