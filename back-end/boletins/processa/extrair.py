@@ -19,32 +19,44 @@ class extrair:
         df[0]['data'][4]
         df[0]['data'][6]
 
-    def getRegionais(file_path):
+    def getDadosRegionais(_self, file_path, paginas):
         area = [[200, 9, 300, 155],
                 [358, 137, 416, 570],
                 [515, 9, 615, 155],
                 [668, 137, 727, 570]]
 
         df = tabula.read_pdf(file_path, output_format="json",
-                             pages=[5, 6, 7, 8],
+                             pages=paginas,
                              area=area,
                              columns=[150, 220, 296, 338, 391, 434, 484, 531])
         if len(df) != 16:
-            print("Erro processando: " + file_path)
+            raise Exception('Quantidade de dados das Regiões não correspondem')
         # print(df)
 
         dados_leitos = []
         for i in range(0, int(len(df)/2)):
             regional = (' '.join([str(x[0]['text']) for x in df[i*2]['data']]))
             dia_regional = {'regional': regional,
-                            'leitos': {
+                            'total': {
+                                'ativos': int(df[i*2+1]['data'][0][1]['text']) + 
+                                    int(df[i*2+1]['data'][1][1]['text']) + 
+                                    int(df[i*2+1]['data'][2][1]['text']),
+                                'ocupados_covid': int(df[i*2+1]['data'][0][1]['text']),
+                                'ocupados_outros': int(df[i*2+1]['data'][1][1]['text']),
+                                'livres': int(df[i*2+1]['data'][2][1]['text'])
+                            },
+                            'adulto': {
+                                'ativos': int(df[i*2+1]['data'][0][3]['text']) + 
+                                    int(df[i*2+1]['data'][1][3]['text']) + 
+                                    int(df[i*2+1]['data'][2][3]['text']),
                                 'ocupados_covid': int(df[i*2+1]['data'][0][3]['text']),
                                 'ocupados_outros': int(df[i*2+1]['data'][1][3]['text']),
                                 'livres': int(df[i*2+1]['data'][2][3]['text'])
                             }
                             }
             dados_leitos.append(dia_regional)
-        print(dados_leitos)
+
+        return dados_leitos
 
     def getDadosSC(_self, file_path, pagina):
         area = (220, 128, 320, 570)
@@ -54,7 +66,7 @@ class extrair:
                              area=area,
                              columns=colunas)
         if len(df[0]['data']) != 2 or len(df[0]['data'][0]) != 10:
-            raise Exception('Quantidade de dados extraindo não correspondem')
+            raise Exception('Quantidade de dados do Estado de SC não correspondem')
         dadosSC = {'regional': 'Estado SC',
                             'Internações em UTI': {
                                 'SUS':{

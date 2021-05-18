@@ -1,6 +1,7 @@
 import urllib.request
+import csv
 
-class download:
+class arquivos:
     def getFile(url):
         file_name = url.split('epidemiologico-')[-1]
         try:
@@ -16,3 +17,12 @@ class download:
 
         f.write(u.read())
         f.close()
+    
+    def salvaCSV(_self, dados):
+        filename = 'leitos.csv'
+        with open(filename, 'w') as f:  
+            writer = csv.writer(f)
+            for itemData in dados:
+                for item in itemData['dados']:
+                    
+                    writer.writerow(item)
