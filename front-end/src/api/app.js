@@ -363,12 +363,12 @@ app.get("/api/rt-por-regiao/:id", (req, res) => {
     id = req.params.id;
 
     pool.query(
-        `SELECT RT.DATA as data,
-            RT.RT as rt
-        FROM REGIONAIS, RT
-        WHERE RT.REGIONAL = REGIONAIS.ID
-                AND RT.REGIONAL = $1
-        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+        `SELECT RT_REGIONAL.DATA as data,
+            RT_REGIONAL.RT as rt
+        FROM REGIONAIS, RT_REGIONAL
+        WHERE RT_REGIONAL.REGIONAL = REGIONAIS.ID
+                AND RT_REGIONAL.REGIONAL = $1
+        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT_REGIONAL.DATA
             `, [id],
         (err, rows) => {
             if (err) {
@@ -441,11 +441,11 @@ app.get('/api/rt-por-regiao/', (req, res) => {
 
 app.get("/api/rt-por-regiao/", (req, res) => {
     pool.query(
-        `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT.DATA as data,
-                RT.RT as rt
-            FROM REGIONAIS, RT
-            WHERE RT.REGIONAL = REGIONAIS.ID
-            ORDER BY REGIONAIS.REGIONAL_SAUDE, RT.DATA
+        `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT_REGIONAL.DATA as data,
+            RT_REGIONAL.VALOR_R as rt
+            FROM REGIONAIS, RT_REGIONAL
+            WHERE RT_REGIONAL.REGIONAL = REGIONAIS.ID
+            ORDER BY REGIONAIS.REGIONAL_SAUDE, RT_REGIONAL.DATA
             `,
         (err, rows) => {
             if (err) {
