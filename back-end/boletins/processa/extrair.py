@@ -38,20 +38,20 @@ class extrair:
             regional = (' '.join([str(x[0]['text']) for x in df[i*2]['data']]))
             dia_regional = {'regional': regional,
                             'total': {
-                                'ativos': int(df[i*2+1]['data'][0][1]['text']) + 
-                                    int(df[i*2+1]['data'][1][1]['text']) + 
-                                    int(df[i*2+1]['data'][2][1]['text']),
-                                'ocupados_covid': int(df[i*2+1]['data'][0][1]['text']),
-                                'ocupados_outros': int(df[i*2+1]['data'][1][1]['text']),
-                                'livres': int(df[i*2+1]['data'][2][1]['text'])
+                                'ativos': int(df[i*2+1]['data'][0][1]['text'].replace(".", "")) + 
+                                    int(df[i*2+1]['data'][1][1]['text'].replace(".", "")) + 
+                                    int(df[i*2+1]['data'][2][1]['text'].replace(".", "")),
+                                'ocupados_covid': int(df[i*2+1]['data'][0][1]['text'].replace(".", "")),
+                                'ocupados_outros': int(df[i*2+1]['data'][1][1]['text'].replace(".", "")),
+                                'livres': int(df[i*2+1]['data'][2][1]['text'].replace(".", ""))
                             },
                             'adulto': {
-                                'ativos': int(df[i*2+1]['data'][0][3]['text']) + 
-                                    int(df[i*2+1]['data'][1][3]['text']) + 
-                                    int(df[i*2+1]['data'][2][3]['text']),
-                                'ocupados_covid': int(df[i*2+1]['data'][0][3]['text']),
-                                'ocupados_outros': int(df[i*2+1]['data'][1][3]['text']),
-                                'livres': int(df[i*2+1]['data'][2][3]['text'])
+                                'ativos': int(df[i*2+1]['data'][0][3]['text'].replace(".", "")) + 
+                                    int(df[i*2+1]['data'][1][3]['text'].replace(".", "")) + 
+                                    int(df[i*2+1]['data'][2][3]['text'].replace(".", "")),
+                                'ocupados_covid': int(df[i*2+1]['data'][0][3]['text'].replace(".", "")),
+                                'ocupados_outros': int(df[i*2+1]['data'][1][3]['text'].replace(".", "")),
+                                'livres': int(df[i*2+1]['data'][2][3]['text'].replace(".", ""))
                             }
                             }
             dados_leitos.append(dia_regional)
