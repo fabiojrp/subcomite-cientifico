@@ -35,10 +35,10 @@ with open('covid.log', 'w') as f:
         # importLeitos.processData(soupData, "Covid")
 
         # Carrega os valores de RT, lembrar de incluir o arquivo RtSC.xlsx - site.csv
-        importRT()
+        # importRT()
 
         # Faz o download dos casos do site do Ministério da Saúde
-        download_databases()
+        # download_databases()
 
         # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
         casos_municipios = processaCSV.readStoreCSVFile()

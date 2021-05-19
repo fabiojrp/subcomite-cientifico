@@ -129,13 +129,13 @@ class Create:
                     REGIONAIS.ID,
                     REGIONAIS.POLIGONO::JSONB,
                     REGIONAIS.URL AS URL,
-                    RT.DATA AS DATA,
-                    RT.RT AS RT
-                FROM REGIONAIS, RT
-                WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT)
-                                AND RT.REGIONAL = REGIONAIS.ID
+                    RT_REGIONAL.DATA AS DATA,
+                    RT_REGIONAL.VALOR_R AS RT
+                FROM REGIONAIS, RT_REGIONAL
+                WHERE RT_REGIONAL.DATA = (SELECT MAX(RT_REGIONAL.DATA) FROM RT_REGIONAL)
+                                AND RT_REGIONAL.REGIONAL = REGIONAIS.ID
                 ORDER BY REGIONAIS.REGIONAL_SAUDE,
-                    RT.DATA
+                    RT_REGIONAL.DATA
         """
         self.db.execute_query(sql)
 
@@ -317,13 +317,13 @@ class Create:
                     REGIONAIS.ID,
                     REGIONAIS.POLIGONO::JSONB,
                     REGIONAIS.URL AS URL,
-                    RT.DATA AS DATA,
-                    RT.RT AS RT
-                FROM REGIONAIS, RT
-                WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT)
-                                AND RT.REGIONAL = REGIONAIS.ID
+                    RT_REGIONAL.DATA AS DATA,
+                    RT_REGIONAL.VALOR_R AS RT
+                FROM REGIONAIS, RT_REGIONAL
+                WHERE RT_REGIONAL.DATA = (SELECT MAX(RT_REGIONAL.DATA) FROM RT_REGIONAL)
+                                AND RT_REGIONAL.REGIONAL = REGIONAIS.ID
                 ORDER BY REGIONAIS.REGIONAL_SAUDE,
-                    RT.DATA
+                    RT_REGIONAL.DATA
         """
         self.db.execute_query(sql)
 
