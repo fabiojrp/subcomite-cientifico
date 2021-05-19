@@ -58,6 +58,86 @@ class extrair:
 
         return dados_leitos
 
+    def getDadosRegionais2(_self, file_path, paginas):
+        area = [ [175, 510, 175+80, 510+80],  [350, 504,  350+80, 504+80], [700, 509,  700+80, 509+80], 
+                [700, 214,  700+80, 214+80],  [533, 213,  530+80, 216+80], [534, 508,  530+80, 510+70],
+                [350, 204,  350+80, 204+80]]
+
+        df = tabula.read_pdf(file_path, output_format="json",
+                             pages=paginas,
+                             area=area)
+        if len(df) != 7:
+            raise Exception('Quantidade de dados das Regiões não correspondem')
+        # print(df)
+        regionais = ['SANTA CATARINA (TOTAL)',  'GRANDE FLORIANÓPOLIS',  'FOZ DO RIO ITAJAÍ',  'GRANDE OESTE',  'MEIO OESTE E SERRA CATARINENSE',  'PLANALTO NORTE E NORDESTE',  'SUL',  'VALE DO ITAJAÍ']
+        dados_leitos = []
+        ocupados_covid = 0
+        ocupados_outros = 0
+        livres = 0
+        dia_regional = {'regional': 'SANTA CATARINA (TOTAL)',
+                            'total': {
+                                'ativos': 0,
+                                'ocupados_covid': 0,
+                                'ocupados_outros': 0,
+                                'livres': 0
+                                },
+                            'adulto': {
+                                'ativos': "",
+                                'ocupados_covid': "",
+                                'ocupados_outros': "",
+                                'livres': "",
+                                }
+                            }
+        dados_leitos.append(dia_regional)
+
+        for i in range(1, len(df)):
+            try:
+                ocupados_covid += int(df[i-1]['data'][0][0]['text'].replace(".", ""))
+                ocupados_outros += int(df[i-1]['data'][1][0]['text'].replace(".", ""))
+                livres += int(df[i-1]['data'][1][0]['text'].replace(".", ""))
+                dia_regional = {'regional': regionais[i],
+                                'total': {
+                                    'ativos': int(df[i-1]['data'][0][0]['text'].replace(".", "")) + \
+                                        int(df[i-1]['data'][1][0]['text'].replace(".", "")) + \
+                                        int(df[i-1]['data'][2][0]['text'].replace(".", "")),
+                                    'ocupados_covid': int(df[i-1]['data'][0][0]['text'].replace(".", "")),
+                                    'ocupados_outros': int(df[i-1]['data'][1][0]['text'].replace(".", "")),
+                                    'livres': int(df[i-1]['data'][2][0]['text'].replace(".", ""))
+                                    },
+                                'adulto': {
+                                    'ativos': "",
+                                    'ocupados_covid': "",
+                                    'ocupados_outros': "",
+                                    'livres': "",
+                                    }
+                                }
+            except Exception as e:
+                print("!!!Erro!!!")
+                print(e);
+                print("Arquivo: " + file_path + "Regional: " + regionais[i])
+                dia_regional = {'regional': regionais[i],
+                            'total': {
+                                'ativos': 0,
+                                'ocupados_covid': 0,
+                                'ocupados_outros': 0,
+                                'livres': 0
+                                },
+                            'adulto': {
+                                'ativos': "",
+                                'ocupados_covid': "",
+                                'ocupados_outros': "",
+                                'livres': "",
+                                }
+                            }
+            finally:    
+                dados_leitos.append(dia_regional)
+        
+        dados_leitos[0]['total']['ativos'] = ocupados_covid + ocupados_outros + livres
+        dados_leitos[0]['total']['ocupados_covid'] = ocupados_covid
+        dados_leitos[0]['total']['ocupados_outros'] = ocupados_outros
+        dados_leitos[0]['total']['livres'] = livres
+        return dados_leitos
+
     def getDadosSC(_self, file_path, pagina):
         area = (220, 128, 320, 570)
         colunas = [128, 175, 223, 271, 320, 370, 417, 468, 515]
@@ -107,4 +187,5 @@ class extrair:
                     }
         return dadosSC
 
+        
         # tabula.convert_into(file_path, "output2.csv", output_format="csv", pages=paginas, area=area)
