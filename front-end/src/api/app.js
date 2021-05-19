@@ -364,7 +364,7 @@ app.get("/api/rt-por-regiao/:id", (req, res) => {
 
     pool.query(
         `SELECT RT_REGIONAL.DATA as data,
-            RT_REGIONAL.RT as rt
+            RT_REGIONAL.VALOR_R as rt
         FROM REGIONAIS, RT_REGIONAL
         WHERE RT_REGIONAL.REGIONAL = REGIONAIS.ID
                 AND RT_REGIONAL.REGIONAL = $1
