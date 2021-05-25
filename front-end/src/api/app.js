@@ -2,7 +2,6 @@ const { Pool, Client } = require("pg");
 const bodyParser = require("body-parser");
 var cors = require("cors");
 
-
 const express = require("express");
 const app = express();
 
@@ -41,26 +40,26 @@ regions = {
     16: "SERRA CATARINENSE",
     17: "XANXERÊ",
 };
-html_regions = {
-    0: "Ignorado",
-    1: "NULL",
-    2: "ALTO URUGUAI CATARINENSE",
-    3: "ALTO VALE DO ITAJAI",
-    4: "ALTO VALE DO RIO DO PEIXE",
-    5: "carbonifera",
-    6: "EXTREMO OESTE",
-    7: "EXTREMO SUL CATARINENSE",
-    8: "FOZ DO RIO ITAJAI",
-    9: "GRANDE FLORIANOPOLIS",
-    10: "LAGUNA",
-    11: "MEDIO VALE DO ITAJAI",
-    12: "MEIO OESTE",
-    13: "NORDESTE",
-    14: "OESTE",
-    15: "PLANALTO NORTE",
-    16: "SERRA CATARINENSE",
-    17: "XANXERÊ",
-};
+regions_array = [
+    "Ignorado",
+    "ESTADO DE SC",
+    "ALTO URUGUAI CATARINENSE",
+    "ALTO VALE DO ITAJAI",
+    "ALTO VALE DO RIO DO PEIXE",
+    "CARBONIFERA",
+    "EXTREMO OESTE",
+    "EXTREMO SUL CATARINENSE",
+    "FOZ DO RIO ITAJAI",
+    "GRANDE FLORIANOPOLIS",
+    "LAGUNA",
+    "MEDIO VALE DO ITAJAI",
+    "MEIO OESTE",
+    "NORDESTE",
+    "OESTE",
+    "PLANALTO NORTE",
+    "SERRA CATARINENSE",
+    "XANXERÊ",
+];
 app.get("/", (req, res) => {
     res.send("Server up!");
 });
@@ -900,11 +899,56 @@ app.get("/api/dados-boletim/", (req, res) => {
 
                     res.attachment('boletim.csv');
                     res.status(200).send(data);
-
-
                 },
             );
         });
+});
+
+app.get("/api/dados-rt/", (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.regional_saude, REGIONAIS.id AS ID, RT_REGIONAL.DATA as data,
+            RT_REGIONAL.VALOR_R as rt
+        FROM REGIONAIS, RT_REGIONAL
+        WHERE RT_REGIONAL.REGIONAL = REGIONAIS.ID
+        ORDER BY REGIONAIS.REGIONAL_SAUDE, RT_REGIONAL.DATA`,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados de leitos das regiões: " + err);
+                return;
+            }
+
+            result = rows.rows;
+            regionais = [];
+            result.forEach((item) => {
+                var dataItem = ("0" + item.data.getDate()).slice(-2) + "/" + ("0" + (item.data.getMonth() + 1)).slice(-2) + "/" + item.data.getFullYear();
+                if (!regionais[dataItem]) {
+                    regionais[dataItem] = new Array(18);
+                }
+                if (item.rt) {
+                    regionais[dataItem][regions_array[item.id]] = (item.rt).replace(".", ",");
+                }
+            });
+
+            dadosRegionais = []
+            for (var data in regionais) {
+                var value = regionais[data];
+                value.unshift(data);
+                dadosRegionais.push(value);
+            }
+
+            // regionais[1].ocupacao_leitos = ((totalEstado.leitos_ocupados / totalEstado.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+            // regionais[1].regional = "Estado de SC";
+            //  regionais = regionais.filter(function (el) {
+            //      return el != null;
+            //  });
+
+            var json2csv = require('json2csv').parse;
+            var data = json2csv(dadosRegionais, { expandArrayObjects: true });
+
+            res.attachment('dados_rt.csv');
+            res.status(200).send(data);
+        },
+    );
 });
 
 
