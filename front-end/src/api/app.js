@@ -17,7 +17,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "zzdz0737", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -751,37 +751,160 @@ app.get("/api/dados-regiao/:id", (req, res) => {
 });
 
 
-app.get("/api/leitos-atuais/", (req, res) => {
+// app.get("/api/leitos-atuais/", (req, res) => {
+//     pool.query(
+//         `SELECT REGIONAIS.REGIONAL_SAUDE as regional,
+//           VIEW_LEITOS.LEITOS_ATIVOS as ativos,
+//           VIEW_LEITOS.LEITOS_OCUPADOS as ocupados,
+//           VIEW_LEITOS.MAX_DATA as data
+//         FROM VIEW_LEITOS,
+//           REGIONAIS
+//         WHERE VIEW_LEITOS.ID = REGIONAIS.ID
+//         ORDER BY REGIONAIS.REGIONAL_SAUDE`,
+//         (err, rows) => {
+//             if (err) {
+//                 console.log("Erro ao buscar o valor de leitos das regiões: " + err);
+//                 return;
+//             }
+//             result = rows.rows;
+//             regionais = [];
+//             result.forEach((item) => {
+//                 item.percentual = ((item.ocupados / item.ativos) * 100).toFixed(2);
+//                 regionais.push(item)
+//             });
+
+//             var json2csv = require('json2csv').parse;
+//             var data = json2csv(regionais);
+
+//             res.attachment('leitos.csv');
+//             res.status(200).send(data);
+
+
+//         },
+//     );
+// });
+
+
+
+app.get("/api/dados-extrato/", (req, res) => {
     pool.query(
-        `SELECT REGIONAIS.REGIONAL_SAUDE as regional,
-          VIEW_LEITOS.LEITOS_ATIVOS as ativos,
-          VIEW_LEITOS.LEITOS_OCUPADOS as ocupados,
-          VIEW_LEITOS.MAX_DATA as data
-        FROM VIEW_LEITOS,
-          REGIONAIS
-        WHERE VIEW_LEITOS.ID = REGIONAIS.ID
-        ORDER BY REGIONAIS.REGIONAL_SAUDE`,
+        `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
+        VIEW_LEITOS.MAX_DATA AS DATA,
+        1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS) / VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
+        (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS MEDIA_MOVEL
+    FROM VIEW_RT,
+        VIEW_CASOS_ATUAL,
+        VIEW_CASOS_ANTERIOR,
+        VIEW_LEITOS
+    WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
+                    AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+                    AND VIEW_RT.ID = VIEW_LEITOS.ID
+    ORDER BY REGIONAIS`,
         (err, rows) => {
             if (err) {
-                console.log("Erro ao buscar o valor de leitos das regiões: " + err);
+                console.log("Erro ao buscar os dados de extrato das regiões: " + err);
                 return;
             }
             result = rows.rows;
             regionais = [];
             result.forEach((item) => {
-                item.percentual = ((item.ocupados / item.ativos) * 100).toFixed(2);
+                item.leitos_ocupados = (item.leitos_ocupados * 100).toFixed(2).replace(".", ",");
+                item.media_movel = (item.media_movel * 100).toFixed(2).replace(".", ",");
                 regionais.push(item)
             });
 
             var json2csv = require('json2csv').parse;
             var data = json2csv(regionais);
 
-            res.attachment('leitos.csv');
+            res.attachment('extrato.csv');
             res.status(200).send(data);
 
 
         },
     );
+});
+
+// Variação Média Móvel,
+// Ocupação Leito UTI,
+// Taxa de Transmissibilidade,
+// Taxa de Letalidade,
+// Casos confirmados por 100 mil hab.
+// Fila de espera - Leitos UTI
+
+app.get("/api/dados-boletim/", (req, res) => {
+    pool.query(
+        `SELECT VIEW_RT.ID AS ID,
+            VIEW_RT.REGIONAL_SAUDE AS REGIONAL,
+            VIEW_RT.DATA AS DATA,
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VAR_MEDIA_MOVEL,
+            VIEW_RT.RT AS RT,
+            VIEW_INCIDENCIA.LETALIDADE,
+            VIEW_INCIDENCIA.INCIDENCIA
+        FROM VIEW_RT,
+            VIEW_CASOS_ATUAL,
+            VIEW_CASOS_ANTERIOR,
+            VIEW_INCIDENCIA
+        WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
+                        AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+                        AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+        ORDER BY VIEW_RT.ID`,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados de extrato das regiões: " + err);
+                return;
+            }
+
+            pool.query(
+                `SELECT VIEW_LEITOS.ID AS ID,
+                        VIEW_LEITOS.MAX_DATA AS DATA,
+                        VIEW_LEITOS.LEITOS_ATIVOS LEITOS_ATIVOS,
+                        VIEW_LEITOS.LEITOS_OCUPADOS AS LEITOS_OCUPADOS
+                    FROM VIEW_RT,
+                        VIEW_LEITOS
+                    WHERE VIEW_RT.ID = VIEW_LEITOS.ID
+                    ORDER BY ID`,
+                (err2, rows2) => {
+                    if (err2) {
+                        console.log("Erro ao buscar os dados de leitos das regiões: " + err);
+                        return;
+                    }
+
+                    totalEstado = {
+                        leitos_ocupados: 0,
+                        leitos_ativos: 0,
+                    }
+                    result = rows.rows;
+                    result_Leitos = rows2.rows;
+                    regionais = [];
+                    result.forEach((item) => {
+                        item.var_media_movel = (item.var_media_movel * 100).toFixed(2).replace(".", ",");
+                        // item.leitos_ocupados = (item.leitos_ocupados * 100).toFixed(2).replace(".", ",");
+                        item.rt = (item.rt).replace(".", ",");
+                        item.letalidade = (item.letalidade).toFixed(2).replace(".", ",");
+                        item.incidencia = (item.incidencia).toFixed(2).replace(".", ",");
+                        regionais[item.id] = item;
+                    });
+
+                    result_Leitos.forEach((item) => {
+                        regionais[item.id].ocupacao_leitos = ((item.leitos_ocupados / item.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+                        totalEstado.leitos_ocupados += parseInt(item.leitos_ocupados);
+                        totalEstado.leitos_ativos += parseInt(item.leitos_ativos);
+                    });
+                    regionais[1].ocupacao_leitos = ((totalEstado.leitos_ocupados / totalEstado.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+                    regionais[1].regional = "Estado de SC";
+                    regionais = regionais.filter(function (el) {
+                        return el != null;
+                    });
+                    var json2csv = require('json2csv').parse;
+                    var data = json2csv(regionais);
+
+                    res.attachment('boletim.csv');
+                    res.status(200).send(data);
+
+
+                },
+            );
+        });
 });
 
 
