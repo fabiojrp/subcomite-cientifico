@@ -29,7 +29,7 @@ class processaCSV:
         casos_municipios = {}
 
         for arquivo_csv in os.listdir("Dados_MS"):
-            print('Processando arquivo: ', arquivo_csv)
+            print('\nProcessando arquivo: ', arquivo_csv)
 
             with open('Dados_MS/'+arquivo_csv, 'r') as arquivo:
                 dados = csv.DictReader(arquivo, delimiter=";")

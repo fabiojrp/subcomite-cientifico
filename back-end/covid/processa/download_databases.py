@@ -32,10 +32,13 @@ class download_databases:
         print("Baixando base de dados do Ministério da Saúde ...",
               end='', flush=True)
         url_zip = requests.get(data_DB['results'][0]['arquivo']['url'])
+        with open(filename, 'wb') as s:
+            s.write(url_zip.content)
+        print("Ok\n")
 
+        print("Descompactando o arquivo ...",
+              end='', flush=True)
         with zipfile.ZipFile(filename, "r") as zip_ref:
             zip_ref.extractall("Dados_MS")
-        # with open(filename, 'wb') as s:
-        #     s.write(url_zip.content)
 
         print('Ok\n')
