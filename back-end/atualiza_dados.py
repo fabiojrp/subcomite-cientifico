@@ -22,7 +22,7 @@ with open('covid.log', 'w') as f:
         start_time = time.time()
 
         # Ainda em fase de teste - Faz o download dos leitos - Método 1
-        download_leitos()
+        # download_leitos()
 
         # Ainda em fase de teste - Faz o download dos leitos - Método 2
         # importLeitos = importLeitos()
@@ -38,7 +38,7 @@ with open('covid.log', 'w') as f:
         # importRT()
 
         # Faz o download dos casos do site do Ministério da Saúde
-        # download_databases()
+        download_databases()
 
         # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
         casos_municipios = processaCSV.readStoreCSVFile()

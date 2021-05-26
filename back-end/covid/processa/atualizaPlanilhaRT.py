@@ -5,9 +5,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from datetime import datetime
-from .processaRegião import processaRegiao
-from .dao.Dao_RT import Dao_RT
-from .dao.Database import Database
+from covid.processa.processaRegiao import processaRegiao
+from covid.processa.dao.Dao_RT import Dao_RT
+from covid.processa.dao.Database import Database
 
 
 class atualizaPlanilhaRT:

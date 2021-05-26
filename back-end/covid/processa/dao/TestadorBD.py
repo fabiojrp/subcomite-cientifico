@@ -1,8 +1,8 @@
 import sys
 import os
-from .Database import Database
-from ..beans.EntidadeGeografica import EntidadeGeografica
-from ..processaRegião import processaRegiao
+from covid.processa.dao.Database import Database
+from covid.processa.beans.EntidadeGeografica import EntidadeGeografica
+from covid.processa.processaRegiao import processaRegiao
 
 
 class TestadorBD:

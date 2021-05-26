@@ -1,8 +1,8 @@
 from scipy.stats import gamma
-from .dao.TestadorBD import TestadorBD
-from .dao.Database import Database
-from .db.create import Create
-from .processaRegião import processaRegiao
+from covid.processa.dao.TestadorBD import TestadorBD
+from covid.processa.dao.Database import Database
+from covid.processa.db.create import Create
+from covid.processa.processaRegiao import processaRegiao
 import time
 # from salvarDataframe import salvarDataframe
 

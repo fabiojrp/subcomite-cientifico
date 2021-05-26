@@ -1,4 +1,3 @@
-
 from covid.processa.dao.Database import Database
 
 
@@ -73,6 +72,7 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ATUAL")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA")
 
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
@@ -144,7 +144,7 @@ class Create:
                     SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
                 FROM REGIONAIS,
                     CASOS
-                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) AS MAX_DATA FROM CASOS)
+                WHERE CASOS.DATA = (SELECT MAX(CASOS.DATA) - interval '1 day' AS MAX_DATA FROM CASOS)
                                 AND CASOS.REGIONAL = REGIONAIS.ID
                 GROUP BY REGIONAIS.REGIONAL_SAUDE,
                     REGIONAIS.ID,
@@ -175,6 +175,23 @@ class Create:
                     (SELECT MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA FROM leitoscovid)
                     AND leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
                 GROUP BY REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_incidencia AS SELECT REGIONAIS.ID,
+                    CASOS.DATA,
+                    CASE WHEN (SUM(CASOS.CASOS_ACUMULADOS) < 100) THEN 0
+                                    ELSE (SUM(CASOS.OBITOS_ACUMULADOS)::real / SUM(CASOS.CASOS_ACUMULADOS)::real) * 100
+                    END AS LETALIDADE,
+                    CASE WHEN (SUM(CASOS.POPULACAO) <= 0) THEN 0
+                                    ELSE (SUM(CASOS.CASOS_ACUMULADOS)::real / SUM(CASOS.POPULACAO)::real) * 1e5
+                    END AS INCIDENCIA
+                FROM REGIONAIS,
+                    CASOS
+                WHERE CASOS.REGIONAL = REGIONAIS.ID
+                                AND CASOS.DATA = (SELECT MAX(CASOS.DATA) FROM CASOS)
+                GROUP BY REGIONAIS.ID,
+                    CASOS.DATA
         """
         self.db.execute_query(sql)
 
@@ -317,13 +334,13 @@ class Create:
                     REGIONAIS.ID,
                     REGIONAIS.POLIGONO::JSONB,
                     REGIONAIS.URL AS URL,
-                    RT_REGIONAL.DATA AS DATA,
-                    RT_REGIONAL.VALOR_R AS RT
-                FROM REGIONAIS, RT_REGIONAL
-                WHERE RT_REGIONAL.DATA = (SELECT MAX(RT_REGIONAL.DATA) FROM RT_REGIONAL)
-                                AND RT_REGIONAL.REGIONAL = REGIONAIS.ID
+                    RT.DATA AS DATA,
+                    RT.RT AS RT
+                FROM REGIONAIS, RT
+                WHERE RT.DATA = (SELECT MAX(RT.DATA) FROM RT)
+                                AND RT.REGIONAL = REGIONAIS.ID
                 ORDER BY REGIONAIS.REGIONAL_SAUDE,
-                    RT_REGIONAL.DATA
+                    RT.DATA
         """
         self.db.execute_query(sql)
 

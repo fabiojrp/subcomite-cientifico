@@ -4,6 +4,7 @@ import requests
 #from bs4 import BeautifulSoup
 from xml.dom import minidom
 import urllib
+import zipfile
 
 
 class download_databases:
@@ -26,13 +27,15 @@ class download_databases:
         req_DB = requests.get(self.url, headers=self.headers).text
 
         data_DB = json.loads(req_DB)
-        filename = data_DB['results'][0]['texto_rodape'][:-14]+'.csv'
+        filename = data_DB['results'][0]['texto_rodape'][:-14]+'.zip'
         # print(filename)
         print("Baixando base de dados do Ministério da Saúde ...",
               end='', flush=True)
-        url_csv = requests.get(data_DB['results'][0]['arquivo']['url'])
+        url_zip = requests.get(data_DB['results'][0]['arquivo']['url'])
 
-        with open(filename, 'wb') as s:
-            s.write(url_csv.content)
+        with zipfile.ZipFile(filename, "r") as zip_ref:
+            zip_ref.extractall("Dados_MS")
+        # with open(filename, 'wb') as s:
+        #     s.write(url_zip.content)
 
         print('Ok\n')
