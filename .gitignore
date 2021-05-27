@@ -4,5 +4,5 @@ node_modules
 HIST_PAINEL_COVIDBR.csv
 *.pyc
 token.json
-boletins/boletins
+*.pdf
 Dados_MS
