@@ -5,10 +5,13 @@ import requests
 from xml.dom import minidom
 import urllib
 import zipfile
+import os
+from unrar import rarfile
 
 
 class download_databases:
     def __init__(self):
+        dir = 'Dados_MS'
         self.url = 'https://xx9p7hp1p7.execute-api.us-east-1.amazonaws.com/prod/PortalGeral'
 
         self.headers = {
@@ -27,7 +30,8 @@ class download_databases:
         req_DB = requests.get(self.url, headers=self.headers).text
 
         data_DB = json.loads(req_DB)
-        filename = data_DB['results'][0]['texto_rodape'][:-14]+'.zip'
+        # filename = data_DB['results'][0]['texto_rodape'][:-14]+'.zip'
+        filename = data_DB['results'][0]['texto_rodape'][:-14]+'.rar'
         # print(filename)
         print("Baixando base de dados do Ministério da Saúde ...",
               end='', flush=True)
@@ -36,9 +40,17 @@ class download_databases:
             s.write(url_zip.content)
         print("Ok\n")
 
+        print("Remove arquivos antigos...",
+              end='', flush=True)
+        for f in os.listdir(dir):
+            os.remove(os.path.join(dir, f))
+        print("Ok\n")
+
         print("Descompactando o arquivo ...",
               end='', flush=True)
-        with zipfile.ZipFile(filename, "r") as zip_ref:
-            zip_ref.extractall("Dados_MS")
+        with rarfile.RarFile(filename) as rar_ref:
+            rar_ref.extractall(dir)
+        # with zipfile.ZipFile(filename, "r") as zip_ref:
+            # zip_ref.extractall(dir)
 
         print('Ok\n')

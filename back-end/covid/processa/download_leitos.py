@@ -7,6 +7,8 @@ from covid.processa.processaLeitos import processaLeitos
 from covid.processa.dao.DadosDao import DadosDao
 from covid.processa.db.create import Create
 from datetime import datetime
+
+
 class download_leitos:
     def __init__(self, simulacao=0):
         create = Create()
@@ -198,15 +200,21 @@ class download_leitos:
                         infoHospital['pacientes_covid'] = -1
                     elif valores[i]['R'] == 66:
                         infoHospital['leitos_ativos'] = valorHospital[1]
-                        infoHospital['leitos_ocupados'] = valorHospital[2]
-                        infoHospital['leitos_disponiveis'] = valorHospital[1] - \
-                            valorHospital[2]
+                        if 'Ø' in valores[i]:
+                            if valores[i]['Ø'] == 40:
+                                infoHospital['leitos_ocupados'] = 0
+                                infoHospital['leitos_disponiveis'] = valorHospital[2]
+                        else:
+                            infoHospital['leitos_ocupados'] = valorHospital[2]
+                            infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                                valorHospital[2]
                         infoHospital['pacientes_covid'] = -1
                     elif valores[i]['R'] == 68:
                         infoHospital['leitos_ativos'] = valorHospital[2]
                         infoHospital['leitos_ocupados'] = valorHospital[2]
                         infoHospital['leitos_disponiveis'] = 0
-                        infoHospital['pacientes_covid'] = valorHospital[2] - valorHospital[3]
+                        infoHospital['pacientes_covid'] = valorHospital[2] - \
+                            valorHospital[3]
                     elif valores[i]['R'] == 70:
                         infoHospital['leitos_ativos'] = valorHospital[1]
                         infoHospital['leitos_ocupados'] = valorHospital[1] - \

@@ -22,7 +22,7 @@ with open('covid.log', 'w') as f:
         start_time = time.time()
 
         # Ainda em fase de teste - Faz o download dos leitos - Método 1
-        # download_leitos()
+        download_leitos()
 
         # Ainda em fase de teste - Faz o download dos leitos - Método 2
         # importLeitos = importLeitos()
