@@ -1,8 +1,9 @@
 .vscode
 .DS_Store
 node_modules
-HIST_PAINEL_COVIDBR.csv
+HIST_PAINEL_COVIDBR
 *.pyc
+*.csv
 token.json
 *.pdf
 Dados_MS
