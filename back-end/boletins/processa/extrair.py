@@ -38,17 +38,19 @@ class extrair:
             regional = (' '.join([str(x[0]['text']) for x in df[i*2]['data']]))
             dia_regional = {'regional': regional,
                             'total': {
-                                'ativos': int(df[i*2+1]['data'][0][1]['text'].replace(".", "")) + 
-                                    int(df[i*2+1]['data'][1][1]['text'].replace(".", "")) + 
-                                    int(df[i*2+1]['data'][2][1]['text'].replace(".", "")),
+                                'ativos': int(df[i*2+1]['data'][0][1]['text'].replace(".", "")) +
+                                int(df[i*2+1]['data'][1][1]['text'].replace(".", "")) +
+                                int(df[i*2+1]['data'][2][1]
+                                    ['text'].replace(".", "")),
                                 'ocupados_covid': int(df[i*2+1]['data'][0][1]['text'].replace(".", "")),
                                 'ocupados_outros': int(df[i*2+1]['data'][1][1]['text'].replace(".", "")),
                                 'livres': int(df[i*2+1]['data'][2][1]['text'].replace(".", ""))
                             },
                             'adulto': {
-                                'ativos': int(df[i*2+1]['data'][0][3]['text'].replace(".", "")) + 
-                                    int(df[i*2+1]['data'][1][3]['text'].replace(".", "")) + 
-                                    int(df[i*2+1]['data'][2][3]['text'].replace(".", "")),
+                                'ativos': int(df[i*2+1]['data'][0][3]['text'].replace(".", "")) +
+                                int(df[i*2+1]['data'][1][3]['text'].replace(".", "")) +
+                                int(df[i*2+1]['data'][2][3]
+                                    ['text'].replace(".", "")),
                                 'ocupados_covid': int(df[i*2+1]['data'][0][3]['text'].replace(".", "")),
                                 'ocupados_outros': int(df[i*2+1]['data'][1][3]['text'].replace(".", "")),
                                 'livres': int(df[i*2+1]['data'][2][3]['text'].replace(".", ""))
@@ -59,8 +61,9 @@ class extrair:
         return dados_leitos
 
     def getDadosRegionais2(_self, file_path, paginas):
-        area = [ [175, 510, 175+80, 510+80],  [350, 504,  350+80, 504+80], [700, 509,  700+80, 509+80], 
-                [700, 214,  700+80, 214+80],  [533, 213,  530+80, 216+80], [534, 508,  530+80, 510+70],
+        area = [[175, 510, 175+80, 510+80],  [350, 504,  350+80, 504+80], [700, 509,  700+80, 509+80],
+                [700, 214,  700+80, 214+80],  [533, 213,  530 +
+                                               80, 216+80], [534, 508,  530+80, 510+70],
                 [350, 204,  350+80, 204+80]]
 
         df = tabula.read_pdf(file_path, output_format="json",
@@ -69,70 +72,74 @@ class extrair:
         if len(df) != 7:
             raise Exception('Quantidade de dados das Regiões não correspondem')
         # print(df)
-        regionais = ['SANTA CATARINA (TOTAL)',  'GRANDE FLORIANÓPOLIS',  'FOZ DO RIO ITAJAÍ',  'GRANDE OESTE',  'MEIO OESTE E SERRA CATARINENSE',  'PLANALTO NORTE E NORDESTE',  'SUL',  'VALE DO ITAJAÍ']
+        regionais = ['SANTA CATARINA (TOTAL)',  'GRANDE FLORIANÓPOLIS',  'FOZ DO RIO ITAJAÍ',  'GRANDE OESTE',
+                     'MEIO OESTE E SERRA CATARINENSE',  'PLANALTO NORTE E NORDESTE',  'SUL',  'VALE DO ITAJAÍ']
         dados_leitos = []
         ocupados_covid = 0
         ocupados_outros = 0
         livres = 0
         dia_regional = {'regional': 'SANTA CATARINA (TOTAL)',
-                            'total': {
-                                'ativos': 0,
-                                'ocupados_covid': 0,
-                                'ocupados_outros': 0,
-                                'livres': 0
-                                },
-                            'adulto': {
-                                'ativos': "",
-                                'ocupados_covid': "",
-                                'ocupados_outros': "",
-                                'livres': "",
-                                }
-                            }
+                        'total': {
+                            'ativos': 0,
+                            'ocupados_covid': 0,
+                            'ocupados_outros': 0,
+                            'livres': 0
+                        },
+                        'adulto': {
+                            'ativos': "",
+                            'ocupados_covid': "",
+                            'ocupados_outros': "",
+                            'livres': "",
+                        }
+                        }
         dados_leitos.append(dia_regional)
 
         for i in range(1, len(df)):
             try:
-                ocupados_covid += int(df[i-1]['data'][0][0]['text'].replace(".", ""))
-                ocupados_outros += int(df[i-1]['data'][1][0]['text'].replace(".", ""))
+                ocupados_covid += int(df[i-1]['data']
+                                      [0][0]['text'].replace(".", ""))
+                ocupados_outros += int(df[i-1]['data']
+                                       [1][0]['text'].replace(".", ""))
                 livres += int(df[i-1]['data'][1][0]['text'].replace(".", ""))
                 dia_regional = {'regional': regionais[i],
                                 'total': {
-                                    'ativos': int(df[i-1]['data'][0][0]['text'].replace(".", "")) + \
-                                        int(df[i-1]['data'][1][0]['text'].replace(".", "")) + \
-                                        int(df[i-1]['data'][2][0]['text'].replace(".", "")),
+                                    'ativos': int(df[i-1]['data'][0][0]['text'].replace(".", "")) +
+                    int(df[i-1]['data'][1][0]['text'].replace(".", "")) +
+                    int(df[i-1]['data'][2][0]['text'].replace(".", "")),
                                     'ocupados_covid': int(df[i-1]['data'][0][0]['text'].replace(".", "")),
                                     'ocupados_outros': int(df[i-1]['data'][1][0]['text'].replace(".", "")),
                                     'livres': int(df[i-1]['data'][2][0]['text'].replace(".", ""))
-                                    },
-                                'adulto': {
+                },
+                    'adulto': {
                                     'ativos': "",
                                     'ocupados_covid': "",
                                     'ocupados_outros': "",
                                     'livres': "",
-                                    }
-                                }
+                }
+                }
             except Exception as e:
                 print("!!!Erro!!!")
-                print(e);
+                print(e)
                 print("Arquivo: " + file_path + "Regional: " + regionais[i])
                 dia_regional = {'regional': regionais[i],
-                            'total': {
+                                'total': {
                                 'ativos': 0,
                                 'ocupados_covid': 0,
                                 'ocupados_outros': 0,
                                 'livres': 0
-                                },
-                            'adulto': {
-                                'ativos': "",
-                                'ocupados_covid': "",
-                                'ocupados_outros': "",
-                                'livres': "",
-                                }
-                            }
-            finally:    
+                },
+                    'adulto': {
+                    'ativos': "",
+                    'ocupados_covid': "",
+                    'ocupados_outros': "",
+                    'livres': "",
+                }
+                }
+            finally:
                 dados_leitos.append(dia_regional)
-        
-        dados_leitos[0]['total']['ativos'] = ocupados_covid + ocupados_outros + livres
+
+        dados_leitos[0]['total']['ativos'] = ocupados_covid + \
+            ocupados_outros + livres
         dados_leitos[0]['total']['ocupados_covid'] = ocupados_covid
         dados_leitos[0]['total']['ocupados_outros'] = ocupados_outros
         dados_leitos[0]['total']['livres'] = livres
@@ -146,46 +153,80 @@ class extrair:
                              area=area,
                              columns=colunas)
         if len(df[0]['data']) != 2 or len(df[0]['data'][0]) != 10:
-            raise Exception('Quantidade de dados do Estado de SC não correspondem')
+            raise Exception(
+                'Quantidade de dados do Estado de SC não correspondem')
         dadosSC = {'regional': 'Estado SC',
-                            'Internações em UTI': {
-                                'SUS':{
-                                    'Confirmados': int(df[0]['data'][0][1]['text']),
-                                    'Suspeitos': int(df[0]['data'][0][2]['text']),
-                                    'Total': int(df[0]['data'][0][3]['text']),
-                                },
-                                'Rede Privada':{
-                                    'Confirmados': int(df[0]['data'][0][4]['text']),
-                                    'Suspeitos': int(df[0]['data'][0][5]['text']),
-                                    'Total': int(df[0]['data'][0][6]['text']),
-                                },
-                                'Total':{
-                                    'Confirmados': int(df[0]['data'][0][7]['text']),
-                                    'Suspeitos': int(df[0]['data'][0][8]['text']),
-                                    'Total': int(df[0]['data'][0][9]['text']),
-                                },
+                   'Internações em UTI': {
+                       'SUS': {
+                           'Confirmados': int(df[0]['data'][0][1]['text']),
+                           'Suspeitos': int(df[0]['data'][0][2]['text']),
+                           'Total': int(df[0]['data'][0][3]['text']),
+                       },
+                       'Rede Privada': {
+                           'Confirmados': int(df[0]['data'][0][4]['text']),
+                           'Suspeitos': int(df[0]['data'][0][5]['text']),
+                           'Total': int(df[0]['data'][0][6]['text']),
+                       },
+                       'Total': {
+                           'Confirmados': int(df[0]['data'][0][7]['text']),
+                           'Suspeitos': int(df[0]['data'][0][8]['text']),
+                           'Total': int(df[0]['data'][0][9]['text']),
+                       },
 
-                            },
-                            'Ventilação mecânica': {
-                                'SUS':{
-                                    'Confirmados': int(df[0]['data'][1][1]['text']),
-                                    'Suspeitos': int(df[0]['data'][1][2]['text']),
-                                    'Total': int(df[0]['data'][1][3]['text']),
-                                },
-                                'Rede Privada':{
-                                    'Confirmados': int(df[0]['data'][1][4]['text']),
-                                    'Suspeitos': int(df[0]['data'][1][5]['text']),
-                                    'Total': int(df[0]['data'][1][6]['text']),
-                                },
-                                'Total':{
-                                    'Confirmados': int(df[0]['data'][1][7]['text']),
-                                    'Suspeitos': int(df[0]['data'][1][8]['text']),
-                                    'Total': int(df[0]['data'][1][9]['text']),
-                                }
-                            }
-                            
-                    }
+                   },
+                   'Ventilação mecânica': {
+                       'SUS': {
+                           'Confirmados': int(df[0]['data'][1][1]['text']),
+                           'Suspeitos': int(df[0]['data'][1][2]['text']),
+                           'Total': int(df[0]['data'][1][3]['text']),
+                       },
+                       'Rede Privada': {
+                           'Confirmados': int(df[0]['data'][1][4]['text']),
+                           'Suspeitos': int(df[0]['data'][1][5]['text']),
+                           'Total': int(df[0]['data'][1][6]['text']),
+                       },
+                       'Total': {
+                           'Confirmados': int(df[0]['data'][1][7]['text']),
+                           'Suspeitos': int(df[0]['data'][1][8]['text']),
+                           'Total': int(df[0]['data'][1][9]['text']),
+                       }
+                   }
+
+                   }
         return dadosSC
 
-        
+    def getFilaLeitos(_self, file_path, paginas):
+        area = (215, 100, 755, 620)
+        colunas = [85, 370]
+        df = tabula.read_pdf(file_path, output_format="json",
+                             pages=paginas,
+                             area=area,
+                             columns=colunas)
+        if len(df[0]['data']) != 9:
+            raise Exception(
+                'Quantidade de dados do Estado de SC não correspondem')
+        dados_leitos = [None] * 8
+        regionais = {'GRANDE OESTE - CHAPECÓ': 0,
+                     'MEIO OESTE - JOAÇABA': 1,
+                     'SERRA - LAGES': 2,
+                     'NORTE - JOINVILLE': 3,
+                     'VALE - BLUMENAU': 4,
+                     'FOZ - ITAJAÍ': 5,
+                     'SUL - CRICIÚMA': 6,
+                     'GRANDE FLORIANÓPOLIS': 7}
+        for i in range(0, len(df[0]['data'])-1):
+            print(df[0]['data'][i][1]['text'])
+            try:
+                valor = int(df[0]['data'][i][2]['text'])
+            except:
+                try:
+                    valor = int(df[0]['data'][i+1][2]['text'])
+                except:
+                    print("Não encontrou valor para: " +
+                          df[0]['data'][i][1]['text'])
+                    valor = -1
+
+            dados_leitos[regionais[df[0]['data'][i][1]['text']]] = valor
+
+        return dados_leitos
         # tabula.convert_into(file_path, "output2.csv", output_format="csv", pages=paginas, area=area)
