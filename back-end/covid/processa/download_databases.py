@@ -6,7 +6,7 @@ from xml.dom import minidom
 import urllib
 import zipfile
 import os
-from unrar import rarfile
+# from unrar import rarfile
 
 
 class download_databases:
@@ -48,9 +48,9 @@ class download_databases:
 
         print("Descompactando o arquivo ...",
               end='', flush=True)
-        with rarfile.RarFile(filename) as rar_ref:
-            rar_ref.extractall(dir)
-        # with zipfile.ZipFile(filename, "r") as zip_ref:
-            # zip_ref.extractall(dir)
+        # with rarfile.RarFile(filename) as rar_ref:
+        #     rar_ref.extractall(dir)
+        with zipfile.ZipFile(filename, "r") as zip_ref:
+            zip_ref.extractall(dir)
 
         print('Ok\n')
