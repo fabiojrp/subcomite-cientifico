@@ -84,10 +84,8 @@ dataTexto = fileSplit[-4].split(" ")[-1] + "/" + \
 data = datetime.strptime(dataTexto, '%d/%m/%Y').date()
 df.insert(0, "Data", data)
 
-#apaga a linha do total do Estado marcada como: SEM DEFICIENTES ILPI E COMORBIDADES
+# apaga a linha do total do Estado marcada como: SEM DEFICIENTES ILPI E COMORBIDADES
 df = df.drop(df.index[-1])
 
-# for i, j in df.iterrows():
-#     print(i, ";", j['MUNICÍPIO'])
 
 print(df)
