@@ -70,7 +70,8 @@ $(document).ready(() => {
       dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
       var mm_layout = {
-        title: "Taxa de Transmissibilidade R(t) por região de SC",
+        title: 'Taxa de Transmissibilidade R(t) por região de SC <br> <a href="nota-explicativa.html#RT"> Nota Explicativa</a>',
+        showlegend: true,
       };
 
       var config = { responsive: true };
@@ -90,7 +91,7 @@ $(document).ready(() => {
       // Casos média Movel
       dadosRegionaisCasosMediaMovel = $.grep(dados.regionais_casos_mediamovel, function (n) { return n == 0 || n });
       var mm_layout = {
-        title: "Casos Média Móvel",
+        title: 'Casos Média Móvel <br> <a href="nota-explicativa.html#mediaMovel"> Nota Explicativa</a>',
       };
 
       var config = { responsive: true };
@@ -99,7 +100,7 @@ $(document).ready(() => {
       // Óbitos média Movel
       dadosRegionaisObitosMediaMovel = $.grep(dados.regionais_obitos_mediamovel, function (n) { return n == 0 || n });
       var mm_layout = {
-        title: "Óbitos Média Móvel",
+        title: 'Óbitos Média Móvel <br> <a href="nota-explicativa.html#mediaMovel"> Nota Explicativa</a>',
       };
 
       var config = { responsive: true };
@@ -108,7 +109,7 @@ $(document).ready(() => {
       // Incidencia
       dadosRegionaisIncidencia = $.grep(dados.regionais_incidencia, function (n) { return n == 0 || n });
       var mm_layout = {
-        title: "Incidência acumulada por 100 mil habitantes",
+        title: 'Incidência acumulada por 100 mil habitantes <br> <a href="nota-explicativa.html#incidencia"> Nota Explicativa</a>',
       };
 
       var config = { responsive: true };
@@ -117,7 +118,7 @@ $(document).ready(() => {
       // Letalidade
       dadosRegionaisLetalidade = $.grep(dados.regionais_letalidade, function (n) { return n == 0 || n });
       var mm_layout = {
-        title: "Letalidade - Óbitos / número de casos (em %)",
+        title: 'Letalidade - Óbitos / número de casos (em %) <br> <a href="nota-explicativa.html#letalidade"> Nota Explicativa</a>',
       };
 
       var config = { responsive: true };
@@ -135,12 +136,12 @@ $(document).ready(() => {
       ocupacao_leitos = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
       var mm_layout = {
-        title: "Ocupação de Leitos (UTI) Covid Adulto em porcentagem (%)",
+        title: 'Ocupação de Leitos (UTI) Covid Adulto em porcentagem (%) <br> <a href="nota-explicativa.html#leitos"> Nota Explicativa</a>',
       };
 
       var config = { responsive: true };
 
       Plotly.newPlot("leitos-graph", ocupacao_leitos, mm_layout, config);
     }).catch((err) => console.error(err));
-
 });
+
