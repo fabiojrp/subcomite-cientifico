@@ -1,3 +1,5 @@
+import pandas as pd
+from pandas import ExcelWriter
 import json
 import requests
 import zipfile
@@ -34,16 +36,64 @@ class download_vacinados:
 
         data_DB = json.loads(req_DB)
 
+        df = pd.read_json(req_DB)
+
         print("Ok\n")
+
+        # df = pd.read_json(req_DB)
+        # with ExcelWriter('dados.xlsx') as writer:
+        #     df.to_excel(writer, sheet_name='df')
 
         municipios_grupos_prioritarios = data_DB['return']['rows']
         vacinados_municipios = {}
 
         for grupo_prioritario in municipios_grupos_prioritarios:
+            municipio = grupo_prioritario['cells'][0]['value']
+            grupo = grupo_prioritario['cells'][3]['value']
 
-            if vacinados_municipios.get(grupo_prioritario['cells'][1]['value']) != None:
-                vacinados_municipios[grupo_prioritario['cells']
-                                     [1]['value']] = list()
+            if vacinados_municipios.get(municipio) == None:
+                vacinados_municipios[municipio] = {
+                    # 'regional': tabelas.getRegionalMunicipioBrasil(codigo_ibge_municipio),
+                    # 'populacao': Utils.convert_to_int(value['populacaoTCU2019']),
+                    'Gestantes e puéperas - Comorbidades': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Comorbidades': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Caminhoneiros': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Trabalhadores industriais': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Trabalhadores portuários': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Trabalhadores de transporte aéreo': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Trabalhos de transporte metroviário e ferroviário': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Trabalhos de transporte coletivo rodoviário': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Força de Seg. e Salv., Seg. Prisional, For. Armadas e GM': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Trabalhadores da Educação': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'População privada de liberdade': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Funcionários do sistema de privação de liberdade': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoa em situação de rua': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'População 18 a 59 anos - Deficiência Permanente Grave': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Povos e Comunidades Tradicionais Quilombola': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas de 60 a 64 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas de 65 a 69 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas de 70 a 74 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas de 75 a 79 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas de 80 a 84 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas de 85 a 89 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas de 90 anos ou mais': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Povos Indígenas Vivendo em Terras Indígenas': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas deficientes institucionalizadas': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Pessoas idosas institucionalizadas': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
+                    'Trabalhadores da Saúde': {'Popul.categ.': -1, 'D1': -1, 'D2': -1}
+                }
+
+            vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
+            vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
+            vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
+
+            # print(grupo_prioritario)
+
+            # if vacinados_municipios.get(grupo_prioritario['cells'][1]['value']) != None:
+            #     vacinados_municipios[grupo_prioritario['cells']
+            #                          [1]['value']] = list()
+        print(vacinados_municipios)
+        df = pd.DataFrame.from_dict(vacinados_municipios, orient='index')
 
 
 if __name__ == "__main__":
