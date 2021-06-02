@@ -6,7 +6,7 @@ from xml.dom import minidom
 import urllib
 import zipfile
 import os
-# from unrar import rarfile
+from unrar import rarfile
 
 
 class download_databases:
@@ -31,10 +31,13 @@ class download_databases:
 
         data_DB = json.loads(req_DB)
         # filename = data_DB['results'][0]['texto_rodape'][:-14]+'.zip'
-        filename = data_DB['results'][0]['texto_rodape'][:-14]+'.rar'
+        extensionFile = (data_DB['results'][0]['texto_rodape']).split(".")[-1]
+        filename = data_DB['results'][0]['texto_rodape'][:-
+                                                         14] + "." + extensionFile
         # print(filename)
         print("Baixando base de dados do Ministério da Saúde ...",
               end='', flush=True)
+
         url_zip = requests.get(data_DB['results'][0]['arquivo']['url'])
         with open(filename, 'wb') as s:
             s.write(url_zip.content)
@@ -48,9 +51,18 @@ class download_databases:
 
         print("Descompactando o arquivo ...",
               end='', flush=True)
-        # with rarfile.RarFile(filename) as rar_ref:
-        #     rar_ref.extractall(dir)
-        with zipfile.ZipFile(filename, "r") as zip_ref:
-            zip_ref.extractall(dir)
+        if (extensionFile == "rar"):
+            with rarfile.RarFile(filename) as rar_ref:
+                rar_ref.extractall(dir)
+
+        elif (extensionFile == "zip"):
+            with zipfile.ZipFile(filename, "r") as zip_ref:
+                zip_ref.extractall(dir)
+
+        elif (extensionFile == "csv"):
+            print("")
+
+        else:
+            raise ("Formato de arquivo não definido: " + extensionFile)
 
         print('Ok\n')
