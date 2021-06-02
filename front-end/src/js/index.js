@@ -246,7 +246,7 @@ $(document).ready(() => {
     blumenau2,
     camboriu,
     brusque,
-  ]);
+  ]).addTo(map);
 
   var campusIFSC = L.layerGroup([
     ifscsaomigueloeste,
@@ -271,9 +271,9 @@ $(document).ready(() => {
     ifscsaojose,
     ifscreitoriafloripa,
     ifscflorianopolis
-  ]);
+  ]).addTo(map);
 
-  //SELECT INSTITUTO
+  /* //SELECT INSTITUTO
   var mapControlsContainer = document.getElementsByClassName("leaflet-top leaflet-right")[0];
   var SelectContainer = document.getElementById("SelectContainer");
   mapControlsContainer.appendChild(SelectContainer);
@@ -329,7 +329,7 @@ $(document).ready(() => {
         .classList
         .add('none');
     }
-  });
+  }); */
 
   // control that shows state info on hover
   var info = L.control({ position: "topleft" });
@@ -514,5 +514,7 @@ $(document).ready(() => {
 
   // END LEAF
   L.control.BigImage({ position: 'topright' }).addTo(map);
+
+  //teste
 
 });
