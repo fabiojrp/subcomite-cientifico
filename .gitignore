@@ -8,4 +8,5 @@ covid.log
 *.csv
 token.json
 *.pdf
+*.xlsx
 Dados_MS
