@@ -94,17 +94,24 @@ class download_vacinados:
             raise Exception(data_DB['errorMessage']['title'] +
                             ": " + data_DB['errorMessage']['text'])
 
+<<<<<<< HEAD
         print(" Ok")
         return data_DB
 
     def processData(self, data_DB):
         print("Processando dados dos municípios...",
               end='', flush=True)
+=======
+        municipios_grupos_prioritarios = data_DB['return']['rows']
+        vacinados_municipios = {}
+        dados = {}
+>>>>>>> deae5460a1c90bdb6b0ea36deb335e9e323eb20b
 
         municipios_grupos_prioritarios = data_DB['return']['rows']
         dadosGeral = []
         for grupo_prioritario in municipios_grupos_prioritarios:
             try:
+<<<<<<< HEAD
                 municipio = self.listaMunicipios[grupo_prioritario['cells'][0]['value'].upper(
                 ).strip()]
             except KeyError as k:
@@ -128,6 +135,26 @@ class download_vacinados:
                 'D2': grupo_prioritario['cells'][6]['value']
             }
             dadosGeral.append(dadosMunicipio)
+=======
+                vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
+                vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
+                vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
+                # d = zip(grupo_prioritario['cells'][4]['value'], grupo_prioritario['cells']
+                #         [5]['value'], grupo_prioritario['cells'][6]['value'])
+
+                if dados.get(municipio) == None:
+                    dados[municipio] = list()
+
+                dados[municipio].extend(
+                    vacinados_municipios[municipio][grupo].values())
+
+            except Exception as mensagem:
+                print("Erro: " + str(mensagem))
+
+        grupos = np.array(list(vacinados_municipios[municipio].keys()))
+        categorias = np.array(
+            list(vacinados_municipios[municipio][grupo].keys()))
+>>>>>>> deae5460a1c90bdb6b0ea36deb335e9e323eb20b
 
         # print(vacinados_municipios)
         df = pd.DataFrame(dadosGeral)
@@ -138,6 +165,7 @@ class download_vacinados:
         df['D1'] = df['D1'].apply(pd.to_numeric)
         df['D2'] = df['D2'].apply(pd.to_numeric)
 
+<<<<<<< HEAD
         # df = pd.DataFrame(data=vacinados_municipios, index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
         #     ))
         print(" Ok")
@@ -199,6 +227,12 @@ class download_vacinados:
 
         print("Ok.")
         cursor.close()
+=======
+        df = pd.DataFrame(data=list(dados.values()), index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
+            zip(list(grupos)*len(categorias), list(categorias)*len(grupos))))
+
+        print(df)
+>>>>>>> deae5460a1c90bdb6b0ea36deb335e9e323eb20b
 
 
 if __name__ == "__main__":
