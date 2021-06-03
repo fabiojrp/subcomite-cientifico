@@ -82,10 +82,12 @@ class download_vacinados:
                     'Pessoas idosas institucionalizadas': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
                     'Trabalhadores da Saúde': {'Popul.categ.': -1, 'D1': -1, 'D2': -1}
                 }
-
-            vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
-            vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
-            vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
+            try:
+                vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
+                vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
+                vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
+            except Exception as mensagem:
+                print("Erro: " + mensagem)
 
             # print(grupo_prioritario)
 

@@ -45,8 +45,7 @@ class download_leitos:
             if tipo == 2:
                 print("Validando os leitos GERAL apenas Adulto... ")
                 # Consulta de casos Covid Tipo de Leito: Adulto, Leitos Geral
-                data = {"version": "1.0.0", "queries": [{"Query": {"Commands": [{"SemanticQueryDataShapeCommand": {"Query": {"Version": 2, "From": [{"Name": "f", "Entity": "fat_leitos_hospitalares", "Type": 0}, {"Name": "#", "Entity": "#Medidas 1 - Quantitativos Gerais", "Type": 0}, {"Name": "d", "Entity": "dim_macrorregioes", "Type": 0}], "Select": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "hospital"}, "Name": "fat_leitos_hospitalares.hospital"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Ativos"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Ativos"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Ocupados"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Ocupados"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Leitos Disponíveis"}, "Name": "#Medidas 1 - Quantitativos Gerais.Leitos Disponíveis"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Taxa de Ocupação"}, "Name": "#Medidas 1 - Quantitativos Gerais.Taxa de Ocupação"}, {"Measure": {"Expression": {"SourceRef": {"Source": "#"}}, "Property": "Pacientes COVID Internados"},
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          "Name": "#Medidas 1 - Quantitativos Gerais.{GAL} Internados COVID (Conf&Susp)"}, {"Column": {"Expression": {"SourceRef": {"Source": "d"}}, "Property": "macro_desc_ac"}, "Name": "dim_macrorregioes.macro_desc_ac"}], "Where": [{"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "Leito COVID 2"}}], "Values": [[{"Literal": {"Value": "'COVID'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "classificacao"}}], "Values": [[{"Literal": {"Value": "'uti'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "leito_tipo"}}], "Values": [[{"Literal": {"Value": "'ADULTO'"}}]]}}}, {"Condition": {"In": {"Expressions": [{"Column": {"Expression": {"SourceRef": {"Source": "f"}}, "Property": "leito_sus"}}], "Values": [[{"Literal": {"Value": "true"}}]]}}}], "OrderBy": [{"Direction": 1, "Expression": {"Column": {"Expression": {"SourceRef": {"Source": "d"}}, "Property": "macro_desc_ac"}}}]}, "Binding": {"Primary": {"Groupings": [{"Projections": [0, 1, 2, 3, 4, 5, 6], "Subtotal":1}]}, "DataReduction":{"DataVolume": 3, "Primary": {"Window": {"Count": 500}}}, "Version": 1}}}]}, "QueryId": "", "ApplicationContext": {"DatasetId": "0c400f04-4bb2-4414-867e-790bdd9dcd5f", "Sources": [{"ReportId": "e585da1e-bcb4-46d8-ad92-6dc8640f59ed"}]}}], "cancelQueries": [], "modelId": 2604433}
+                data = {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"f","Entity":"fat_leitos_hospitalares","Type":0},{"Name":"#","Entity":"#Medidas 1 - Quantitativos Gerais","Type":0},{"Name":"d","Entity":"dim_macrorregioes","Type":0}],"Select":[{"Column":{"Expression":{"SourceRef":{"Source":"f"}},"Property":"hospital"},"Name":"fat_leitos_hospitalares.hospital"},{"Measure":{"Expression":{"SourceRef":{"Source":"#"}},"Property":"Leitos Ativos"},"Name":"#Medidas 1 - Quantitativos Gerais.Leitos Ativos"},{"Measure":{"Expression":{"SourceRef":{"Source":"#"}},"Property":"Leitos Ocupados"},"Name":"#Medidas 1 - Quantitativos Gerais.Leitos Ocupados"},{"Measure":{"Expression":{"SourceRef":{"Source":"#"}},"Property":"Leitos Disponíveis"},"Name":"#Medidas 1 - Quantitativos Gerais.Leitos Disponíveis"},{"Measure":{"Expression":{"SourceRef":{"Source":"#"}},"Property":"Taxa de Ocupação"},"Name":"#Medidas 1 - Quantitativos Gerais.Taxa de Ocupação"},{"Measure":{"Expression":{"SourceRef":{"Source":"#"}},"Property":"Pacientes COVID Internados"},"Name":"#Medidas 1 - Quantitativos Gerais.{GAL} Internados COVID (Conf&Susp)"},{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"macro_desc_ac"},"Name":"dim_macrorregioes.macro_desc_ac"}],"Where":[{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"f"}},"Property":"classificacao"}}],"Values":[[{"Literal":{"Value":"'uti'"}}]]}}},{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"f"}},"Property":"leito_tipo"}}],"Values":[[{"Literal":{"Value":"'ADULTO'"}}]]}}},{"Condition":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"f"}},"Property":"leito_sus"}}],"Values":[[{"Literal":{"Value":"true"}}]]}}}],"OrderBy":[{"Direction":1,"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"macro_desc_ac"}}}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2,3,4,5,6],"Subtotal":1}]},"DataReduction":{"DataVolume":3,"Primary":{"Window":{"Count":500}}},"Version":1},"ExecutionMetricsKind":1}}]},"QueryId":"","ApplicationContext":{"DatasetId":"0c400f04-4bb2-4414-867e-790bdd9dcd5f","Sources":[{"ReportId":"e585da1e-bcb4-46d8-ad92-6dc8640f59ed","VisualId":"0ecb80ed79c4ff6ff5d1"}]}}],"cancelQueries":[],"modelId":2604433}
 
             req_DB = requests.post(
                 self.url, headers=self.headers, json=data).text
@@ -311,7 +310,7 @@ class download_leitos:
                       infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'], ";", valores[i])
             print("Ok")
 
-        for tipo in range(1, 3):
+        # for tipo in range(1, 3):
             if tipo == 1:
                 print("Somando o total dos leitos COVID apenas Adulto... ",
                       end='', flush=True)
@@ -335,10 +334,12 @@ class download_leitos:
             if somaDisponiveis != totais[2]:
                 raise Exception(
                     "!--- Leitos Disponíveis não fecha {encontrado:", somaDisponiveis, ", deveria ser: ", totais[2], "} ---!")
-        if simulacao == 1:
-            return
-        try:
-            for tipo in range(1, 3):
+
+            if simulacao == 1:
+                return
+
+            try:
+                # for tipo in range(1, 3):
                 if tipo == 1:
                     print("Importando os leitos COVID apenas Adulto... ",
                           end='', flush=True)
@@ -371,13 +372,13 @@ class download_leitos:
                         #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
 
                 '''
-                        if leitos.get(infoHospital['index_regional']) == None:
-                            leitos(infoHospital['index_regional']) = {
-                            'regional': tabelas.getRegionalMunicipioBrasil(codigo_ibge_municipio),
-                            'populacao': Utils.convert_to_int(value['populacaoTCU2019']),
-                            'datas': {}}
-                            '''
-        except Exception as mensagem:
-            print("Erro: ", mensagem)
+                            if leitos.get(infoHospital['index_regional']) == None:
+                                leitos(infoHospital['index_regional']) = {
+                                'regional': tabelas.getRegionalMunicipioBrasil(codigo_ibge_municipio),
+                                'populacao': Utils.convert_to_int(value['populacaoTCU2019']),
+                                'datas': {}}
+                                '''
+            except Exception as mensagem:
+                print("Erro: ", mensagem)
 
-        print("Ok")
+            print("Ok")
