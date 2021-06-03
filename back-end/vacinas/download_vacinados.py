@@ -6,10 +6,63 @@ import zipfile
 import datetime
 import os
 import numpy as np
+from datetime import datetime
+import psycopg2
+from io import StringIO
+from sqlalchemy import create_engine
+from urllib.parse import quote
 
 
 class download_vacinados:
     def __init__(self):
+        self.listaGrupos = {
+            'Gestantes e puéperas - Comorbidades': 1,
+            'Comorbidades': 2,
+            'Caminhoneiros': 3,
+            'Trabalhadores industriais': 4,
+            'Trabalhadores portuários': 5,
+            'Trabalhadores de transporte aéreo': 6,
+            'Trabalhos de transporte metroviário e ferroviário': 7,
+            'Trabalhos de transporte coletivo rodoviário': 8,
+            'Força de Seg. e Salv., Seg. Prisional, For. Armadas e GM': 9,
+            'Trabalhadores da Educação': 10,
+            'População privada de liberdade': 11,
+            'Funcionários do sistema de privação de liberdade': 12,
+            'Pessoa em situação de rua': 13,
+            'População 18 a 59 anos - Deficiência Permanente Grave': 14,
+            'Povos e Comunidades Tradicionais Quilombola': 15,
+            'Pessoas de 60 a 64 anos': 16,
+            'Pessoas de 65 a 69 anos': 17,
+            'Pessoas de 70 a 74 anos': 18,
+            'Pessoas de 75 a 79 anos': 19,
+            'Pessoas de 80 a 84 anos': 20,
+            'Pessoas de 85 a 89 anos': 21,
+            'Pessoas de 90 anos ou mais': 22,
+            'Povos Indígenas Vivendo em Terras Indígenas': 23,
+            'Pessoas deficientes institucionalizadas': 24,
+            'Pessoas idosas institucionalizadas': 25,
+            'Trabalhadores da Saúde': 26,
+            'Reservado 1': 27,
+            'Reservado 2': 28,
+            'Reservado 3': 29,
+            'Reservado 4': 30,
+        }
+
+        with open(os.getcwd() + '/back-end/vacinas/municipios.txt') as f:
+            dadosMunicipio = f.read().upper()
+        # Reconstruindo a lista dos munícipios.
+        self.listaMunicipios = json.loads(dadosMunicipio)
+
+        self.param_dic = {
+            "host": "127.0.0.1",
+            "database": "covid",
+            "user": "postgres",
+            "password": "!admpasswd@covid"
+        }
+
+        self.db = self.connect(self.param_dic)
+
+    def getFile(self):
         self.url = 'http://sgsweknow.saude.sc.gov.br/weknow/datasnap/rest/TServer/DatabaseManager_ExecuteGrid'
 
         self.headers = {
@@ -36,79 +89,106 @@ class download_vacinados:
             self.url, headers=self.headers, json=self.query).text
 
         data_DB = json.loads(req_DB)
-
-        df = pd.read_json(req_DB)
-
-        print("Ok\n")
-
-        # df = pd.read_json(req_DB)
-        # with ExcelWriter('dados.xlsx') as writer:
-        #     df.to_excel(writer, sheet_name='df')
         if 'error' in data_DB:
+            print("Erro!!!\n")
             raise Exception(data_DB['errorMessage']['title'] +
                             ": " + data_DB['errorMessage']['text'])
 
+        print("Ok\n")
+        return data_DB
+
+    def processData(self, data_DB):
+        print("Processando dados dos municípios...",
+              end='', flush=True)
+
         municipios_grupos_prioritarios = data_DB['return']['rows']
-        vacinados_municipios = {}
-        dados = []
-
+        dadosGeral = []
         for grupo_prioritario in municipios_grupos_prioritarios:
-            municipio = grupo_prioritario['cells'][0]['value']
-            grupo = grupo_prioritario['cells'][3]['value']
-
-            if vacinados_municipios.get(municipio) == None:
-                vacinados_municipios[municipio] = {
-                    # 'regional': tabelas.getRegionalMunicipioBrasil(codigo_ibge_municipio),
-                    # 'populacao': Utils.convert_to_int(value['populacaoTCU2019']),
-                    'Gestantes e puéperas - Comorbidades': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Comorbidades': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Caminhoneiros': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Trabalhadores industriais': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Trabalhadores portuários': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Trabalhadores de transporte aéreo': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Trabalhos de transporte metroviário e ferroviário': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Trabalhos de transporte coletivo rodoviário': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Força de Seg. e Salv., Seg. Prisional, For. Armadas e GM': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Trabalhadores da Educação': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'População privada de liberdade': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Funcionários do sistema de privação de liberdade': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoa em situação de rua': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'População 18 a 59 anos - Deficiência Permanente Grave': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Povos e Comunidades Tradicionais Quilombola': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas de 60 a 64 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas de 65 a 69 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas de 70 a 74 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas de 75 a 79 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas de 80 a 84 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas de 85 a 89 anos': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas de 90 anos ou mais': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Povos Indígenas Vivendo em Terras Indígenas': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas deficientes institucionalizadas': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Pessoas idosas institucionalizadas': {'Popul.categ.': -1, 'D1': -1, 'D2': -1},
-                    'Trabalhadores da Saúde': {'Popul.categ.': -1, 'D1': -1, 'D2': -1}
-                }
-            try:
-                vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
-                vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
-                vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
-                d = zip(grupo_prioritario['cells'][4]['value'], grupo_prioritario['cells']
-                        [5]['value'], grupo_prioritario['cells'][6]['value'])
-                dados.append(
-                    list(vacinados_municipios[municipio][grupo].values()))
-            except Exception as mensagem:
-                print("Erro: " + mensagem)
-
-        grupos = np.array(list(vacinados_municipios[municipio].keys()))
-        categorias = np.array(
-            list(vacinados_municipios[municipio][grupo].keys()))
+            municipio = grupo_prioritario['cells'][0]['value'].upper()
+            grupo = self.listaGrupos[grupo_prioritario['cells'][3]['value']]
+            data = datetime.strptime(
+                grupo_prioritario['cells'][9]['value'], '%Y-%m-%d').date()
+            dadosMunicipio = {
+                'Municipio': municipio,
+                'Data': data,
+                'Grupo': grupo,
+                'Popul.categ.': grupo_prioritario['cells'][4]['value'],
+                'D1': grupo_prioritario['cells'][5]['value'],
+                'D2': grupo_prioritario['cells'][6]['value']
+            }
+            dadosGeral.append(dadosMunicipio)
 
         # print(vacinados_municipios)
+        df = pd.DataFrame(dadosGeral)
+        # Busca na listas os munícipios e substitui pelo código do IBGE
+        df['Municipio'] = df['Municipio'].replace(self.listaMunicipios)
 
-        df = pd.DataFrame(data=vacinados_municipios, index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
-            zip(grupos, categorias)))
+        # df = pd.DataFrame(data=vacinados_municipios, index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
+        #     ))
+        print("Ok..")
+        return df
 
-        print("a")
+    def storeExcel(self, df):
+
+        #  with ExcelWriter('dados.xlsx') as writer:
+        #     df.to_excel(writer, sheet_name='df')
+        #     df.filter(regex='D1', axis=1).to_excel(writer, sheet_name='D1')
+        #     df.filter(regex='D2', axis=1).to_excel(writer, sheet_name='D2')
+        print("Ok..")
+
+    def connect(self, params_dic):
+        try:
+            conn = psycopg2.connect(**params_dic)
+            conn.autocommit = True
+            self.conn = conn
+            print(self.conn)
+
+        except psycopg2.Error as error:
+            print(error)
+
+        return conn
+
+    def storeBD(self, df, table='vacinacaoDive'):
+        print("Cria a tabela se não existe...", end='', flush=True)
+        connect = "postgresql+psycopg2://%s:%s@%s:5432/%s" % (
+            self.param_dic['user'],
+            quote(self.param_dic['password']),
+            self.param_dic['host'],
+            self.param_dic['database']
+        )
+        engine = create_engine(connect)
+        df.to_sql(
+            table,
+            con=engine,
+            index=False,
+            # if_exists='append'
+            if_exists='replace'
+        )
+        print("Ok..")
+
+        print("Salvando os dados...", end='', flush=True)
+        # save dataframe to an in memory buffer
+        buffer = StringIO()
+        df.to_csv(buffer, index_label=False, index=False, header=False)
+        buffer.seek(0)
+
+        cursor = self.conn.cursor()
+        try:
+            cursor.copy_from(buffer, table, sep=",")
+            self.conn.commit()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print("Error: %s" % error)
+            self.conn.rollback()
+            cursor.close()
+            return 1
+
+        print("Ok.")
+        cursor.close()
 
 
 if __name__ == "__main__":
-    download_vacinados()
+    dv = download_vacinados()
+    dataDB = dv.getFile()
+    df = dv.processData(dataDB)
+    dv.storeExcel
+    # dv.storeBD(df)
