@@ -50,7 +50,7 @@ class download_vacinados:
 
         municipios_grupos_prioritarios = data_DB['return']['rows']
         vacinados_municipios = {}
-        dados = []
+        dados = {}
 
         for grupo_prioritario in municipios_grupos_prioritarios:
             municipio = grupo_prioritario['cells'][0]['value']
@@ -91,12 +91,17 @@ class download_vacinados:
                 vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
                 vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
                 vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
-                d = zip(grupo_prioritario['cells'][4]['value'], grupo_prioritario['cells']
-                        [5]['value'], grupo_prioritario['cells'][6]['value'])
-                dados.append(
-                    list(vacinados_municipios[municipio][grupo].values()))
+                # d = zip(grupo_prioritario['cells'][4]['value'], grupo_prioritario['cells']
+                #         [5]['value'], grupo_prioritario['cells'][6]['value'])
+
+                if dados.get(municipio) == None:
+                    dados[municipio] = list()
+
+                dados[municipio].extend(
+                    vacinados_municipios[municipio][grupo].values())
+
             except Exception as mensagem:
-                print("Erro: " + mensagem)
+                print("Erro: " + str(mensagem))
 
         grupos = np.array(list(vacinados_municipios[municipio].keys()))
         categorias = np.array(
@@ -104,10 +109,10 @@ class download_vacinados:
 
         # print(vacinados_municipios)
 
-        df = pd.DataFrame(data=vacinados_municipios, index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
-            zip(grupos, categorias)))
+        df = pd.DataFrame(data=list(dados.values()), index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
+            zip(list(grupos)*len(categorias), list(categorias)*len(grupos))))
 
-        print("a")
+        print(df)
 
 
 if __name__ == "__main__":
