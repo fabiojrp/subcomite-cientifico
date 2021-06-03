@@ -94,7 +94,7 @@ class download_vacinados:
             raise Exception(data_DB['errorMessage']['title'] +
                             ": " + data_DB['errorMessage']['text'])
 
-        print("Ok\n")
+        print(" Ok")
         return data_DB
 
     def processData(self, data_DB):
@@ -104,8 +104,19 @@ class download_vacinados:
         municipios_grupos_prioritarios = data_DB['return']['rows']
         dadosGeral = []
         for grupo_prioritario in municipios_grupos_prioritarios:
-            municipio = grupo_prioritario['cells'][0]['value'].upper()
-            grupo = self.listaGrupos[grupo_prioritario['cells'][3]['value']]
+            try:
+                municipio = self.listaMunicipios[grupo_prioritario['cells'][0]['value'].upper(
+                ).strip()]
+            except KeyError as k:
+                print("Município não encontrado:" +
+                      grupo_prioritario['cells'][0]['value'])
+
+            try:
+                grupo = self.listaGrupos[grupo_prioritario['cells'][3]['value']]
+            except KeyError as k:
+                raise("Grupo não encontrado:" +
+                      grupo_prioritario['cells'][3]['value'])
+
             data = datetime.strptime(
                 grupo_prioritario['cells'][9]['value'], '%Y-%m-%d').date()
             dadosMunicipio = {
@@ -120,12 +131,16 @@ class download_vacinados:
 
         # print(vacinados_municipios)
         df = pd.DataFrame(dadosGeral)
-        # Busca na listas os munícipios e substitui pelo código do IBGE
-        df['Municipio'] = df['Municipio'].replace(self.listaMunicipios)
+
+        #  converte todos os valores para números
+        df['Grupo'] = df['Grupo'].apply(pd.to_numeric)
+        df['Popul.categ.'] = df['Popul.categ.'].apply(pd.to_numeric)
+        df['D1'] = df['D1'].apply(pd.to_numeric)
+        df['D2'] = df['D2'].apply(pd.to_numeric)
 
         # df = pd.DataFrame(data=vacinados_municipios, index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
         #     ))
-        print("Ok..")
+        print(" Ok")
         return df
 
     def storeExcel(self, df):
@@ -148,7 +163,7 @@ class download_vacinados:
 
         return conn
 
-    def storeBD(self, df, table='vacinacaoDive'):
+    def storeBD(self, df, table='vacinacao_dive'):
         print("Cria a tabela se não existe...", end='', flush=True)
         connect = "postgresql+psycopg2://%s:%s@%s:5432/%s" % (
             self.param_dic['user'],
@@ -164,7 +179,7 @@ class download_vacinados:
             # if_exists='append'
             if_exists='replace'
         )
-        print("Ok..")
+        print(" Ok.")
 
         print("Salvando os dados...", end='', flush=True)
         # save dataframe to an in memory buffer
@@ -190,5 +205,5 @@ if __name__ == "__main__":
     dv = download_vacinados()
     dataDB = dv.getFile()
     df = dv.processData(dataDB)
-    dv.storeExcel
-    # dv.storeBD(df)
+    # dv.storeExcel
+    dv.storeBD(df)
