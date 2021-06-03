@@ -27,7 +27,7 @@ class download_vacinados:
         }
 
         self.query = {"id": 16827, "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}], "dashboardId": 2767, "context": {
-        }, "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjI2NjIyMTUsImV4cCI6MTYyMjc0ODYxNSwiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjM0ODMxfQ.6LIbmuRhbQx5wS2MzmRlhduB2rfIgDBgl8Yl3faBpjM"}
+        }, "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjI3NTUyNTAsImV4cCI6MTYyMjg0MTY1MCwiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjM2MzY0fQ.xiq26V_FFNW3tFA1xDVt3rtkURm-hSXRCCrjsqptCpM"}
 
         print("Baixando base de dados de vacinados da DIVE...",
               end='', flush=True)
@@ -44,6 +44,9 @@ class download_vacinados:
         # df = pd.read_json(req_DB)
         # with ExcelWriter('dados.xlsx') as writer:
         #     df.to_excel(writer, sheet_name='df')
+        if 'error' in data_DB:
+            raise Exception(data_DB['errorMessage']['title'] +
+                            ": " + data_DB['errorMessage']['text'])
 
         municipios_grupos_prioritarios = data_DB['return']['rows']
         vacinados_municipios = {}
@@ -88,7 +91,8 @@ class download_vacinados:
                 vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
                 vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
                 vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
-
+                d = zip(grupo_prioritario['cells'][4]['value'], grupo_prioritario['cells']
+                        [5]['value'], grupo_prioritario['cells'][6]['value'])
                 dados.append(
                     list(vacinados_municipios[municipio][grupo].values()))
             except Exception as mensagem:
