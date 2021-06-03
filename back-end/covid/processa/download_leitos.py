@@ -231,11 +231,10 @@ class download_leitos:
                         infoHospital['pacientes_covid'] = valorHospital[2] - \
                             valorHospital[3]
                     elif valores[i]['R'] == 70:
-                        infoHospital['leitos_ativos'] = valorHospital[1]
-                        infoHospital['leitos_ocupados'] = valorHospital[1] - \
-                            valorHospital[2]
+                        infoHospital['leitos_ativos'] = valorHospital[1] + valorHospital[2]
+                        infoHospital['leitos_ocupados'] = valorHospital[1] 
                         infoHospital['leitos_disponiveis'] = valorHospital[2]
-                        infoHospital['pacientes_covid'] = -1
+                        infoHospital['pacientes_covid'] = valorHospital[1] - valorHospital[2]
                     elif valores[i]['R'] == 72:
                         infoHospital['leitos_ativos'] = valorHospital[2]
                         infoHospital['leitos_ocupados'] = valorHospital[2] - \
@@ -336,49 +335,46 @@ class download_leitos:
                     "!--- Leitos Disponíveis não fecha {encontrado:", somaDisponiveis, ", deveria ser: ", totais[2], "} ---!")
 
             if simulacao == 1:
-                return
+                continue
 
-            try:
-                # for tipo in range(1, 3):
+            # for tipo in range(1, 3):
+            if tipo == 1:
+                print("Importando os leitos COVID apenas Adulto... ",
+                        end='', flush=True)
+            if tipo == 2:
+                print("Importando os leitos GERAL apenas Adulto... ",
+                        end='', flush=True)
+            for i in leitos[tipo]:
+                params = (
+                    "NULL",
+                    leitos[tipo][i]['hospital'],
+                    "NULL",
+                    leitos[tipo][i]['municipio'],
+                    "NULL",
+                    leitos[tipo][i]['index_regional'],
+                    leitos[tipo][i]['leitos_ativos'],
+                    leitos[tipo][i]['leitos_ocupados'],
+                    leitos[tipo][i]['leitos_disponiveis'],
+                    leitos[tipo][i]['taxa_ocupacao'],
+                    leitos[tipo][i]['pacientes_covid'],
+                    leitos[tipo][i]['dataAtualizacao']
+                )
                 if tipo == 1:
-                    print("Importando os leitos COVID apenas Adulto... ",
-                          end='', flush=True)
+                    dadosDao.leitos_Covid(params)
+                    # (infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
+                    #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
                 if tipo == 2:
-                    print("Importando os leitos GERAL apenas Adulto... ",
-                          end='', flush=True)
-                for i in leitos[tipo]:
-                    params = (
-                        "NULL",
-                        leitos[tipo][i]['hospital'],
-                        "NULL",
-                        leitos[tipo][i]['municipio'],
-                        "NULL",
-                        leitos[tipo][i]['index_regional'],
-                        leitos[tipo][i]['leitos_ativos'],
-                        leitos[tipo][i]['leitos_ocupados'],
-                        leitos[tipo][i]['leitos_disponiveis'],
-                        leitos[tipo][i]['taxa_ocupacao'],
-                        leitos[tipo][i]['pacientes_covid'],
-                        leitos[tipo][i]['dataAtualizacao']
-                    )
-                    if tipo == 1:
-                        dadosDao.leitos_Gerais_Covid(params)
-                        # (infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                        #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
-                    if tipo == 2:
-                        dadosDao.leitos_Covid(params)
-                        # print(i, ",", end='', flush=True)
-                        # print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                        #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
+                    dadosDao.leitos_Gerais_Covid(params)
+                    # print(i, ",", end='', flush=True)
+                    # print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
+                    #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
 
-                '''
-                            if leitos.get(infoHospital['index_regional']) == None:
-                                leitos(infoHospital['index_regional']) = {
-                                'regional': tabelas.getRegionalMunicipioBrasil(codigo_ibge_municipio),
-                                'populacao': Utils.convert_to_int(value['populacaoTCU2019']),
-                                'datas': {}}
-                                '''
-            except Exception as mensagem:
-                print("Erro: ", mensagem)
+                    '''
+                        if leitos.get(infoHospital['index_regional']) == None:
+                            leitos(infoHospital['index_regional']) = {
+                            'regional': tabelas.getRegionalMunicipioBrasil(codigo_ibge_municipio),
+                            'populacao': Utils.convert_to_int(value['populacaoTCU2019']),
+                            'datas': {}}
+                            '''
 
             print("Ok")
