@@ -5,6 +5,7 @@ import requests
 import zipfile
 import datetime
 import os
+import numpy as np
 
 
 class download_vacinados:
@@ -46,6 +47,7 @@ class download_vacinados:
 
         municipios_grupos_prioritarios = data_DB['return']['rows']
         vacinados_municipios = {}
+        dados = []
 
         for grupo_prioritario in municipios_grupos_prioritarios:
             municipio = grupo_prioritario['cells'][0]['value']
@@ -86,16 +88,22 @@ class download_vacinados:
                 vacinados_municipios[municipio][grupo]['Popul.categ.'] = grupo_prioritario['cells'][4]['value']
                 vacinados_municipios[municipio][grupo]['D1'] = grupo_prioritario['cells'][5]['value']
                 vacinados_municipios[municipio][grupo]['D2'] = grupo_prioritario['cells'][6]['value']
+
+                dados.append(
+                    list(vacinados_municipios[municipio][grupo].values()))
             except Exception as mensagem:
                 print("Erro: " + mensagem)
 
-            # print(grupo_prioritario)
+        grupos = np.array(list(vacinados_municipios[municipio].keys()))
+        categorias = np.array(
+            list(vacinados_municipios[municipio][grupo].keys()))
 
-            # if vacinados_municipios.get(grupo_prioritario['cells'][1]['value']) != None:
-            #     vacinados_municipios[grupo_prioritario['cells']
-            #                          [1]['value']] = list()
-        print(vacinados_municipios)
-        df = pd.DataFrame.from_dict(vacinados_municipios, orient='index')
+        # print(vacinados_municipios)
+
+        df = pd.DataFrame(data=vacinados_municipios, index=vacinados_municipios.keys(), columns=pd.MultiIndex.from_tuples(
+            zip(grupos, categorias)))
+
+        print("a")
 
 
 if __name__ == "__main__":
