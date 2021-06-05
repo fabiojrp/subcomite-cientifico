@@ -227,9 +227,9 @@ footer {
 .footerst {
   background-color: #1d1f32;
   margin: 0px;
-
   text-align: center;
   padding: 30px;
+  margin-top: auto;
 }
 
 .footerst a {
@@ -309,11 +309,15 @@ section#graficos {
 section .title-notas {
   text-align: center;
   color: #1d1f32;
-  margin-top: 40px;
+  margin: 50px 0px 50px 0px;
   text-transform: uppercase;
   float: left;
   width: 100%;
   letter-spacing: 0.3rem;
+}
+
+.block-width {
+  min-height: 50vh;
 }
 
 .item-nota h5 {
@@ -345,6 +349,10 @@ section .title-notas {
   width: 100%;
   margin-bottom: 10px;
   margin-left: -12px;
+}
+
+.disabled {
+  display: none;
 }
 
 /* EQUIPE */

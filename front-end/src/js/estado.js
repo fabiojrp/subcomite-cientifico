@@ -70,7 +70,7 @@ $(document).ready(() => {
       dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
       var mm_layout = {
-        title: 'Taxa de Transmissibilidade R(t) por região de SC <br> <a href="nota-explicativa.html#RT"> Nota Explicativa</a>',
+        title: 'Taxa de Transmissibilidade R(t) por região de SC <br> <a href="nota-explicativa.html#RT" id="RTreste"> Nota Explicativa</a>',
         showlegend: true,
       };
 
