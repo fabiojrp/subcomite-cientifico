@@ -516,5 +516,5 @@ $(document).ready(() => {
   L.control.BigImage({ position: 'topright' }).addTo(map);
 
   //teste
-
+  
 });
