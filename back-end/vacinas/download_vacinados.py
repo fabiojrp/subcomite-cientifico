@@ -143,6 +143,8 @@ class download_vacinados:
         return df
 
     def storeExcel(self, df):
+        df2 = df.filter(['Municipio', 'Data'])
+        df2['d4'] =  df[df['Grupo'] == 2]['D1']
 
         #  with ExcelWriter('dados.xlsx') as writer:
         #     df.to_excel(writer, sheet_name='df')
