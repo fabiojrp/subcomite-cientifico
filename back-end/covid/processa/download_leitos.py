@@ -150,6 +150,11 @@ class download_leitos:
                                 valorHospital[2]
                             infoHospital['leitos_disponiveis'] = valorHospital[2]
                             infoHospital['pacientes_covid'] = valorHospital[4]
+                        elif len(valorHospital) == 3:
+                            infoHospital['leitos_ativos'] = valorHospital[1]
+                            infoHospital['leitos_ocupados'] = valorHospital[1]
+                            infoHospital['leitos_disponiveis'] = 0
+                            infoHospital['pacientes_covid'] = -1
                         else:
                             infoHospital['leitos_ativos'] = valorHospital[1]
                             infoHospital['leitos_ocupados'] = valorHospital[1]
@@ -181,6 +186,16 @@ class download_leitos:
                         infoHospital['leitos_ativos'] = valorHospital[1]
                         infoHospital['leitos_ocupados'] = valorHospital[2]
                         infoHospital['leitos_disponiveis'] = valorHospital[3]
+                        if 'Ø' in valores[i]:
+                                if valores[i]['Ø'] == 64:
+                                    infoHospital['pacientes_covid'] = -1
+                        else:
+                            infoHospital['pacientes_covid'] = valorHospital[4]
+                    elif valores[i]['R'] == 39:
+                        infoHospital['leitos_ativos'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
+                        infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                            valorHospital[2]
                         infoHospital['pacientes_covid'] = valorHospital[4]
                     elif valores[i]['R'] == 48:
                         infoHospital['leitos_ativos'] = valorHospital[2]
@@ -231,10 +246,18 @@ class download_leitos:
                         infoHospital['pacientes_covid'] = valorHospital[2] - \
                             valorHospital[3]
                     elif valores[i]['R'] == 70:
-                        infoHospital['leitos_ativos'] = valorHospital[1] + valorHospital[2]
-                        infoHospital['leitos_ocupados'] = valorHospital[1] 
-                        infoHospital['leitos_disponiveis'] = valorHospital[2]
-                        infoHospital['pacientes_covid'] = valorHospital[1] - valorHospital[2]
+                        infoHospital['leitos_ocupados'] = valorHospital[1]
+                        if 'Ø' in valores[i]:
+                            if valores[i]['Ø'] == 16:
+                                 infoHospital['leitos_ativos'] = valorHospital[1]
+                                 infoHospital['leitos_disponiveis']  = 0
+                                 infoHospital['pacientes_covid'] = 8
+                        else:
+                            infoHospital['leitos_ativos'] = valorHospital[1] + valorHospital[2]
+                            infoHospital['leitos_disponiveis'] = valorHospital[2]
+                            infoHospital['pacientes_covid'] = valorHospital[1] - valorHospital[2]
+                        
+
                     elif valores[i]['R'] == 72:
                         infoHospital['leitos_ativos'] = valorHospital[2]
                         infoHospital['leitos_ocupados'] = valorHospital[2] - \
