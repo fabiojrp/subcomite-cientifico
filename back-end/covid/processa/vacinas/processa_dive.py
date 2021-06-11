@@ -23,14 +23,14 @@ class processa_dive():
 
         self.db = self.connect(self.param_dic)
 
-        with open(os.getcwd() + '/back-end/vacinas/municipios.txt') as f:
+        with open(os.getcwd() + '/back-end/covid/processa/vacinas/municipios.txt') as f:
             self.dadosMunicipio = f.read().upper()
         # Reconstruindo a lista dos munícipios.
         self.municipios = json.loads(self.dadosMunicipio)
 
     def buscaArquivos(self):
         dir_path = os.getcwd() + \
-            '/back-end/vacinas/balancos/'
+            '/back-end/covid/processa/vacinas/balancos/'
         for f in listdir(dir_path):
             if isfile(dir_path + f) and (f.split(".")[-1] == 'xlsx'):
                 print("Arquivo: " + f)
@@ -87,8 +87,8 @@ class processa_dive():
                            sheet_name="COMUNICAÇÃO",
                            usecols=usarColunas
                            )
-        
-        limitTable = list(df).index('TOTAL') + 4    
+
+        limitTable = list(df).index('TOTAL') + 4
         # Renomeia as colunas:
         df.columns = nomeColunas
 

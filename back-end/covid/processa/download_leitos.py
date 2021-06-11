@@ -64,6 +64,8 @@ class download_leitos:
                 infoHospital['hospital'] = hospitais[i]
                 valorHospital = valores[i]['C']
                 # print(i, ";", hospitais[i], ";", valorHospital)
+                print(hospitais[i], ";", valorHospital,";",
+                      end='', flush=True)
 
                 if not('R' in valores[i]):
                     # print(i, ";", hospitais[i], ";", valorHospital)
@@ -181,7 +183,11 @@ class download_leitos:
                         infoHospital['leitos_ocupados'] = valorHospital[2]
                         infoHospital['leitos_disponiveis'] = valorHospital[1] - \
                             valorHospital[2]
-                        infoHospital['pacientes_covid'] = valorHospital[4]
+                        if 'Ø' in valores[i]:
+                            if valores[i]['Ø'] == 64:
+                               infoHospital['pacientes_covid'] = -1
+                        else:
+                            infoHospital['pacientes_covid'] = valorHospital[4]
                     elif valores[i]['R'] == 34:
                         infoHospital['leitos_ativos'] = valorHospital[1]
                         infoHospital['leitos_ocupados'] = valorHospital[2]
@@ -328,8 +334,8 @@ class download_leitos:
                 )
 
                 # print(i, ",", end='', flush=True)
-                print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'], ";", valores[i])
+                print(infoHospital['leitos_ativos'], ";",
+                      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
             print("Ok")
 
         # for tipo in range(1, 3):
