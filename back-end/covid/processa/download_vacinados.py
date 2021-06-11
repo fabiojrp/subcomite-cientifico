@@ -179,41 +179,16 @@ class download_vacinados:
         df['Grupo'] = df['Grupo'].replace(listaGrupos_rev)
         df['regional'] = df['regional'].replace(regionais_rev)
 
-        df_regional = df.groupby(['regional', 'Data'])[
-            ['Popul.categ.', 'D1', 'D2']].sum()
-        df_regional['Percentual_D1'] = df_regional['D1'] / \
-            df_regional['Popul.categ.']
-        df_regional['Percentual_D2'] = df_regional['D2'] / \
-            df_regional['Popul.categ.']
-
-        df_municipios = df.groupby(['Municipio', 'Data'])[
-            ['Popul.categ.', 'D1', 'D2']].sum()
-        df_municipios['Percentual_D1'] = df_municipios['D1'] / \
-            df_municipios['Popul.categ.']
-        df_municipios['Percentual_D2'] = df_municipios['D2'] / \
-            df_municipios['Popul.categ.']
+        df_regional = self.insertPercent(df, ['regional', 'Data'])
+        df_municipios = self.insertPercent(df, ['Municipio', 'Data'])
 
         df_educa = df[df['Grupo'] == 'Trabalhadores da Educação']
-        df_regional_educa = df_educa.groupby(['regional', 'Data'])[
-            ['Popul.categ.', 'D1', 'D2']].sum()
-        df_regional_educa['Percentual_D1'] = df_regional_educa['D1'] / \
-            df_regional_educa['Popul.categ.']
-        df_regional_educa['Percentual_D2'] = df_regional_educa['D2'] / \
-            df_regional_educa['Popul.categ.']
+        df_regional_educa = self.insertPercent(df_educa, ['regional', 'Data'])
+        df_municipios_educa = self.insertPercent(
+            df_educa, ['Municipio', 'Data'])
 
-        df_municipios_educa = df_educa.groupby(['Municipio', 'Data'])[
-            ['Popul.categ.', 'D1', 'D2']].sum()
-        df_municipios_educa['Percentual_D1'] = df_municipios_educa['D1'] / \
-            df_municipios_educa['Popul.categ.']
-        df_municipios_educa['Percentual_D2'] = df_municipios_educa['D2'] / \
-            df_municipios_educa['Popul.categ.']
-
-        df_regional_educa2 = df_regional_educa.groupby(
-            ['regional'])[['Popul.categ.', 'D1', 'D2']].sum()
-        df_regional_educa2['Percentual_D1'] = df_regional_educa2['D1'] / \
-            df_regional_educa2['Popul.categ.']
-        df_regional_educa2['Percentual_D2'] = df_regional_educa2['D2'] / \
-            df_regional_educa2['Popul.categ.']
+        df_regional_educa2 = self.insertPercent(
+            df_regional_educa, ['regional'])
 
         with ExcelWriter('dados.xlsx') as writer:
             df_regional_educa2.to_excel(
@@ -226,6 +201,15 @@ class download_vacinados:
                 writer, sheet_name='municipios_educacao')
 
         print(" Ok")
+
+    def insertPercent(self, df, dataColumns):
+        df2 = df.groupby(dataColumns)[
+            ['Popul.categ.', 'D1', 'D2']].sum()
+        df2['Percentual_D1'] = df2['D1'] / \
+            df2['Popul.categ.']
+        df2['Percentual_D2'] = df2['D2'] / \
+            df2['Popul.categ.']
+        return df2
 
     def connect(self):
         try:
