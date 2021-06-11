@@ -203,6 +203,8 @@ class download_vacinados:
         print(" Ok")
 
     def insertPercent(self, df, dataColumns):
+        # Corrigir soma da população
+        
         df2 = df.groupby(dataColumns)[
             ['Popul.categ.', 'D1', 'D2']].sum()
         df2['Percentual_D1'] = df2['D1'] / \
@@ -267,5 +269,6 @@ if __name__ == "__main__":
     # dataDB = dv.getFile()
     dataDB = dv.getFileLocal()
     df = dv.processData(dataDB)
+    dv.storeBD(df)
     dv.storeExcel(df)
-    # dv.storeBD(df)
+
