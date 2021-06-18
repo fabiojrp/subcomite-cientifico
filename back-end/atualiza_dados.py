@@ -9,6 +9,7 @@ from covid.processa.download_leitos import download_leitos
 from covid.processa.atualizaPlanilhaRT import atualizaPlanilhaRT
 from covid.processa.importLeitos import importLeitos
 from covid.processa.calculaRT import calculaRT
+from covid.processa.rt_predictor.predict_store import predict_store
 
 with open('covid.log', 'w') as f:
     # sys.stdout = f  # Change the standard output to the file we created.from covid.processa.download_leitos import download_leitos
@@ -51,6 +52,9 @@ with open('covid.log', 'w') as f:
 
         # Faz a inserção do rt do banco na planilha no sheets
         # atualizaPlanilhaComRt.carregaPlanilhaRt()
+
+        # Executa o script para prever o RT
+        predict_store()
 
         print("\n\nConcluido\n")
         print("\n--- %s seconds ---\n" % (time.time() - start_time))

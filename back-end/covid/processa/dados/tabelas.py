@@ -22,6 +22,27 @@ class Tabelas:
             'XANXERE': 17
         }
 
+        self.regionais_rt = {
+            'Ignorado': 0,
+            'OUTROS ESTADOS': 1,
+            'Alto Uruguai Catarinense': 2,
+            'Alto Vale do Itajaí': 3,
+            'Alto Vale do Rio do Peixe': 4,
+            'Carbonífera': 5,
+            'Extremo Oeste': 6,
+            'Extremo Sul Catarinense': 7,
+            'Foz do Rio Itajaí': 8,
+            'Grande Florianópolis': 9,
+            'Laguna': 10,
+            'Médio Vale do Itajaí': 11,
+            'Meio Oeste': 12,
+            'Nordeste': 13,
+            'Oeste': 14,
+            'Planalto Norte': 15,
+            'Serra Catarinense': 16,
+            'Xanxerê': 17,
+        }
+
     def getRegionalCiasc(self, indice):
         # Tabela de regionais
         return self.regional[indice]

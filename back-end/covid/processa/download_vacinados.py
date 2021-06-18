@@ -85,7 +85,7 @@ class download_vacinados:
         }
 
         self.query = {"id": 16827, "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}], "dashboardId": 2767, "context": {
-        }, "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjM0MDg3MzIsImV4cCI6MTYyMzQ5NTEzMiwiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjQ3NzQ5fQ.LVpfzk0WOTCqedwJKf_0Y-O_HOlVGYHWp5Jpdoyzbc0"}
+        }, "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjQwMTczNTUsImV4cCI6MTYyNDEwMzc1NSwiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjU4NDc3fQ.m5qSPlCIo3zM34u3CFs5dY2r7fvwVh33CgbmFk5TQ-c"}
 
         print("Baixando base de dados de vacinados da DIVE...",
               end='', flush=True)
@@ -126,11 +126,11 @@ class download_vacinados:
                 raise Exception("Município não encontrado:" +
                                 grupo_prioritario['cells'][0]['value'])
 
-            try:
-                grupo = self.listaGrupos[grupo_prioritario['cells'][3]['value']]
-            except KeyError as k:
-                raise Exception("Grupo não encontrado:" +
-                                grupo_prioritario['cells'][3]['value'])
+            # try:
+            #     grupo = self.listaGrupos[grupo_prioritario['cells'][3]['value']]
+            # except KeyError as k:
+            #     raise Exception("Grupo não encontrado:" +
+            #                     grupo_prioritario['cells'][3]['value'])
 
             data = datetime.strptime(
                 grupo_prioritario['cells'][9]['value'], '%Y-%m-%d').date()
@@ -138,8 +138,8 @@ class download_vacinados:
                 'Municipio': municipio,
                 'regional': tabelas.getRegionalMunicipioBrasil(municipio),
                 'Data': data,
-                'Grupo': grupo,
-                'Popul.categ.': grupo_prioritario['cells'][4]['value'],
+                'Grupo': grupo_prioritario['cells'][3]['value'],
+                # 'Popul.categ.': grupo_prioritario['cells'][4]['value'],
                 'D1': grupo_prioritario['cells'][5]['value'],
                 'D2': grupo_prioritario['cells'][6]['value']
             }
@@ -148,8 +148,8 @@ class download_vacinados:
         df = pd.DataFrame(dadosGeral)
 
         #  converte todos os valores para números
-        df['Grupo'] = df['Grupo'].apply(pd.to_numeric)
-        df['Popul.categ.'] = df['Popul.categ.'].apply(pd.to_numeric)
+        # df['Grupo'] = df['Grupo'].apply(pd.to_numeric)
+        # df['Popul.categ.'] = df['Popul.categ.'].apply(pd.to_numeric)
         df['D1'] = df['D1'].apply(pd.to_numeric)
         df['D2'] = df['D2'].apply(pd.to_numeric)
 
@@ -168,15 +168,15 @@ class download_vacinados:
         municipios_rev = dict(
             map(reversed, json.loads(dadosMunicipio).items()))
 
-        listaGrupos_rev = dict(
-            map(reversed,  self.listaGrupos.items()))
+        # listaGrupos_rev = dict(
+        #     map(reversed,  self.listaGrupos.items()))
 
         regionais_rev = dict(
             map(reversed,  tabelas.regional.items()))
 
         # Busca na listas os munícipios e substitui de volta pelos valores
         df['Municipio'] = df['Municipio'].replace(municipios_rev)
-        df['Grupo'] = df['Grupo'].replace(listaGrupos_rev)
+        # df['Grupo'] = df['Grupo'].replace(listaGrupos_rev)
         df['regional'] = df['regional'].replace(regionais_rev)
 
         df_regional = self.insertPercent(df, ['regional', 'Data'])
@@ -204,13 +204,13 @@ class download_vacinados:
 
     def insertPercent(self, df, dataColumns):
         # Corrigir soma da população
-        
-        df2 = df.groupby(dataColumns)[
-            ['Popul.categ.', 'D1', 'D2']].sum()
-        df2['Percentual_D1'] = df2['D1'] / \
-            df2['Popul.categ.']
-        df2['Percentual_D2'] = df2['D2'] / \
-            df2['Popul.categ.']
+
+        df2 = df.groupby(dataColumns,  as_index=False)[
+            ['D1', 'D2']].sum()
+        # df2['Percentual_D1'] = df2['D1'] / \
+        #     df2['Popul.categ.']
+        # df2['Percentual_D2'] = df2['D2'] / \
+        #     df2['Popul.categ.']
         return df2
 
     def connect(self):
@@ -226,7 +226,12 @@ class download_vacinados:
         return conn
 
     def storeBD(self, df, table='vacinacao_dive'):
-        print("Cria a tabela se não existe...", end='', flush=True)
+        df = df.groupby(['Municipio', 'regional'],  as_index=False)[
+            ['D1', 'D2']].sum()
+        df['data'] = pd.to_datetime(
+            datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+        print("Salvando os dados... ", end='', flush=True)
         connect = "postgresql+psycopg2://%s:%s@%s:5432/%s" % (
             self.param_dic['user'],
             quote(self.param_dic['password']),
@@ -238,37 +243,36 @@ class download_vacinados:
             table,
             con=engine,
             index=False,
-            # if_exists='append'
-            if_exists='replace'
+            if_exists='append'
+            # if_exists='replace'
         )
         print(" Ok.")
 
-        conn = self.connect()
-        print("Salvando os dados...", end='', flush=True)
-        # save dataframe to an in memory buffer
-        buffer = StringIO()
-        df.to_csv(buffer, index_label=False, index=False, header=False)
-        buffer.seek(0)
+        # conn = self.connect()
+        # print("Salvando os dados... ", end='', flush=True)
+        # # save dataframe to an in memory buffer
+        # buffer = StringIO()
+        # df.to_csv(buffer, index_label=False, index=False, header=False)
+        # buffer.seek(0)
 
-        cursor = self.conn.cursor()
-        try:
-            cursor.copy_from(buffer, table, sep=",")
-            self.conn.commit()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print("Error: %s" % error)
-            self.conn.rollback()
-            cursor.close()
-            return 1
+        # cursor = self.conn.cursor()
+        # try:
+        #     cursor.copy_from(buffer, table, sep=",")
+        #     self.conn.commit()
+        # except (Exception, psycopg2.DatabaseError) as error:
+        #     print("Error: %s" % error)
+        #     self.conn.rollback()
+        #     cursor.close()
+        #     return 1
 
-        print("Ok.")
-        cursor.close()
+        # print("Ok")
+        # cursor.close()
 
 
 if __name__ == "__main__":
     dv = download_vacinados()
-    # dataDB = dv.getFile()
+    dataDB = dv.getFile()
     dataDB = dv.getFileLocal()
     df = dv.processData(dataDB)
     dv.storeBD(df)
-    dv.storeExcel(df)
-
+    # dv.storeExcel(df)

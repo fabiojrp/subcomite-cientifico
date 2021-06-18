@@ -61,6 +61,30 @@ $(document).ready(() => {
  
      */
 
+
+  fetch(base_url + "/api/vacinacao-por-regiao/")
+    .then((response) => {
+      return response.json();
+    })
+    .then((dados) => {
+      //Limpa célculas vazias. 
+      dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
+
+      var mm_layout = {
+        title: 'Vacinação 2ª Dose',
+        showlegend: true,
+        yaxis: {
+          tickformat: '.2%',
+        }
+      };
+
+      var config = { responsive: true };
+
+      Plotly.newPlot("vacina-graph", dadosRegionais, mm_layout, config);
+    })
+    .catch((err) => console.error(err));
+
+
   fetch(base_url + "/api/rt-por-regiao/")
     .then((response) => {
       return response.json();
