@@ -775,8 +775,9 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
             regionais = [];
             totalEstado = [];
             result.forEach((item) => {
-                dataItem = new Date(item.data)
-                // var dataItem = ("0" + dataItem.getUTCDay()).slice(-2) + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + dataItem.getFullYear();
+                // var dataItem = new Date(item.data)
+                var dataItem = item.data.toString();
+                // dataItem = dataItem.getFullYear() + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + ("0" + dataItem.getUTCDay()).slice(-2)
                 if (!regionais[item.id]) {
                     regionais[item.id] = {
                         name: item.regional_saude,
@@ -794,15 +795,15 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
 
                 if (!totalEstado[dataItem]) {
                     totalEstado[dataItem] = {
+                        populacao: parseInt(item.populacao),
                         vacinacao_d1: 0,
                         vacinacao_d2: 0,
-                        populacao: 0,
                         data: dataItem,
                     };
                 }
                 totalEstado[dataItem].vacinacao_d1 += parseInt(item.vacinacao_d1);
                 totalEstado[dataItem].vacinacao_d2 += parseInt(item.vacinacao_d2);
-                totalEstado[dataItem].populacao += parseInt(item.populacao);
+                // totalEstado[dataItem].populacao += parseInt(item.populacao);
             });
 
             regionais[0] = {
@@ -813,15 +814,28 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
                 y: [],
             };
 
-            totalEstado.sort((a, b) => {
-                return new Date(a.data) - new Date(b.data);
-            });
+            // totalEstado.sort((a, b) => {
+            //     return new Date(a.data) - new Date(b.data);
+            // });
+
+
+            for (var key in totalEstado) {
+                var value = obj[key];
+
+            }
+            for (var [key, item] of totalEstado.entries()) {
+                console.log(key)
+            }
+            Object.keys(obj)
+            Object.values(totalEstado).forEach(val => console.log(val));
 
             for (var [key, item] of Object.entries(totalEstado)) {
-                regionais[0].x.push(item.data);
+                regionais[0].x.push(key);
                 regionais[0].y.push((item.vacinacao_d2 / item.populacao));
             }
-
+            totalEstado.forEach((entry) => {
+                console.log(entry);
+            });
             res.send({ regionais });
         },
     );

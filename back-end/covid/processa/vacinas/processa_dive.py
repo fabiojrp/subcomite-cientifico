@@ -44,41 +44,41 @@ class processa_dive():
     def extraiDados(self, file_path, file):
         usarColunas = "A:BX"
 
-        # nomeColunas = ['MUNICÍPIO',
-        #                'TRABALHADORES DA SAUDE-D1',
-        #                'TRABALHADORES DA SAUDE-D2',
-        #                'PESSOAS IDOSAS INSTITUCIONALIZADAS-D1',
-        #                'PESSOAS IDOSAS INSTITUCIONALIZADAS-D2',
-        #                'PESSOAS COM DEFICIÊNCIA INSTITUCIONALIZADA-D1',
-        #                'PESSOAS COM DEFICIÊNCIA INSTITUCIONALIZADA-D2',
-        #                'POPULAÇÃO INDÍGENA-D1',
-        #                'POPULAÇÃO INDÍGENA-D2',
-        #                'IDOSOS COM 90 ANOS E MAIS-D1',
-        #                'IDOSOS COM 90 ANOS E MAIS-D2',
-        #                'IDOSOS COM 85 a 89 ANOS-D1',
-        #                'IDOSOS COM 85 a 89 ANOS-D2',
-        #                'IDOSOS COM 80 a 84 ANOS-D1',
-        #                'IDOSOS COM 80 a 84 ANOS-D2',
-        #                'IDOSOS COM 75 a 79 ANOS-D1',
-        #                'IDOSOS COM 75 a 79 ANOS-D2',
-        #                'IDOSOS COM 70 a 74 ANOS-D1',
-        #                'IDOSOS COM 70 a 74 ANOS-D2',
-        #                'IDOSOS COM 65 a 69 ANOS-D1',
-        #                'IDOSOS COM 65 a 69 ANOS-D2',
-        #                'IDOSOS COM 60 a 64 ANOS-D1',
-        #                'IDOSOS COM 60 a 64 ANOS-D2',
-        #                'QUILOMBOLA-D1',
-        #                'QUILOMBOLA-D2',
-        #                'FORÇAS DE SEGURANÇA E SALVAMENTO E FORÇAS ARMADAS-D1',
-        #                'FORÇAS DE SEGURANÇA E SALVAMENTO E FORÇAS ARMADAS-D2',
-        #                'COMORBIDADE DE 18 A 59 ANOS-D1',
-        #                'COMORBIDADE DE 18 A 59 ANOS-D2',
-        #                'PESSOAS COM DEFICIÊNCIA PERMANENTE GRAVE DE 18 A 59 ANOS-D1',
-        #                'PESSOAS COM DEFICIÊNCIA PERMANENTE GRAVE DE 18 A 59 ANOS-D2',
-        #                'GESTANTES E PUÉRPERAS-D1',
-        #                'GESTANTES E PUÉRPERAS-D2',
-        #                'TOTAL-D1',
-        #                'TOTAL-D2']
+        nomeColunas = ['Municipio',
+                       'TRABALHADORES DA SAUDE-D1',
+                       'TRABALHADORES DA SAUDE-D2',
+                       'PESSOAS IDOSAS INSTITUCIONALIZADAS-D1',
+                       'PESSOAS IDOSAS INSTITUCIONALIZADAS-D2',
+                       'PESSOAS COM DEFICIÊNCIA INSTITUCIONALIZADA-D1',
+                       'PESSOAS COM DEFICIÊNCIA INSTITUCIONALIZADA-D2',
+                       'POPULAÇÃO INDÍGENA-D1',
+                       'POPULAÇÃO INDÍGENA-D2',
+                       'IDOSOS COM 90 ANOS E MAIS-D1',
+                       'IDOSOS COM 90 ANOS E MAIS-D2',
+                       'IDOSOS COM 85 a 89 ANOS-D1',
+                       'IDOSOS COM 85 a 89 ANOS-D2',
+                       'IDOSOS COM 80 a 84 ANOS-D1',
+                       'IDOSOS COM 80 a 84 ANOS-D2',
+                       'IDOSOS COM 75 a 79 ANOS-D1',
+                       'IDOSOS COM 75 a 79 ANOS-D2',
+                       'IDOSOS COM 70 a 74 ANOS-D1',
+                       'IDOSOS COM 70 a 74 ANOS-D2',
+                       'IDOSOS COM 65 a 69 ANOS-D1',
+                       'IDOSOS COM 65 a 69 ANOS-D2',
+                       'IDOSOS COM 60 a 64 ANOS-D1',
+                       'IDOSOS COM 60 a 64 ANOS-D2',
+                       'QUILOMBOLA-D1',
+                       'QUILOMBOLA-D2',
+                       'FORÇAS DE SEGURANÇA E SALVAMENTO E FORÇAS ARMADAS-D1',
+                       'FORÇAS DE SEGURANÇA E SALVAMENTO E FORÇAS ARMADAS-D2',
+                       'COMORBIDADE DE 18 A 59 ANOS-D1',
+                       'COMORBIDADE DE 18 A 59 ANOS-D2',
+                       'PESSOAS COM DEFICIÊNCIA PERMANENTE GRAVE DE 18 A 59 ANOS-D1',
+                       'PESSOAS COM DEFICIÊNCIA PERMANENTE GRAVE DE 18 A 59 ANOS-D2',
+                       'GESTANTES E PUÉRPERAS-D1',
+                       'GESTANTES E PUÉRPERAS-D2',
+                       'TOTAL-D1',
+                       'TOTAL-D2']
 
         if not os.path.isfile(file_path):
             raise 'Arquivo não existe' + file_path
@@ -86,14 +86,15 @@ class processa_dive():
             df = pd.read_excel(file_path,
                             sheet_name="COMUNICAÇÃO",
                             usecols=usarColunas,
-                            skiprows=[0]
+                            # skiprows=[0]
                             )
             # retira as colunas em que todos os elementos são nan
             df = df.dropna(axis=1, how='all')
             # limitTable = list(df).index('TOTAL') + 5
 
-            # Renomeia a coluna:
-            df = df.rename(columns={'Unnamed: 0': 'Municipio'})
+            # Renomeia colunas:
+            # df = df.rename(columns={'Unnamed: 0': 'Municipio'})
+            df.columns = nomeColunas
 
             # Busca na listas os munícipios e substitui pelo código do IBGE
             df['Municipio'] = df['Municipio'].replace(self.municipios)

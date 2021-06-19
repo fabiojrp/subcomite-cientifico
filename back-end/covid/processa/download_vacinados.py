@@ -105,8 +105,8 @@ class download_vacinados:
         print(" Ok")
         return data_DB
 
-    def getFileLocal(self):
-        with open('/Users/marcelocendron/Dropbox/web/subcomite/dados.json') as f:
+    def getFileLocal(self, file):
+        with open('/Users/marcelocendron/Dropbox/web/subcomite/' + file) as f:
             data_DB = json.load(f)
 
         return data_DB
@@ -139,7 +139,7 @@ class download_vacinados:
                 'regional': tabelas.getRegionalMunicipioBrasil(municipio),
                 'Data': data,
                 'Grupo': grupo_prioritario['cells'][3]['value'],
-                # 'Popul.categ.': grupo_prioritario['cells'][4]['value'],
+                'Popul.categ.': grupo_prioritario['cells'][4]['value'],
                 'D1': grupo_prioritario['cells'][5]['value'],
                 'D2': grupo_prioritario['cells'][6]['value']
             }
@@ -226,8 +226,8 @@ class download_vacinados:
         return conn
 
     def storeBD(self, df, table='vacinacao_dive'):
-        df = df.groupby(['Municipio', 'regional'],  as_index=False)[
-            ['D1', 'D2']].sum()
+        # df = df.groupby(['Municipio', 'regional'],  as_index=False)[
+        #     ['D1', 'D2']].sum()
         df['data'] = pd.to_datetime(
             datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -271,8 +271,10 @@ class download_vacinados:
 
 if __name__ == "__main__":
     dv = download_vacinados()
-    dataDB = dv.getFile()
-    dataDB = dv.getFileLocal()
+    # dataDB = dv.getFile()
+    dataDB = dv.getFileLocal('dados-11-06.json')
+    dataDB = dv.getFileLocal('dados-17-06.json')
+    dataDB = dv.getFileLocal('dados-18-06.json')
     df = dv.processData(dataDB)
     dv.storeBD(df)
     # dv.storeExcel(df)
