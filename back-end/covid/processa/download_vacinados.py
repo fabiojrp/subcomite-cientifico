@@ -85,7 +85,10 @@ class download_vacinados:
         }
 
         self.query = {"id": 16827, "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}], "dashboardId": 2767, "context": {
-        }, "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjQwMTczNTUsImV4cCI6MTYyNDEwMzc1NSwiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjU4NDc3fQ.m5qSPlCIo3zM34u3CFs5dY2r7fvwVh33CgbmFk5TQ-c"}
+        },
+            "accessToken":
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjQxNDA0MzksImV4cCI6MTYyNDIyNjgzOSwiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjYwODk1fQ.AgSysOlWm45hwf2L4Ljz0sMMfDUvZ2J_D4COrVRAyiI"
+        }
 
         print("Baixando base de dados de vacinados da DIVE...",
               end='', flush=True)
@@ -99,7 +102,7 @@ class download_vacinados:
             raise Exception(data_DB['errorMessage']['title'] +
                             ": " + data_DB['errorMessage']['text'])
 
-        with open('dados.json', 'w') as outfile:
+        with open('dados 19-11.json', 'w') as outfile:
             json.dump(data_DB, outfile)
 
         print(" Ok")
@@ -228,7 +231,7 @@ class download_vacinados:
     def storeBD(self, df, table='vacinacao_dive'):
         # df = df.groupby(['Municipio', 'regional'],  as_index=False)[
         #     ['D1', 'D2']].sum()
-        df['data'] = pd.to_datetime(
+        df['data_cadastro'] = pd.to_datetime(
             datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
         print("Salvando os dados... ", end='', flush=True)
@@ -271,9 +274,11 @@ class download_vacinados:
 
 if __name__ == "__main__":
     dv = download_vacinados()
-    # dataDB = dv.getFile()
+    dataDB = dv.getFile()
     dataDB = dv.getFileLocal('dados-11-06.json')
+    df = dv.processData(dataDB)
     dataDB = dv.getFileLocal('dados-17-06.json')
+    df = dv.processData(dataDB)
     dataDB = dv.getFileLocal('dados-18-06.json')
     df = dv.processData(dataDB)
     dv.storeBD(df)
