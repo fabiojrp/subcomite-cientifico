@@ -99,10 +99,13 @@ class download_vacinados:
         data_DB = json.loads(req_DB)
         if 'error' in data_DB:
             print("Erro!!!\n")
-            raise Exception(data_DB['errorMessage']['title'] +
-                            ": " + data_DB['errorMessage']['text'])
+            if (data_DB['error']):
+                raise Exception(data_DB['error'])
+            else:
+                raise Exception(data_DB['errorMessage']['title'] +
+                                ": " + data_DB['errorMessage']['text'])
 
-        with open('dados 19-11.json', 'w') as outfile:
+        with open('dados 20-11.json', 'w') as outfile:
             json.dump(data_DB, outfile)
 
         print(" Ok")
@@ -114,7 +117,7 @@ class download_vacinados:
 
         return data_DB
 
-    def processData(self, data_DB):
+    def processData(self, data_DB, dataValor):
         tabelas = Tabelas()
         print("Processando dados dos municípios...",
               end='', flush=True)
@@ -135,8 +138,11 @@ class download_vacinados:
             #     raise Exception("Grupo não encontrado:" +
             #                     grupo_prioritario['cells'][3]['value'])
 
-            data = datetime.strptime(
-                grupo_prioritario['cells'][9]['value'], '%Y-%m-%d').date()
+            # data = datetime.strptime(
+            #     grupo_prioritario['cells'][9]['value'], '%Y-%m-%d').date()
+            # data = datetime.strptime(dataValor, '%Y-%m-%d').date()
+            data = pd.to_datetime(datetime.now().strftime("%Y-%m-%d")).date()
+
             dadosMunicipio = {
                 'Municipio': municipio,
                 'regional': tabelas.getRegionalMunicipioBrasil(municipio),
@@ -144,7 +150,7 @@ class download_vacinados:
                 'Grupo': grupo_prioritario['cells'][3]['value'],
                 'Popul.categ.': grupo_prioritario['cells'][4]['value'],
                 'D1': grupo_prioritario['cells'][5]['value'],
-                'D2': grupo_prioritario['cells'][6]['value']
+                'D2': grupo_prioritario['cells' ][6]['value']
             }
             dadosGeral.append(dadosMunicipio)
         # print(vacinados_municipios)
@@ -273,13 +279,24 @@ class download_vacinados:
 
 
 if __name__ == "__main__":
+    data = pd.to_datetime(datetime.now().strftime("%Y-%m-%d"))
+    
     dv = download_vacinados()
-    dataDB = dv.getFile()
-    dataDB = dv.getFileLocal('dados-11-06.json')
-    df = dv.processData(dataDB)
-    dataDB = dv.getFileLocal('dados-17-06.json')
-    df = dv.processData(dataDB)
-    dataDB = dv.getFileLocal('dados-18-06.json')
-    df = dv.processData(dataDB)
-    dv.storeBD(df)
+    # dataDB = dv.getFile()
+    # df = dv.processData(dataDB, '2021-06-21')
+    # dv.storeBD(df)
+
+    # dataDB = dv.getFileLocal('dados-11-06.json')
+    # df = dv.processData(dataDB, '2021-06-11')
+    # dv.storeBD(df)
+
+    # dataDB = dv.getFileLocal('dados-17-06.json')
+    # df = dv.processData(dataDB, '2021-06-17')
+    # dv.storeBD(df)
+
+    # dataDB = dv.getFileLocal('dados-18-06.json')
+    # df = dv.processData(dataDB, '2021-06-18')
+    # dv.storeBD(df)
+
+
     # dv.storeExcel(df)

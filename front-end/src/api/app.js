@@ -773,13 +773,13 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
 
             result = rows.rows;
             regionais = [];
-            // totalEstado = [];
+            totalEstadoData = new Set();
             totalEstado = new Map();
             result.forEach((item) => {
-                var dataItem = new Date(item.data);
-                // var dataItem = item.data.toString();
+                // dataItem = new Date(item.data);
+                var dataItem = item.data;
                 // dataItem = dataItem.getFullYear() + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + ("0" + dataItem.getUTCDay()).slice(-2)
-                dataItem = parseInt(dataItem.getFullYear() + ("0" + (dataItem.getMonth() + 1)).slice(-2) + ("0" + dataItem.getUTCDay()).slice(-2));
+                // dataItem = parseInt(dataItem.getFullYear() + ("0" + (dataItem.getMonth() + 1)).slice(-2) + ("0" + dataItem.getUTCDay()).slice(-2));
                 if (!regionais[item.id]) {
                     regionais[item.id] = {
                         name: item.regional_saude,
@@ -794,7 +794,7 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
                 regionais[item.id].y.push(
                     (item.vacinacao_d2 / item.populacao),
                 );
-
+                totalEstadoData.add(dataItem)
                 if (!totalEstado.has(dataItem)) {
                     totalEstado.set(dataItem, {
                         populacao: parseInt(item.populacao),
@@ -817,17 +817,29 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
                 y: [],
             };
 
-            totalEstado.forEach((value, key) =>
-                console.log(key)
-            )
 
-            for (var [key, item] of Object.keys(totalEstado)) {
-                regionais[0].x.push(item.data);
-                regionais[0].y.push((item.vacinacao_d2 / item.populacao));
-            }
-            totalEstado.forEach((item) => {
-                console.log(item.data);
+            arrData = Array.from(totalEstadoData).sort();
+
+            arrData.forEach(function (key) {
+                // console.log(totalEstado.get(key).data);
+                regionais[0].x.push(totalEstado.get(key).data);
+                regionais[0].y.push((totalEstado.get(key).vacinacao_d2 / totalEstado.get(key).populacao));
             });
+
+            // for (item of totalEstado.values()) {
+            //     regionais[0].x.push(item.data);
+            //     regionais[0].y.push((item.vacinacao_d2 / item.populacao));
+            // }
+            // travelMap = new Map(Object.entries(totalEstado.values()));
+
+
+            // for (var [key, item] of Object.keys(totalEstado)) {
+            //     regionais[0].x.push(item.data);
+            //     regionais[0].y.push((item.vacinacao_d2 / item.populacao));
+            // }
+            // totalEstado.forEach((item) => {
+            //     console.log(item.data);
+            // });
             res.send({ regionais });
         },
     );

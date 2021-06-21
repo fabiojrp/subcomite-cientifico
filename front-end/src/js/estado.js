@@ -71,7 +71,7 @@ $(document).ready(() => {
       dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
       var mm_layout = {
-        title: 'Vacinação 2ª Dose',
+        title: 'Vacinação 2ª Dose - fonte: <a href="https://www.coronavirus.sc.gov.br">Site Coronavírus SC</a>',
         showlegend: true,
         yaxis: {
           tickformat: '.2%',
