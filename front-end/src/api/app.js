@@ -479,53 +479,53 @@ app.get("/api/rt-por-regiao/", (req, res) => {
                 regionais[item.id].y.push(item.rt);
             });
 
-            pool.query(
-                `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
-                    RT_REGIONAL_PREDICTION.REGIONAL_SAUDE AS ID,
-                    RT_REGIONAL_PREDICTION.DATA AS DATA,
-                    RT_REGIONAL_PREDICTION.PRED AS RT,
-                    RT_REGIONAL_PREDICTION."pred_IC_95_inf",
-                    RT_REGIONAL_PREDICTION."pred_IC_95_sup"
-                FROM REGIONAIS,
-                    RT_REGIONAL_PREDICTION
-                WHERE RT_REGIONAL_PREDICTION.REGIONAL_SAUDE = REGIONAIS.ID`,
-                (err, rows) => {
-                    if (err) {
-                        console.log("Erro ao buscar o valor da predição do R(t): " + err);
-                        res.send({ regionais });
-                    }
+            // pool.query(
+            //     `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+            //         RT_REGIONAL_PREDICTION.REGIONAL_SAUDE AS ID,
+            //         RT_REGIONAL_PREDICTION.DATA AS DATA,
+            //         RT_REGIONAL_PREDICTION.PRED AS RT,
+            //         RT_REGIONAL_PREDICTION."pred_IC_95_inf",
+            //         RT_REGIONAL_PREDICTION."pred_IC_95_sup"
+            //     FROM REGIONAIS,
+            //         RT_REGIONAL_PREDICTION
+            //     WHERE RT_REGIONAL_PREDICTION.REGIONAL_SAUDE = REGIONAIS.ID`,
+            //     (err, rows) => {
+            //         if (err) {
+            //             console.log("Erro ao buscar o valor da predição do R(t): " + err);
+            //             res.send({ regionais });
+            //         }
 
-                    result = rows.rows;
-                    result.forEach((item) => {
-                        var id = parseInt(item.id);
-                        if (!regionais[id + 20]) {
-                            if (id == 1 + 20) {
-                                regionais[id + 20] = {
-                                    name: "Estado de SC - Predição",
-                                    mode: "lines",
-                                    type: "scatter",
-                                    x: [],
-                                    y: [],
-                                };
-                            } else {
-                                regionais[id + 20] = {
-                                    name: item.regional_saude + " - Predição",
-                                    mode: "lines",
-                                    type: "scatter",
-                                    visible: "legendonly",
-                                    x: [],
-                                    y: [],
-                                };
-                            }
-                        }
-                        regionais[id + 20].x.push(item.data);
-                        regionais[id + 20].y.push(item.rt);
-                    });
+            //         result = rows.rows;
+            //         result.forEach((item) => {
+            //             var id = parseInt(item.id);
+            //             if (!regionais[id + 20]) {
+            //                 if (id == 1 + 20) {
+            //                     regionais[id + 20] = {
+            //                         name: "Estado de SC - Predição",
+            //                         mode: "lines",
+            //                         type: "scatter",
+            //                         x: [],
+            //                         y: [],
+            //                     };
+            //                 } else {
+            //                     regionais[id + 20] = {
+            //                         name: item.regional_saude + " - Predição",
+            //                         mode: "lines",
+            //                         type: "scatter",
+            //                         visible: "legendonly",
+            //                         x: [],
+            //                         y: [],
+            //                     };
+            //                 }
+            //             }
+            //             regionais[id + 20].x.push(item.data);
+            //             regionais[id + 20].y.push(item.rt);
+            //         });
 
-                    res.send({ regionais });
-                },
-            );
-
+            //         res.send({ regionais });
+            //     },
+            // );
+            res.send({ regionais });
         },
     );
 });
@@ -689,20 +689,20 @@ app.get("/api/vacinacao-por-regiao/:id", (req, res) => {
 
     pool.query(
         `SELECT REGIONAIS.REGIONAL_SAUDE,
-            REGIONAIS.ID AS ID,
-            REGIONAIS.populacao AS Populacao,
-            SUM(VACINACAO_DIVE."D1") AS VACINACAO_D1,
-            SUM(VACINACAO_DIVE."D2") AS VACINACAO_D2,
-            VACINACAO_DIVE.DATA AS DATA
-        FROM REGIONAIS,
-            VACINACAO_DIVE
-        WHERE VACINACAO_DIVE.REGIONAL = REGIONAIS.ID AND
-                REGIONAIS.ID = $1
-        GROUP BY REGIONAIS.ID,
-            REGIONAIS.REGIONAL_SAUDE,
-            VACINACAO_DIVE.DATA
-        ORDER BY REGIONAIS.ID,
-            VACINACAO_DIVE.DATA
+                REGIONAIS.ID AS ID,
+                REGIONAIS.POPULACAO AS POPULACAO,
+                SUM(VACINACAO_DIVE."D1") AS VACINACAO_D1,
+                SUM(VACINACAO_DIVE."D2") AS VACINACAO_D2,
+                VACINACAO_DIVE."Data" AS DATA
+            FROM REGIONAIS,
+                VACINACAO_DIVE
+            WHERE VACINACAO_DIVE.REGIONAL = REGIONAIS.ID
+                AND REGIONAIS.ID = $1
+            GROUP BY REGIONAIS.ID,
+                REGIONAIS.REGIONAL_SAUDE,
+                VACINACAO_DIVE."Data"
+            ORDER BY REGIONAIS.ID,
+                VACINACAO_DIVE."Data"
             `, [id],
         (err, rows) => {
             if (err) {
@@ -720,7 +720,7 @@ app.get("/api/vacinacao-por-regiao/:id", (req, res) => {
                 name: "Vacinados 1ª Dose",
                 type: "scatter",
                 fill: 'tozeroy',
-                opacity: 0.4,
+                fillcolor: 'rgba(247, 238, 197, 0.6)',
                 x: [],
                 y: [],
             };
@@ -728,7 +728,7 @@ app.get("/api/vacinacao-por-regiao/:id", (req, res) => {
                 name: "Vacinados 2ª Dose",
                 type: "scatter",
                 fill: 'tonextx',
-                opacity: 0.2,
+                fillcolor: 'rgba(168, 168, 255, 0.5)',
                 x: [],
                 y: [],
             };
@@ -777,7 +777,7 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
             totalEstado = new Map();
             result.forEach((item) => {
                 // dataItem = new Date(item.data);
-                var dataItem = item.data;
+                dataItem = item.data;
                 // dataItem = dataItem.getFullYear() + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + ("0" + dataItem.getUTCDay()).slice(-2)
                 // dataItem = parseInt(dataItem.getFullYear() + ("0" + (dataItem.getMonth() + 1)).slice(-2) + ("0" + dataItem.getUTCDay()).slice(-2));
                 if (!regionais[item.id]) {
@@ -1051,8 +1051,8 @@ app.get("/api/dados-boletim/", (req, res) => {
             VIEW_CASOS_ANTERIOR,
             VIEW_INCIDENCIA
         WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
-                        AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
-                        AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+            AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+            AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
         ORDER BY VIEW_RT.ID`,
         (err, rows) => {
             if (err) {
@@ -1064,10 +1064,15 @@ app.get("/api/dados-boletim/", (req, res) => {
                 `SELECT VIEW_LEITOS.ID AS ID,
                         VIEW_LEITOS.MAX_DATA AS DATA,
                         VIEW_LEITOS.LEITOS_ATIVOS LEITOS_ATIVOS,
-                        VIEW_LEITOS.LEITOS_OCUPADOS AS LEITOS_OCUPADOS
+                        VIEW_LEITOS.LEITOS_OCUPADOS AS LEITOS_OCUPADOS,
+                        VIEW_VACINACAO.VACINACAO_D1,
+                        VIEW_VACINACAO.VACINACAO_D2,
+                        VIEW_VACINACAO.POPULACAO
                     FROM VIEW_RT,
-                        VIEW_LEITOS
+                        VIEW_LEITOS,
+                        VIEW_VACINACAO
                     WHERE VIEW_RT.ID = VIEW_LEITOS.ID
+                        AND VIEW_RT.ID = VIEW_VACINACAO.ID
                     ORDER BY ID`,
                 (err2, rows2) => {
                     if (err2) {
@@ -1078,6 +1083,9 @@ app.get("/api/dados-boletim/", (req, res) => {
                     totalEstado = {
                         leitos_ocupados: 0,
                         leitos_ativos: 0,
+                        populacao: 0,
+                        vacinacao_d1: 0,
+                        vacinacao_d2: 0,
                     }
                     result = rows.rows;
                     result_Leitos = rows2.rows;
@@ -1089,14 +1097,24 @@ app.get("/api/dados-boletim/", (req, res) => {
                         item.letalidade = (item.letalidade).toFixed(2).replace(".", ",");
                         item.incidencia = (item.incidencia).toFixed(2).replace(".", ",");
                         regionais[item.id] = item;
+
                     });
 
                     result_Leitos.forEach((item) => {
                         regionais[item.id].ocupacao_leitos = ((item.leitos_ocupados / item.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+                        regionais[item.id].vacinacao_d1 = ((item.vacinacao_d1 / item.populacao) * 100).toFixed(4).replace(".", ",");
+                        regionais[item.id].vacinacao_d2 = ((item.vacinacao_d2 / item.populacao) * 100).toFixed(4).replace(".", ",");
+
                         totalEstado.leitos_ocupados += parseInt(item.leitos_ocupados);
                         totalEstado.leitos_ativos += parseInt(item.leitos_ativos);
+
+                        totalEstado.populacao += parseInt(item.populacao);
+                        totalEstado.vacinacao_d1 += parseInt(item.vacinacao_d1);
+                        totalEstado.vacinacao_d2 += parseInt(item.vacinacao_d2);
                     });
                     regionais[1].ocupacao_leitos = ((totalEstado.leitos_ocupados / totalEstado.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+                    regionais[1].vacinacao_d1 = ((totalEstado.vacinacao_d1 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
+                    regionais[1].vacinacao_d2 = ((totalEstado.vacinacao_d2 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
                     regionais[1].regional = "Estado de SC";
                     regionais = regionais.filter(function (el) {
                         return el != null;

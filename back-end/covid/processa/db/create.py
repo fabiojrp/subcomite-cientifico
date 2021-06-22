@@ -73,6 +73,7 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO")
 
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
@@ -192,6 +193,24 @@ class Create:
                                 AND CASOS.DATA = (SELECT MAX(CASOS.DATA) FROM CASOS)
                 GROUP BY REGIONAIS.ID,
                     CASOS.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW view_vacinacao AS 
+                SELECT REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID AS ID,
+                    REGIONAIS.POPULACAO AS POPULACAO,
+                    SUM(VACINACAO_DIVE."D1") AS VACINACAO_D1,
+                    SUM(VACINACAO_DIVE."D2") AS VACINACAO_D2,
+                    VACINACAO_DIVE."Data" AS DATA
+                FROM REGIONAIS,
+                    VACINACAO_DIVE
+                WHERE VACINACAO_DIVE."Data" = (SELECT MAX(VACINACAO_DIVE."Data") AS MAX_DATA FROM VACINACAO_DIVE)
+                    AND VACINACAO_DIVE.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID,
+                    REGIONAIS.REGIONAL_SAUDE, 
+                    VACINACAO_DIVE."Data"
+                ORDER BY REGIONAIS.ID
         """
         self.db.execute_query(sql)
 

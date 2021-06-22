@@ -51,6 +51,9 @@ class processaCSV:
                     except ValueError as ex:
                         data = datetime.datetime(2020, 1, 1, 0, 0)
 
+                    if data == datetime.datetime(2021, 5, 31, 0, 0) or data == datetime.datetime(2021, 6, 1, 0, 0):
+                        continue
+
                     codigo_ibge_municipio = Utils.convert_to_int(
                         value['codmun'])
 

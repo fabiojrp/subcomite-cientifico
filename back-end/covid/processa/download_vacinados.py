@@ -10,7 +10,7 @@ from io import StringIO
 from sqlalchemy import create_engine
 from pandas import ExcelWriter
 from urllib.parse import quote
-from dados.tabelas import Tabelas
+from covid.processa.dados.tabelas import Tabelas
 
 
 class download_vacinados:
@@ -87,7 +87,7 @@ class download_vacinados:
         self.query = {"id": 16827, "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}], "dashboardId": 2767, "context": {
         },
             "accessToken":
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjQxNDA0MzksImV4cCI6MTYyNDIyNjgzOSwiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjYwODk1fQ.AgSysOlWm45hwf2L4Ljz0sMMfDUvZ2J_D4COrVRAyiI"
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjQzMDE3ODcsImV4cCI6MTYyNDM4ODE4NywiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjYzMjkyfQ.0Ge15tHvgjZagKxV6A_zof6XQPC31mCyUJoq7pT8re0"
         }
 
         print("Baixando base de dados de vacinados da DIVE...",
@@ -117,7 +117,7 @@ class download_vacinados:
 
         return data_DB
 
-    def processData(self, data_DB, dataValor):
+    def processData(self, data_DB, dataValor=0):
         tabelas = Tabelas()
         print("Processando dados dos municípios...",
               end='', flush=True)
@@ -140,8 +140,11 @@ class download_vacinados:
 
             # data = datetime.strptime(
             #     grupo_prioritario['cells'][9]['value'], '%Y-%m-%d').date()
-            # data = datetime.strptime(dataValor, '%Y-%m-%d').date()
-            data = pd.to_datetime(datetime.now().strftime("%Y-%m-%d")).date()
+            if dataValor != 0:
+                data = datetime.strptime(dataValor, '%Y-%m-%d').date()
+            else:
+                data = pd.to_datetime(
+                    datetime.now().strftime("%Y-%m-%d")).date()
 
             dadosMunicipio = {
                 'Municipio': municipio,
@@ -150,7 +153,7 @@ class download_vacinados:
                 'Grupo': grupo_prioritario['cells'][3]['value'],
                 'Popul.categ.': grupo_prioritario['cells'][4]['value'],
                 'D1': grupo_prioritario['cells'][5]['value'],
-                'D2': grupo_prioritario['cells' ][6]['value']
+                'D2': grupo_prioritario['cells'][6]['value']
             }
             dadosGeral.append(dadosMunicipio)
         # print(vacinados_municipios)
@@ -279,12 +282,12 @@ class download_vacinados:
 
 
 if __name__ == "__main__":
-    data = pd.to_datetime(datetime.now().strftime("%Y-%m-%d"))
-    
+
     dv = download_vacinados()
-    # dataDB = dv.getFile()
-    # df = dv.processData(dataDB, '2021-06-21')
-    # dv.storeBD(df)
+
+    dataDB = dv.getFile()
+    df = dv.processData(dataDB)
+    dv.storeBD(df)
 
     # dataDB = dv.getFileLocal('dados-11-06.json')
     # df = dv.processData(dataDB, '2021-06-11')
@@ -297,6 +300,5 @@ if __name__ == "__main__":
     # dataDB = dv.getFileLocal('dados-18-06.json')
     # df = dv.processData(dataDB, '2021-06-18')
     # dv.storeBD(df)
-
 
     # dv.storeExcel(df)
