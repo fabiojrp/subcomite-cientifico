@@ -10,6 +10,7 @@ from covid.processa.atualizaPlanilhaRT import atualizaPlanilhaRT
 from covid.processa.importLeitos import importLeitos
 from covid.processa.calculaRT import calculaRT
 from covid.processa.download_vacinados import download_vacinados
+from covid.processa.download_vacinados_MS import download_vacinados_MS
 # from covid.processa.rt_predictor.predict_store import predict_store
 
 with open('covid.log', 'w') as f:
@@ -59,6 +60,11 @@ with open('covid.log', 'w') as f:
         dataDB = dv.getFile()
         df = dv.processData(dataDB)
         dv.storeBD(df)
+
+        # Atualiza a vacinacoa do MS
+        dv_MS = download_vacinados_MS()
+        dv_MS.getFile()
+        dv_MS.processaVacinacaoMS()
 
         # # Executa o script para prever o RT
         # predict_store()

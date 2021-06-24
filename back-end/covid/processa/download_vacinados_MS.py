@@ -1,7 +1,14 @@
 import os
 import time
 import pandas as pd
+import numpy as np
+import psycopg2
+import json
 
+from sqlalchemy import create_engine
+from urllib.parse import quote
+from datetime import datetime
+from .dados.tabelas import Tabelas
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -32,9 +39,32 @@ class download_vacinados_MS:
 
     def __init__(self):
 
-        # O <endereço> de constar na seguinte linha de código webdrive.Chrome(..., executable_path='<endereço>')
+        self.grupos_prioritarios = {
 
-        path_chromedriver = os.getcwd + '/chromedriver'
+        }
+
+        self.param_dic = {
+            "host": "127.0.0.1",
+            "database": "covid",
+            "user": "postgres",
+            "password": "!admpasswd@covid"
+        }
+
+        self.db = self.connect()
+
+        with open(os.getcwd() + '/back-end/covid/processa/vacinas/municipios.txt') as f:
+            # with open(os.getcwd() + 'back-end/covid/processa/vacinas/municipios.txt') as f:
+            self.dadosMunicipio = f.read().upper()
+
+        # Reconstruindo a lista dos munícipios.
+        self.municipios = json.loads(self.dadosMunicipio)
+
+    def getFile(self):
+
+        # DOWNLOAD DO ARQUIVO DE VACINAÇÃO DO MS
+
+        # O <endereço> de constar na seguinte linha de código webdrive.Chrome(..., executable_path='<endereço>')
+        path_chromedriver = os.getcwd() + '/back-end/chromedriver'
 
         driver = webdriver.Chrome(
             options=chrome_options, executable_path=r"{}".format(path_chromedriver))
@@ -64,44 +94,95 @@ class download_vacinados_MS:
 
         url = href
 
-        # print(url)
+        print("Fazendo download dos dados de Vacinação do MS...", end='', flush=True)
 
         os.system("wget -O dados_vacinacao.csv " + href)
 
-    def processaDataframe():
+        print(" Ok!")
 
-        df = pd.read_csv("dados_vacinacao.csv", sep=";")
-        # print(df)
+        dir_atual = r"{}".format(os.getcwd() + '/back-end/dados_vacinacao.csv')
+        # dir_atual = r"{}".format('/home/arthurssd/Documents/IFC/PROJETO DE PESQUISA/CÓDIGO/subcomite-cientifico/back-end/dados_head.csv')
 
-        remove_info = [
-            'paciente_dataNascimento',
-            'paciente_endereco_coPais',
-            'paciente_endereco_nmMunicipio',
-            'paciente_endereco_nmpais',
-            'paciente_endereco_uf',
-            'paciente_endereco_cep',
-            'paciente_nacionalidade_enumnacionalidade',
-            'estalecimento_nofantasia',
-            'estabelecimento_uf',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            'id_sistema_origem',
-        ]
+        dir_MS = r"{}".format(
+            os.getcwd() + '/back-end/Dados_MS/dados_vacinacao.csv')
+        # dir_MS = r"{}".format('/home/arthurssd/Documents/IFC/PROJETO DE PESQUISA/CÓDIGO/subcomite-cientifico/back-end/Dados_MS/dados_head.csv')
 
-        # "document_id";"paciente_id";"paciente_idade";"paciente_datanascimento";"paciente_enumsexobiologico";
-# "paciente_racacor_codigo";"paciente_racacor_valor";"paciente_endereco_coibgemunicipio";"paciente_endereco_copais";
-# "paciente_endereco_nmmunicipio";"paciente_endereco_nmpais";"paciente_endereco_uf";"paciente_endereco_cep";
-# "paciente_nacionalidade_enumnacionalidade";"estabelecimento_valor";"estabelecimento_razaosocial";"estalecimento_nofantasia";
-# "estabelecimento_municipio_codigo";"estabelecimento_municipio_nome";"estabelecimento_uf";"vacina_grupoatendimento_codigo";
-# "vacina_grupoatendimento_nome";"vacina_categoria_codigo";"vacina_categoria_nome";"vacina_lote";"vacina_fabricante_nome";
-# "vacina_fabricante_referencia";"vacina_dataaplicacao";"vacina_descricao_dose";"vacina_codigo";"vacina_nome";"sistema_origem";
-# "data_importacao_rnds";"id_sistema_origem"
+        os.rename(dir_atual, dir_MS)
 
-        df = df.drop(remove_info)
+    def getFileLocal(self):
 
-    def salvaBD():
-        pass
+        dir_path = os.getcwd() + '/back-end/Dados_MS/dados_vacinacao.csv'
+        # dir_path = '/home/arthurssd/Documents/IFC/PROJETO DE PESQUISA/CÓDIGO/subcomite-cientifico/back-end/Dados_MS/dados_vacinacao.csv'
+
+        return dir_path
+
+    def processaVacinacaoMS(self):
+
+        tabelas = Tabelas()
+
+        print("Processando dados de vacinação do MS...", end='', flush=True)
+
+        # DADOS VACINADOS
+        tabela = [2, 4, 5, 17, 20, 21, 27, 28, 29]
+
+        {2: "paciente_idade", 4: "paciente_enumsexobiologico", 5: "paciente_racacor_codigo", 17: "estabelecimento_municipio_codigo",
+            20: "vacina_grupoatendimento_codigo", 21: "vacina_grupoatendimento_nome", 27: "vacina_dataaplicacao", 28: "vacina_descricao_dose", 29: "vacina_codigo"}
+
+        df = pd.read_csv(self.getFileLocal(),
+                         usecols=tabela,
+                         sep=";")
+
+        # df['regional'] = [tabelas.getRegionalMunicipioBrasil(int(cod[0])) for cod in df['estabelecimento_municipio_codigo'].iteritems()]
+        df.insert(1, 'regional', df['estabelecimento_municipio_codigo'])
+        df['regional'] = df['regional'].replace(tabelas.municipios)
+
+        df['doses_aplicadas'] = np.zeros(len(df))
+
+        municipio_grupos_doses_dia = df.groupby(['regional', 'estabelecimento_municipio_codigo', 'vacina_grupoatendimento_codigo',
+                                                'vacina_dataaplicacao', 'vacina_descricao_dose'], as_index=False)['doses_aplicadas'].count()
+
+        #print("\n", municipio_grupos_doses_dia)
+
+        print(" Ok!")
+
+        self.salvaBD(municipio_grupos_doses_dia, self.param_dic)
+
+    def connect(self):
+        try:
+            conn = psycopg2.connect(**self.param_dic)
+            conn.autocommit = True
+            self.conn = conn
+            print(self.conn)
+
+        except psycopg2.Error as error:
+            print(error)
+
+        return conn
+
+    def salvaBD(self, df, param_dic, table='vacinacao_ms'):
+
+        df['data'] = pd.to_datetime(
+            datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+        print("Salvando os dados... ", end='', flush=True)
+        connect = "postgresql+psycopg2://%s:%s@%s:5432/%s" % (
+            self.param_dic['user'],
+            quote(self.param_dic['password']),
+            self.param_dic['host'],
+            self.param_dic['database']
+        )
+        engine = create_engine(connect)
+        df.to_sql(
+            table,
+            con=engine,
+            index=False,
+            # if_exists='append'
+            if_exists='replace'
+        )
+        print(" Ok.")
+
+
+# if __name__ == "__main__":
+#     dowVacMS = download_vacinados_MS()
+#     # dowVacMS.getFile()
+#     dowVacMS.processaVacinacaoMS()
