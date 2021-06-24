@@ -64,7 +64,7 @@ class download_leitos:
                 infoHospital['hospital'] = hospitais[i]
                 valorHospital = valores[i]['C']
                 # print(i, ";", hospitais[i], ";", valorHospital)
-                print(hospitais[i], ";", valorHospital,";",
+                print(hospitais[i], ";",valores[i], ";", valorHospital,";",
                       end='', flush=True)
 
                 if not('R' in valores[i]):
@@ -224,7 +224,7 @@ class download_leitos:
                     elif valores[i]['R'] == 62:
                         valorHospital = valores[i-1]['C']
                         infoHospital['leitos_ativos'] = valorHospital[1]
-                        infoHospital['leitos_ocupados'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
                         infoHospital['leitos_disponiveis'] = valorHospital[1] - \
                             valorHospital[2]
                         infoHospital['pacientes_covid'] = -1

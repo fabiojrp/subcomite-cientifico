@@ -5,12 +5,14 @@ import datetime
 import os
 import psycopg2
 
+from datetime import date
 from datetime import datetime
 from io import StringIO
 from sqlalchemy import create_engine
 from pandas import ExcelWriter
 from urllib.parse import quote
 from covid.processa.dados.tabelas import Tabelas
+# from dados.tabelas import Tabelas
 
 
 class download_vacinados:
@@ -84,11 +86,17 @@ class download_vacinados:
             'Accept-Language': 'en-US,en;q=0.9'
         }
 
-        self.query = {"id": 16827, "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}], "dashboardId": 2767, "context": {
-        },
-            "accessToken":
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MjQzMDE3ODcsImV4cCI6MTYyNDM4ODE4NywiYWNjb3VudElkIjoxMCwicHVibGljVmlld2VyIjp0cnVlLCJsb2dTZXNzaW9uSWQiOjYzMjkyfQ.0Ge15tHvgjZagKxV6A_zof6XQPC31mCyUJoq7pT8re0"
-        }
+        req_accessToken = requests.post("http://sgsweknow.saude.sc.gov.br:80/weknow/datasnap/rest/TSecurityApi/AuthenticateAsPublicViewer",
+                                        headers=self.headers, json={"accountToken": "{68AE9BAF-B5AE-4548-8681-1DCA3E838F66}"}).text
+        data_token = json.loads(req_accessToken)
+        if (data_token['success'] != True):
+                print(data_token)
+                return
+
+        self.query = {"id": 16827,
+                      "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}],
+                      "dashboardId": 2767, "context": {},
+                      "accessToken": data_token['accessToken']}
 
         print("Baixando base de dados de vacinados da DIVE...",
               end='', flush=True)
@@ -100,12 +108,13 @@ class download_vacinados:
         if 'error' in data_DB:
             print("Erro!!!\n")
             if (data_DB['error']):
-                raise Exception(data_DB['error'])
+                print(data_DB['error'])
+                return 0
             else:
                 raise Exception(data_DB['errorMessage']['title'] +
                                 ": " + data_DB['errorMessage']['text'])
 
-        with open('dados 20-11.json', 'w') as outfile:
+        with open('dados '+date.today().strftime("%Y-%m-%d")+'.json', 'w') as outfile:
             json.dump(data_DB, outfile)
 
         print(" Ok")
@@ -126,6 +135,7 @@ class download_vacinados:
         dadosGeral = []
         for grupo_prioritario in municipios_grupos_prioritarios:
             try:
+                # Substitui os nomes dos municípios pelo código do IBGE
                 municipio = self.listaMunicipios[grupo_prioritario['cells'][0]['value'].upper(
                 ).strip()]
             except KeyError as k:
