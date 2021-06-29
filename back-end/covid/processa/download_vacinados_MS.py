@@ -181,7 +181,7 @@ class download_vacinados_MS:
 
         except Exception as error:
             print(
-                "Possívelmente o chromedriver não está na pasta back-end: [%] " % error)
+                "Possívelmente o chromedriver não está na pasta back-end: % " % error)
 
     def getFileLocal(self):
 
