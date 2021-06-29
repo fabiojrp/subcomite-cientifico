@@ -12,7 +12,6 @@ from sqlalchemy import create_engine
 from pandas import ExcelWriter
 from urllib.parse import quote
 from covid.processa.dados.tabelas import Tabelas
-# from dados.tabelas import Tabelas
 
 
 class download_vacinados:
@@ -55,7 +54,7 @@ class download_vacinados:
             'Reservado 7': 35,
         }
 
-        with open(os.getcwd() + '/back-end/covid/processa/vacinas/municipios.txt') as f:
+        with open(os.getcwd() + '/covid/processa/vacinas/municipios.txt') as f:
             dadosMunicipio = f.read().upper()
         # Reconstruindo a lista dos munícipios.
         self.listaMunicipios = json.loads(dadosMunicipio)
@@ -184,7 +183,7 @@ class download_vacinados:
         print("Salvando os dados no excel...", end='', flush=True)
         tabelas = Tabelas()
 
-        with open(os.getcwd() + '/back-end/covid/processa/vacinas/municipios.txt') as f:
+        with open(os.getcwd() + '/covid/processa/vacinas/municipios.txt') as f:
             dadosMunicipio = f.read()
         # Reconstruindo a lista dos munícipios.
         municipios_rev = dict(
