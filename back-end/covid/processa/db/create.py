@@ -223,8 +223,9 @@ class Create:
         # Apagando as views
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ANTERIOR")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_CASOS_ATUAL")
-        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOSGERAL")
 
         self.db.execute_query("DROP TABLE IF EXISTS dados")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
@@ -399,6 +400,21 @@ class Create:
                     (SELECT MAX(leitoscovid.ATUALIZACAO) AS MAX_DATA FROM leitoscovid)
                     AND leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
                 GROUP BY REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE VIEW VIEW_LEITOSGERAL AS
+                    SELECT REGIONAIS.REGIONAL_SAUDE,
+                        SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                        SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                        MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA
+                    FROM REGIONAIS,
+                        LEITOSGERAISCOVID
+                    WHERE LEITOSGERAISCOVID.ATUALIZACAO =
+                            (SELECT MAX(LEITOSGERAISCOVID.ATUALIZACAO) AS MAX_DATA
+                                FROM LEITOSGERAISCOVID)
+                        AND LEITOSGERAISCOVID.INDEX_REGIONAL = REGIONAIS.ID
+                    GROUP BY REGIONAIS.REGIONAL_SAUDE
         """
         self.db.execute_query(sql)
 

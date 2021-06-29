@@ -3,15 +3,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+from pandas import ExcelWriter
 
-from covid.processa.processaLeitos import processaLeitos
-from covid.processa.dados.Utils import Utils
-from covid.processa.dao.DadosDao import DadosDao
-from covid.processa.db.create import Create
+# from covid.processa.processaLeitos import processaLeitos
+# from covid.processa.dados.Utils import Utils
+# from covid.processa.dao.DadosDao import DadosDao
+# from covid.processa.db.create import Create
 
 import time
 import datetime
-# import pandas as pd
+import pandas as pd
 
 """
 A execução script precisa que o webdrive do Chrome seja instalado, para
@@ -26,9 +27,10 @@ O <endereço> de constar na seguinte linha de código webdrive.Chrome(..., execu
 
 class importLeitos:
     def __init__(self, simulacao=0):
-        create = Create()
-        create.create_leitos()
-        self.dadosDao = DadosDao()
+        print("initing....")
+        # create = Create()
+        # create.create_leitos()
+        # self.dadosDao = DadosDao()
 
     def getData(self, tipo="Geral"):
         try:
@@ -37,11 +39,11 @@ class importLeitos:
             # Para não abrir a janela do browser
             self.options.headless = True
             # Para iniciar com janela maximizada (não precisa neste problema)
-            # options.add_argument("start-maximized")
+            # self.options.add_argument("start-maximized")
 
             # Inicia o driver baseado nas opções e no path do webdriver
             self.driver = webdriver.Chrome(
-                options=self.options, executable_path=r'/Users/marcelocendron/Downloads/chromedriver')
+                options=self.options, executable_path=r'/Users/marcelocendron/Downloads/covid/chromedriver')
             # self.driver = webdriver.Chrome(
             #     options=self.options, executable_path=r'/home/usuario/subcomite-cientifico/back-end/covid/processa/chromedriver')
             self.driver.get("https://app.powerbi.com/view?r=eyJrIjoiMTgwN2I4NTEtM2RhYi00OTYzLWJiMmYtOTRmNjBmZmM4Y2NjIiwidCI6ImExN2QwM2ZjLTRiYWMtNGI2OC1iZDY4LWUzOTYzYTJlYzRlNiJ9&pageName=ReportSectiona4ec0366fe4acb30c1b7")
@@ -76,6 +78,8 @@ class importLeitos:
                 # Escondemos o menu clicando novamente nele
                 dropdown_menu.click()
 
+            # <button _ngcontent-ehu-c35="" class="vcPopOutBtn" aria-label="Focus mode"><i _ngcontent-ehu-c35="" class="glyphicon pbi-glyph-miniexpand glyph-small"></i></button>
+            # wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Focus mode']"))).click()
             # Extraimos o código html e usamos BeautifulSoup (muito útil para achar conteúdo no DOM)
             htmlSource = self.driver.page_source
             soup = BeautifulSoup(htmlSource, 'html.parser')
@@ -86,12 +90,27 @@ class importLeitos:
         finally:
             self.driver.quit()
 
+
     def processData(self, soup, tipo):
         # Esta é a DIV que contém a tabela
         bodyCells = soup.find('div', 'bodyCells')
         data = soup.find('tspan')
         dataAtualizacao = datetime.datetime.strptime(
             data.text, '%d/%m/%Y %H:%M').strftime("%Y-%m-%d %H:%M")
+
+        totalSoup = soup.find('div', {'class': 'floatingBodyCells'})
+        divTotalSoup = totalSoup.findChildren(
+            'div', {'class': 'pivotTableCellWrap'})
+        totais = {'leitos_ativos': 0,
+                  'leitos_ocupados': 0,
+                  'leitos_disponiveis': 0}
+
+        totais['leitos_ativos'] = int(divTotalSoup[2].text.replace(",", ""))
+        totais['leitos_ocupados'] = int(divTotalSoup[3].text.replace(",", ""))
+        totais['leitos_disponiveis'] = int(
+            divTotalSoup[4].text.replace(",", ""))
+
+        totalSoup2 = soup.find('div', {'class': 'tableExContainer'})
 
         # A tabela de dados é o primeiro filho de de bodyCells
         div_table = bodyCells.findChildren("div", recursive=False)[0]
@@ -114,66 +133,112 @@ class importLeitos:
                 list_list.append(list)
             list_list_list.append(list_list)
 
-        for listHospitais in list_list_list:
-            # print(list_list[0])
-            for i in range(0, len(listHospitais[0])):
-                infoHospital = processaLeitos.buscaInfoHospital(
-                    listHospitais[1][i])
-                if infoHospital == -1:
-                    break
+        # for listHospitais in list_list_list:
+        #     # print(list_list[0])
+        #     for i in range(0, len(listHospitais[0])):
+        #         infoHospital = processaLeitos.buscaInfoHospital(
+        #             listHospitais[1][i])
+        #         if infoHospital == -1:
+        #             break
 
-                infoHospital['hospital'] = listHospitais[1][i]
-                infoHospital['leitos_ativos'] = Utils.convert_to_int(
-                    listHospitais[2][i])
-                infoHospital['leitos_ocupados'] = Utils.convert_to_int(
-                    listHospitais[3][i])
-                infoHospital['leitos_disponiveis'] = Utils.convert_to_int(
-                    listHospitais[4][i])
-                infoHospital['taxa_ocupacao'] = Utils.convert_to_int(
-                    listHospitais[5][i])
-                infoHospital['pacientes_covid'] = Utils.convert_to_int(
-                    listHospitais[6][i])
-                # print(infoHospital)
-                params = (
-                    "NULL",
-                    infoHospital['hospital'],
-                    "NULL",
-                    infoHospital['municipio'],
-                    "NULL",
-                    infoHospital['index_regional'],
-                    infoHospital['leitos_ativos'],
-                    infoHospital['leitos_ocupados'],
-                    infoHospital['leitos_disponiveis'],
-                    infoHospital['taxa_ocupacao'],
-                    infoHospital['pacientes_covid'],
-                    dataAtualizacao
-                )
-                # print(params)
-                if tipo == "Geral":
-                    self.dadosDao.leitos_Gerais_Covid(params)
-                #     # (infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                #     #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
-                if tipo == "Covid":
-                    self.dadosDao.leitos_Covid(params)
-                #     # print(i, ",", end='', flush=True)
-                #     # print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
-                #     #      infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
+        #         infoHospital['hospital'] = listHospitais[1][i]
+        #         infoHospital['leitos_ativos'] = Utils.convert_to_int(
+        #             listHospitais[2][i])
+        #         infoHospital['leitos_ocupados'] = Utils.convert_to_int(
+        #             listHospitais[3][i])
+        #         infoHospital['leitos_disponiveis'] = Utils.convert_to_int(
+        #             listHospitais[4][i])
+        #         infoHospital['taxa_ocupacao'] = Utils.convert_to_int(
+        #             listHospitais[5][i])
+        #         infoHospital['pacientes_covid'] = Utils.convert_to_int(
+        #             listHospitais[6][i])
+        #         # print(infoHospital)
+        #         params = (
+        #             "NULL",
+        #             infoHospital['hospital'],
+        #             "NULL",
+        #             infoHospital['municipio'],
+        #             "NULL",
+        #             infoHospital['index_regional'],
+        #             infoHospital['leitos_ativos'],
+        #             infoHospital['leitos_ocupados'],
+        #             infoHospital['leitos_disponiveis'],
+        #             infoHospital['taxa_ocupacao'],
+        #             infoHospital['pacientes_covid'],
+        #             dataAtualizacao
+        #         )
+        #         # print(params)
+        #         if tipo == "Geral":
+        #             # self.dadosDao.leitos_Gerais_Covid(params)
+        #             (infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
+        #              infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
+        #         if tipo == "Covid":
+        #             # self.dadosDao.leitos_Covid(params)
+        #             #     # print(i, ",", end='', flush=True)
+        #             print(infoHospital['hospital'], ";", infoHospital['leitos_ativos'], ";",
+        #                   infoHospital['leitos_ocupados'], ";", infoHospital['leitos_disponiveis'])
 
         # transforma o array de 3 dimensões list_list_list
         # em um DataFrame
-        # df = pd.DataFrame()
-        # for list_list in list_list_list:
-        #     df_page = pd.DataFrame(list_list).transpose()
-        #     df = pd.concat([df, df_page]).reset_index(drop=True)
+        df = pd.DataFrame()
+        for list_list in list_list_list:
+            df_page = pd.DataFrame(list_list).transpose()
+            df = pd.concat([df, df_page]).reset_index(drop=True)
         # # Colocamos os nomes das colunas (em outra implementação podemos trazer eles do DOM)
-        # df.columns = ['Macroregião', 'sum', 'Leitos Ativos', 'Leitos Ocupados',
-        #               'Leitos Disponíveis', 'Taxa de Ocupação', 'Pacientes COVID']
+        df.columns = ['macrorregiao', 'hospital', 'leitos_ativos', 'leitos_ocupados',
+                      'leitos_disponiveis', 'taxa_ocupacao', 'pacientes_covid']
 
-        # # Mostramos dataset
-        # print(df)
+        with ExcelWriter('dados.xlsx') as writer:
+            df.to_excel(writer, sheet_name='df')
+
+        #  converte os valores para números
+        df['leitos_ativos'] = pd.to_numeric(
+            df['leitos_ativos'], errors='coerce', downcast='integer')
+        df['leitos_ocupados'] = pd.to_numeric(
+            df['leitos_ocupados'], errors='coerce', downcast='integer')
+        df['leitos_disponiveis'] = pd.to_numeric(
+            df['leitos_disponiveis'], errors='coerce', downcast='integer')
+
+        # Verifica se os valores estão fechando:
+        for valor in totais:
+            print("Total {0}, BD: {1}".format(totais[valor], df[valor].sum()))
+
+        # if somaAtivos != totais[0]:
+        #     raise Exception(
+        #         "!--- Leitos Totais não fecha {encontrado:", somaAtivos, ", deveria ser: ", totais[0], "} ---!")
+
+# CREATE TABLE IF NOT EXISTS public.leitosgeraiscovid
+# (
+#     macrorregiao character varying(100) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+#     hospital character varying(100) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+#     municipio character varying(100) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+#     codigo_ibge_municipio integer,
+#     regional_saude character varying(100) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+#     index_regional integer,
+#     leitos_ativos integer,
+#     leitos_ocupados integer,
+#     leitos_disponiveis integer,
+#     taxa_ocupacao numeric(5,2) DEFAULT NULL::numeric,
+#     pacientes_covid integer,
+#     atualizacao timestamp without time zone
+# )
+
+        # Mostramos dataset
+        print(df)
 
         # # Salvamos o DataFrame em um arquivo usando o horário atual
         # timestr = time.strftime("%Y%m%d-%H%M%S")
         # df.to_csv('sc/' + timestr + '.csv', index=False)
 
         # Neste local teria que escrever na tabela do banco de dados em postgres
+
+
+if __name__ == "__main__":
+    importLeitos = importLeitos()
+    print("Leitos Gerais ...")
+    soupData = importLeitos.getData("Geral")
+    importLeitos.processData(soupData, "Geral")
+
+    print("\nApenas Leitos  Covid...")
+    soupData = importLeitos.getData("Covid")
+    importLeitos.processData(soupData, "Covid")

@@ -90,8 +90,8 @@ class download_vacinados:
                                         headers=self.headers, json={"accountToken": "{68AE9BAF-B5AE-4548-8681-1DCA3E838F66}"}).text
         data_token = json.loads(req_accessToken)
         if (data_token['success'] != True):
-                print(data_token)
-                return
+            print(data_token)
+            return
 
         self.query = {"id": 16827,
                       "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}],
@@ -114,8 +114,8 @@ class download_vacinados:
                 raise Exception(data_DB['errorMessage']['title'] +
                                 ": " + data_DB['errorMessage']['text'])
 
-        with open('dados '+date.today().strftime("%Y-%m-%d")+'.json', 'w') as outfile:
-            json.dump(data_DB, outfile)
+        # with open('dados '+date.today().strftime("%Y-%m-%d")+'.json', 'w') as outfile:
+        #     json.dump(data_DB, outfile)
 
         print(" Ok")
         return data_DB
@@ -311,4 +311,4 @@ if __name__ == "__main__":
     # df = dv.processData(dataDB, '2021-06-18')
     # dv.storeBD(df)
 
-    # dv.storeExcel(df)
+    dv.storeExcel(df)
