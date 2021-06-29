@@ -74,10 +74,12 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO_MS CASCADE")
 
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
+        self.db.execute_query("DROP TABLE IF EXISTS vacinacao_ms CASCADE")
 
         sql = """
             CREATE TABLE IF NOT EXISTS CASOSBRASIL(
@@ -215,6 +217,27 @@ class Create:
         self.db.execute_query(sql)
 
         print("OK")
+
+    def create_view_vacinacao(self):
+
+        sql = """CREATE VIEW view_vacinacao_ms AS
+                SELECT REGIONAIS.REGIONAL_SAUDE,
+                    REGIONAIS.ID AS ID,
+                    REGIONAIS.POPULACAO AS POPULACAO,
+                    VACINACAO_MS.VACINA_DESCRICAO_DOSE AS VACINA_DESCRICAO_DOSE,
+                    SUM(VACINACAO_MS.DOSES_APLICADAS) AS DOSES_APLICADAS,
+                    VACINACAO_MS.DATA AS DATA
+                FROM REGIONAIS,
+                    VACINACAO_MS
+                WHERE VACINACAO_MS.DATA = (SELECT MAX(VACINACAO_MS.DATA) AS MAX_DATA FROM VACINACAO_MS)
+                    AND VACINACAO_MS.REGIONAL = REGIONAIS.ID
+                GROUP BY REGIONAIS.ID,
+                    REGIONAIS.REGIONAL_SAUDE,
+                    VACINACAO_MS.DATA,
+                    VACINACAO_MS.VACINA_DESCRICAO_DOSE
+                ORDER BY REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
 
     def create_table(self):
         print("Limpando e criando as tabelas...")

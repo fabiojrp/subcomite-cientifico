@@ -12,7 +12,6 @@ from sqlalchemy import create_engine
 from pandas import ExcelWriter
 from urllib.parse import quote
 from covid.processa.dados.tabelas import Tabelas
-# from dados.tabelas import Tabelas
 
 
 class download_vacinados:
@@ -90,8 +89,8 @@ class download_vacinados:
                                         headers=self.headers, json={"accountToken": "{68AE9BAF-B5AE-4548-8681-1DCA3E838F66}"}).text
         data_token = json.loads(req_accessToken)
         if (data_token['success'] != True):
-                print(data_token)
-                return
+            print(data_token)
+            return
 
         self.query = {"id": 16827,
                       "linkedValues": [{"name": "ds_categoria"}, {"name": "nm_indicador"}, {"name": "nm_setor_responsavel"}],
