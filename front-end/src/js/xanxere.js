@@ -48,6 +48,29 @@ var regionData = {
 
 $(document).ready(() => {
     var id = 17; /* XANXERE */
+    fetch(base_url + "/api/vacinacao-por-regiao/" + id)
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            /* Ocupacao de Leitos */
+            var vacinas = [dados.vacinados_D1, dados.vacinados_D2];
+
+            var ol_layout = {
+                title: "Vacinados 1ª Dose / Vacinados 2ª Dose ",
+                barmode: "stack",
+                bargap: 0.5,
+                bargroupgap: 0.2,
+                yaxis: {
+                    tickformat: '.2%',
+                }
+            };
+
+            var config = { responsive: true };
+
+            Plotly.newPlot("vacina-graph", vacinas, ol_layout, config);
+        })
+        .catch((err) => console.error(err));
 
     fetch(base_url + '/api/rt-por-regiao/' + id).then(response => {
         return response.json()
