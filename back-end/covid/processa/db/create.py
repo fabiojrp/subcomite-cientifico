@@ -4,6 +4,7 @@ from covid.processa.dao.Database import Database
 class Create:
     def __init__(self):
         self.db = Database.get_instance()
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO_MS CASCADE")
 
     def create_rt(self):
         print("Criando as tabelas de rt...", end='', flush=True)
@@ -74,7 +75,6 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO")
-        self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO_MS CASCADE")
 
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
@@ -220,7 +220,7 @@ class Create:
 
     def create_view_vacinacao(self):
 
-        sql = """CREATE VIEW view_vacinacao_ms AS
+        sql = """CREATE OR REPLACE VIEW view_vacinacao_ms AS
                 SELECT REGIONAIS.REGIONAL_SAUDE,
                     REGIONAIS.ID AS ID,
                     REGIONAIS.POPULACAO AS POPULACAO,

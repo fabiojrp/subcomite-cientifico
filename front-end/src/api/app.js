@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -479,53 +479,53 @@ app.get("/api/rt-por-regiao/", (req, res) => {
                 regionais[item.id].y.push(item.rt);
             });
 
-            // pool.query(
-            //     `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
-            //         RT_REGIONAL_PREDICTION.REGIONAL_SAUDE AS ID,
-            //         RT_REGIONAL_PREDICTION.DATA AS DATA,
-            //         RT_REGIONAL_PREDICTION.PRED AS RT,
-            //         RT_REGIONAL_PREDICTION."pred_IC_95_inf",
-            //         RT_REGIONAL_PREDICTION."pred_IC_95_sup"
-            //     FROM REGIONAIS,
-            //         RT_REGIONAL_PREDICTION
-            //     WHERE RT_REGIONAL_PREDICTION.REGIONAL_SAUDE = REGIONAIS.ID`,
-            //     (err, rows) => {
-            //         if (err) {
-            //             console.log("Erro ao buscar o valor da predição do R(t): " + err);
-            //             res.send({ regionais });
-            //         }
+            pool.query(
+                `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+                    RT_REGIONAL_PREDICTION.REGIONAL_SAUDE AS ID,
+                    RT_REGIONAL_PREDICTION.DATA AS DATA,
+                    RT_REGIONAL_PREDICTION.PRED AS RT,
+                    RT_REGIONAL_PREDICTION."pred_IC_95_inf",
+                    RT_REGIONAL_PREDICTION."pred_IC_95_sup"
+                FROM REGIONAIS,
+                    RT_REGIONAL_PREDICTION
+                WHERE RT_REGIONAL_PREDICTION.REGIONAL_SAUDE = REGIONAIS.ID`,
+                (err, rows) => {
+                    if (err) {
+                        console.log("Erro ao buscar o valor da predição do R(t): " + err);
+                        res.send({ regionais });
+                    }
 
-            //         result = rows.rows;
-            //         result.forEach((item) => {
-            //             var id = parseInt(item.id);
-            //             if (!regionais[id + 20]) {
-            //                 if (id == 1 + 20) {
-            //                     regionais[id + 20] = {
-            //                         name: "Estado de SC - Predição",
-            //                         mode: "lines",
-            //                         type: "scatter",
-            //                         x: [],
-            //                         y: [],
-            //                     };
-            //                 } else {
-            //                     regionais[id + 20] = {
-            //                         name: item.regional_saude + " - Predição",
-            //                         mode: "lines",
-            //                         type: "scatter",
-            //                         visible: "legendonly",
-            //                         x: [],
-            //                         y: [],
-            //                     };
-            //                 }
-            //             }
-            //             regionais[id + 20].x.push(item.data);
-            //             regionais[id + 20].y.push(item.rt);
-            //         });
+                    result = rows.rows;
+                    result.forEach((item) => {
+                        var id = parseInt(item.id);
+                        if (!regionais[id + 20]) {
+                            if (id == 1 + 20) {
+                                regionais[id + 20] = {
+                                    name: "Estado de SC - Predição",
+                                    mode: "lines",
+                                    type: "scatter",
+                                    x: [],
+                                    y: [],
+                                };
+                            } else {
+                                regionais[id + 20] = {
+                                    name: item.regional_saude + " - Predição",
+                                    mode: "lines",
+                                    type: "scatter",
+                                    visible: "legendonly",
+                                    x: [],
+                                    y: [],
+                                };
+                            }
+                        }
+                        regionais[id + 20].x.push(item.data);
+                        regionais[id + 20].y.push(item.rt);
+                    });
 
-            //         res.send({ regionais });
-            //     },
-            // );
-            res.send({ regionais });
+                    res.send({ regionais });
+                },
+            );
+            // res.send({ regionais });
         },
     );
 });
@@ -748,6 +748,71 @@ app.get("/api/vacinacao-por-regiao/:id", (req, res) => {
 });
 
 
+app.get("/api/vacinacao-ms-por-regiao/:id", (req, res) => {
+    id = req.params.id;
+
+    pool.query(
+        `SELECT REGIONAIS.REGIONAL_SAUDE,
+                REGIONAIS.ID AS ID,
+                REGIONAIS.POPULACAO AS POPULACAO,
+                SUM(VACINACAO_DIVE."D1") AS VACINACAO_D1,
+                SUM(VACINACAO_DIVE."D2") AS VACINACAO_D2,
+                VACINACAO_DIVE."Data" AS DATA
+            FROM REGIONAIS,
+                VACINACAO_DIVE
+            WHERE VACINACAO_DIVE.REGIONAL = REGIONAIS.ID
+                AND REGIONAIS.ID = $1
+            GROUP BY REGIONAIS.ID,
+                REGIONAIS.REGIONAL_SAUDE,
+                VACINACAO_DIVE."Data"
+            ORDER BY REGIONAIS.ID,
+                VACINACAO_DIVE."Data"
+            `, [id],
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar OS valores de vacinação do MS por região: " + err);
+                return;
+            }
+
+            region = regions[id];
+            if (typeof region === "undefined") {
+                res.send("Região não reconhecida. Informe um ID válido.");
+                return;
+            }
+
+            vacinados_D1 = {
+                name: "Vacinados 1ª Dose",
+                type: "scatter",
+                fill: 'tozeroy',
+                fillcolor: 'rgba(247, 238, 197, 0.6)',
+                x: [],
+                y: [],
+            };
+            vacinados_D2 = {
+                name: "Vacinados 2ª Dose",
+                type: "scatter",
+                fill: 'tonextx',
+                fillcolor: 'rgba(168, 168, 255, 0.5)',
+                x: [],
+                y: [],
+            };
+
+            result = rows.rows;
+            result.forEach((item) => {
+                vacinados_D1.x.push(item.data);
+                vacinados_D1.y.push((item.vacinacao_d1 / item.populacao));
+
+                vacinados_D2.x.push(item.data);
+                vacinados_D2.y.push((item.vacinacao_d2 / item.populacao));
+            });
+
+            res.send({ vacinados_D1, vacinados_D2 });
+        },
+    );
+});
+
+
+
 app.get("/api/vacinacao-por-regiao/", (req, res) => {
     pool.query(
         `SELECT REGIONAIS.REGIONAL_SAUDE,
@@ -820,10 +885,115 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
 
             arrData = Array.from(totalEstadoData).sort();
 
-            arrData.forEach(function (key) {
+            arrData.forEach(function(key) {
                 // console.log(totalEstado.get(key).data);
                 regionais[0].x.push(totalEstado.get(key).data);
                 regionais[0].y.push((totalEstado.get(key).vacinacao_d2 / totalEstado.get(key).populacao));
+            });
+
+            // for (item of totalEstado.values()) {
+            //     regionais[0].x.push(item.data);
+            //     regionais[0].y.push((item.vacinacao_d2 / item.populacao));
+            // }
+            // travelMap = new Map(Object.entries(totalEstado.values()));
+
+
+            // for (var [key, item] of Object.keys(totalEstado)) {
+            //     regionais[0].x.push(item.data);
+            //     regionais[0].y.push((item.vacinacao_d2 / item.populacao));
+            // }
+            // totalEstado.forEach((item) => {
+            //     console.log(item.data);
+            // });
+            res.send({ regionais });
+        },
+    );
+});
+
+app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.REGIONAL_SAUDE,
+                REGIONAIS.ID AS ID,
+                REGIONAIS.POPULACAO AS POPULACAO,
+                SUM(VACINACAO_MS.DOSES_APLICADAS) AS DOSES_APLICADAS,
+                VACINACAO_MS.VACINA_DATAAPLICACAO AS DATA
+            FROM REGIONAIS,
+                VACINACAO_MS
+            WHERE VACINACAO_MS.REGIONAL = REGIONAIS.ID 
+            AND VACINACAO_MS.VACINA_DESCRICAO_DOSE <> '1ª Dose'
+            GROUP BY REGIONAIS.ID,
+                REGIONAIS.REGIONAL_SAUDE,
+                VACINACAO_MS.VACINA_DATAAPLICACAO
+            ORDER BY REGIONAIS.ID,
+                VACINACAO_MS.VACINA_DATAAPLICACAO
+            `,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valores de vacinação de MS por região: " + err);
+                return;
+            }
+
+            result = rows.rows;
+            regionais = [];
+            totalEstadoData = new Set();
+            totalEstado = new Map();
+            result.forEach((item) => {
+                // dataItem = new Date(item.data);
+                dataItem = item.data;
+                // dataItem = dataItem.getFullYear() + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + ("0" + dataItem.getUTCDay()).slice(-2)
+                // dataItem = parseInt(dataItem.getFullYear() + ("0" + (dataItem.getMonth() + 1)).slice(-2) + ("0" + dataItem.getUTCDay()).slice(-2));
+                if (!regionais[item.id]) {
+                    regionais[item.id] = {
+                        name: item.regional_saude,
+                        mode: "lines",
+                        type: "scatter",
+                        visible: "legendonly",
+                        transforms: [{
+                            type: 'aggregate',
+                            aggregations: [
+                                { target: 'y', func: 'sum', enabled: true },
+                            ]
+                        }],
+                        x: [],
+                        y: [],
+                    };
+                }
+                regionais[item.id].x.push(item.data);
+                regionais[item.id].y.push(item.doses_aplicadas);
+
+                totalEstadoData.add(dataItem);
+                if (!totalEstado.has(dataItem)) {
+                    totalEstado.set(dataItem, {
+                        populacao: parseInt(item.populacao),
+                        doses_aplicadas: 0,
+                        data: item.data,
+                    });
+                }
+
+                totalEstado.get(dataItem).doses_aplicadas += parseInt(item.doses_aplicadas);
+                totalEstado.get(dataItem).populacao += parseInt(item.populacao);
+            });
+
+            regionais[0] = {
+                name: "Estado de SC",
+                mode: "lines",
+                type: "scatter",
+                transforms: [{
+                    type: 'aggregate',
+                    aggregations: [
+                        { target: 'y', func: 'sum', enabled: true },
+                    ]
+                }],
+                x: [],
+                y: [],
+            };
+
+            arrData = Array.from(totalEstadoData).sort();
+
+            arrData.forEach(function(key) {
+                // console.log(totalEstado.get(key).data);
+                regionais[0].x.push(totalEstado.get(key).data);
+                regionais[0].y.push(totalEstado.get(key).doses_aplicadas);
             });
 
             // for (item of totalEstado.values()) {
@@ -893,6 +1063,14 @@ app.get("/api/dados-estado/", (req, res) => {
                                  mediamovel += "%";
                                  mediamovel += " (QUEDA)" 
                               }*/
+
+                    /*
+                            15 - Verde
+                            12 >= e 15 = Amarelo
+                            9 >= e 11 = laranja
+                            9 < Vermelho
+
+                    */
 
                     leitos = result[i].leitos_ocupados * 100;
 
@@ -995,7 +1173,7 @@ app.get("/api/dados-regiao/:id", (req, res) => {
 app.get("/api/dados-extrato/", (req, res) => {
     pool.query(
         `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
-        VIEW_LEITOS.MAX_DATA AS DATA,
+        VIEW_RT.data AS DATA,
         1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS) / VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
         (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS MEDIA_MOVEL
     FROM VIEW_RT,
@@ -1116,7 +1294,7 @@ app.get("/api/dados-boletim/", (req, res) => {
                     regionais[1].vacinacao_d1 = ((totalEstado.vacinacao_d1 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
                     regionais[1].vacinacao_d2 = ((totalEstado.vacinacao_d2 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
                     regionais[1].regional = "Estado de SC";
-                    regionais = regionais.filter(function (el) {
+                    regionais = regionais.filter(function(el) {
                         return el != null;
                     });
                     var json2csv = require('json2csv').parse;

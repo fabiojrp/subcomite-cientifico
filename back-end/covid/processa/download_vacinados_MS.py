@@ -1,21 +1,18 @@
 from selenium.webdriver.chrome.options import Options
-from bs4 import BeautifulSoup
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from covid.processa.dados.tabelas import Tabelas
 from datetime import datetime
 from urllib.parse import quote
 from sqlalchemy import create_engine
 import os
-import time
 import pandas as pd
 import numpy as np
 import psycopg2
-import json
+
 from covid.processa.db.create import Create
+from covid.processa.dados.tabelas import Tabelas
 
 """
 A execução script precisa que o webdrive do Chrome seja instalado, para
@@ -40,93 +37,93 @@ class download_vacinados_MS:
         self.create = Create()
 
         self.grupos_prioritarios = {
-            103: "Diabetes Mellitus",
-            801: "Ensino Básico",
-            926: "Outros",
-            115: "nan",
-            105: "Doença Renal",
-            1501: "População Privada de Liberdade",
-            201: "Pessoas de 18 a 64 anos",
-            104: "Doença Pulmonar Obstrutiva Crônica",
-            107: "Hipertensão de difícil controle ou com complicações/lesão de órgão alvo",
-            106: "Doenças Cardiovasculares e Cerebrovasculares",
-            1002: "nan",
-            111: "nan",
-            1102: "Pessoas com Deficiências Permanente Grave",
-            202: "Pessoas de 65 a 69 anos",
-            802: "Ensino Superior",
-            920: "Recepcionista",
-            929: "Estudante",
-            912: "Médico",
-            1701: "Trabalhadores de limpeza urbana e manejo de resíduos sólidos",
-            701: "Povos indígenas em terras indígenas",
-            1003: "nan",
-            108: "Indivíduos Transplantados de Órgão Sólido",
-            923: "Técnico de Enfermagem",
-            907: "Enfermeiro(a)",
+            0:  "nan",
+            101:  "Anemia Falciforme",
+            102:  "Câncer",
+            103:  "Diabetes Mellitus",
+            104:  "Doença Pulmonar Obstrutiva Crônica",
+            105:  "Doença Renal",
+            106:  "Doenças Cardiovasculares e Cerebrovasculares",
+            107:  "Hipertensão de difícil controle ou com complicações/lesão de órgão alvo",
+            108:  "Indivíduos Transplantados de Órgão Sólido",
             109: "Obesidade Grave (Imc>=40)",
-            908: "Farmacêutico",
-            402: "Exército Brasileiro - EB",
-            919: "Psicólogo",
-            204: "Pessoas de 75 a 79 anos",
-            102: "Câncer",
-            999999: "Outros Grupos",
-            502: "Bombeiro Militar",
-            205: "Pessoas de 80 anos ou mais",
-            1401: "Funcionário do Sistema de Privação de Liberdade",
-            116: "nan",
-            1301: "Trabalhadores Portuários",
-            918: "Profissionais de Educação Física",
-            507: "Policial Militar",
+            110:  "Síndrome de Down",
+            111:  "nan",
+            112:  "Indivíduos Transplantados de Medula Óssea",
+            114:  "nan",
+            115:  "nan",
+            116:  "nan",
+            201: "Pessoas de 18 a 64 anos",
+            202: "Pessoas de 65 a 69 anos",
             203: "Pessoas de 70 a 74 anos",
-            101: "Anemia Falciforme",
-            503: "Guarda Municipal",
-            922: "Assistente Social",
-            928: "Técnico de Odontologia",
-            916: "Odontologista",
-            110: "Síndrome de Down",
+            204: "Pessoas de 75 a 79 anos",
+            205: "Pessoas de 80 anos ou mais",
             301: "Pessoas de 60 nos ou mais Institucionalizadas",
-            917: "Pessoal da Limpeza",
-            114: "nan",
-            905: "Cuidador de Idosos",
-            903: "Biomédico",
-            915: "Nutricionista",
-            909: "Fisioterapeutas",
-            505: "Policial Civil",
-            910: "Fonoaudiólogo",
-            914: "Motorista de Ambulância",
-            1101: "Pessoas com Deficiência Institucionalizadas",
-            501: "Bombeiro Civil",
-            506: "Policial Federal",
-            913: "Médico Veterinário",
-            1901: "nan",
-            931: "nan",
-            112: "Indivíduos Transplantados de Medula Óssea",
-            1801: "nan",
-            927: "Auxiliar de Enfermagem",
-            902: "Biólogo",
-            0: "nan",
-            601: "Quilombola",
-            1004: "nan",
-            904: "Cozinheiro e Auxiliares",
-            925: "Terapeuta Ocupacional",
-            911: "Funcionário do Sistema Funerário c/ cadáveres potencialmente contaminados",
-            932: "nan",
-            1201: "Pessoas em Situação de Rua",
-            1001: "nan",
-            504: "Policial Rodoviário Federal",
-            924: "Técnico de Veterinário",
-            921: "Segurança",
-            1006: "nan",
-            933: "nan",
-            901: "Auxiliar de Veterinário",
-            930: "nan",
-            403: "Força Aérea Brasileira - FAB",
-            401: "Marinha do Brasil - MB",
-            1005: "Metroviário",
-            906: "Doula/Parteira",
-            1601: "Trabalhadores Industriais",
-            602: "Ribeirinha"
+            401:  "Marinha do Brasil - MB",
+            402:  "Exército Brasileiro - EB",
+            403:  "Força Aérea Brasileira - FAB",
+            501:  "Bombeiro Civil",
+            502:  "Bombeiro Militar",
+            503:  "Guarda Municipal",
+            504:  "Policial Rodoviário Federal",
+            505:  "Policial Civil",
+            506:  "Policial Federal",
+            507:  "Policial Militar",
+            601:  "Quilombola",
+            602:  "Ribeirinha",
+            701:  "Povos indígenas em terras indígenas",
+            801:  "Ensino Básico",
+            802:  "Ensino Superior",
+            901:  "Auxiliar de Veterinário",
+            902:  "Biólogo",
+            903:  "Biomédico",
+            904:  "Cozinheiro e Auxiliares",
+            905:  "Cuidador de Idosos",
+            906:  "Doula/Parteira",
+            907:  "Enfermeiro(a)",
+            908:  "Farmacêutico",
+            909:  "Fisioterapeutas",
+            910:  "Fonoaudiólogo",
+            911:  "Funcionário do Sistema Funerário c/ cadáveres potencialmente contaminados",
+            912:  "Médico",
+            913:  "Médico Veterinário",
+            914:  "Motorista de Ambulância",
+            915:  "Nutricionista",
+            916:  "Odontologista",
+            917:  "Pessoal da Limpeza",
+            918:  "Profissionais de Educação Física",
+            919:  "Psicólogo",
+            920:  "Recepcionista",
+            921:  "Segurança",
+            922:  "Assistente Social",
+            923:  "Técnico de Enfermagem",
+            924:  "Técnico de Veterinário",
+            925:  "Terapeuta Ocupacional",
+            926:  "Outros",
+            927:  "Auxiliar de Enfermagem",
+            928:  "Técnico de Odontologia",
+            929:  "Estudante",
+            930:  "nan",
+            931:  "nan",
+            932:  "nan",
+            933:  "nan",
+            1001:  "nan",
+            1002:  "nan",
+            1003:  "nan",
+            1004:  "nan",
+            1005:  "Metroviário",
+            1006:  "nan",
+            1101:  "Pessoas com Deficiência Institucionalizadas",
+            1102:  "Pessoas com Deficiências Permanente Grave",
+            1201:  "Pessoas em Situação de Rua",
+            1301:  "Trabalhadores Portuários",
+            1401:  "Funcionário do Sistema de Privação de Liberdade",
+            1501:  "População Privada de Liberdade",
+            1601:  "Trabalhadores Industriais",
+            1701:  "Trabalhadores de limpeza urbana e manejo de resíduos sólidos",
+            1801:  "nan",
+            1901:  "nan",
+            999999:  "Outros Grupos"
         }
 
         self.param_dic = {
@@ -144,7 +141,7 @@ class download_vacinados_MS:
 
         try:
             # O <endereço> de constar na seguinte linha de código webdrive.Chrome(..., executable_path='<endereço>')
-            path_chromedriver = os.getcwd() + '/chromedriver'
+            path_chromedriver = os.getcwd() + '/back-end/covid/chromedriver/chromedriver'
 
             driver = webdriver.Chrome(
                 options=chrome_options, executable_path=r"{}".format(path_chromedriver))
@@ -173,10 +170,10 @@ class download_vacinados_MS:
 
             driver.quit()
 
-            url = href
-
             print("Fazendo download dos dados de Vacinação do MS...\n")
-            os.system("wget -O Dados_MS/dados_vacinacao.csv " + href)
+            # os.system("wget -O Dados_MS/dados_vacinacao.csv " + href)
+            os.system("curl " + href + " -o Dados_MS/dados_vacinacao.csv")
+
             print("\n Ok!")
 
         except Exception as error:
@@ -229,21 +226,25 @@ class download_vacinados_MS:
             # zera toda a coluna doses_aplicadas
             df['doses_aplicadas'] = np.zeros(len(df))
 
-            # agrupa dados com os mesmos valores para fazer a contagem de vacinados
-            municipio_grupos_doses_dia = df.groupby(['regional', 'municipio', 'codigo_grupoatendimento',
-                                                    'vacina_dataaplicacao', 'vacina_descricao_dose'], as_index=False)['doses_aplicadas'].count()
-
             # atribui a coluna dos munícipios como Int
             df['doses_aplicadas'] = df['doses_aplicadas'].astype(int)
             df['municipio'] = df['municipio'].astype(int)
             df['regional'] = df['regional'].astype(int)
 
+            df['vacina_descricao_dose'] = df['vacina_descricao_dose'].str.strip()
+
+            # agrupa dados com os mesmos valores para fazer a contagem de vacinados
+            municipio_grupos_doses_dia = df.groupby(['regional', 'municipio', 'codigo_grupoatendimento',
+                                                    'vacina_dataaplicacao', 'vacina_descricao_dose'], as_index=False)['doses_aplicadas'].count()
+
+            municipio_grupos_doses_dia['doses_aplicadas_sum'] = municipio_grupos_doses_dia.groupby(['municipio', 'codigo_grupoatendimento',
+                                                                                                    'vacina_descricao_dose'])['doses_aplicadas'].cumsum()
             print(" Ok!")
 
         except Exception as error:
             print("Error: %s" % error)
 
-        print("\n", municipio_grupos_doses_dia)
+        # print("\n", municipio_grupos_doses_dia)
 
         self.salvaBD(municipio_grupos_doses_dia, self.param_dic)
         self.create.create_view_vacinacao()
