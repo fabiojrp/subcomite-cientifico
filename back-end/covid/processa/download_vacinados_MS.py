@@ -178,7 +178,7 @@ class download_vacinados_MS:
 
         except Exception as error:
             print(
-                "Possívelmente o chromedriver não está na pasta back-end: % " % error)
+                "Possívelmente o chromedriver não está na pasta\n   %s \n\n %s ", '/covid/chromedriver/', error)
 
     def getFileLocal(self):
 
@@ -234,11 +234,22 @@ class download_vacinados_MS:
             df['vacina_descricao_dose'] = df['vacina_descricao_dose'].str.strip()
 
             # agrupa dados com os mesmos valores para fazer a contagem de vacinados
-            municipio_grupos_doses_dia = df.groupby(['regional', 'municipio', 'codigo_grupoatendimento',
+            municipio_grupos_doses_dia = df.groupby(['regional', 'municipio',
                                                     'vacina_dataaplicacao', 'vacina_descricao_dose'], as_index=False)['doses_aplicadas'].count()
 
-            municipio_grupos_doses_dia['doses_aplicadas_sum'] = municipio_grupos_doses_dia.groupby(['municipio', 'codigo_grupoatendimento',
-                                                                                                    'vacina_descricao_dose'])['doses_aplicadas'].cumsum()
+            # SE USAR GRUPO DE ATENDIMENTO, UM AJUSTE É PRECISO NA VIEW E NA TABELA
+            # municipio_grupos_doses_dia = df.groupby(['codigo_grupoatendimento', 'regional', 'municipio',
+            #                                         'vacina_dataaplicacao', 'vacina_descricao_dose'], as_index=False)['doses_aplicadas'].count()
+
+            municipio_grupos_doses_dia['vacina_dataaplicacao'] = pd.to_datetime(
+                municipio_grupos_doses_dia['vacina_dataaplicacao']).dt.date
+
+            # USAR PARA QUANDO OS GRUPOS DE ATENDIMENTO FOREM USADOS
+            # municipio_grupos_doses_dia['doses_aplicadas_sum'] = municipio_grupos_doses_dia.groupby(
+            #     ['vacina_dataaplicacao', 'regional', 'municipio', 'vacina_descricao_dose'])['doses_aplicadas'].cumsum()
+
+            print(municipio_grupos_doses_dia)
+
             print(" Ok!")
 
         except Exception as error:
