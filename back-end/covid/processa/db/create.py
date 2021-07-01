@@ -239,6 +239,27 @@ class Create:
         """
         self.db.execute_query(sql)
 
+        sql = """CREATE OR REPLACE VIEW VIEW_VACINACAO_MS_POR_REGIAO AS
+                SELECT TBL.REGIONAL_ID AS ID,
+                        REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+                        REGIONAIS.POPULACAO AS POPULACAO,
+                        TBL.VACINA_DATAAPLICACAO AS DATA,
+                        SUM(TBL.D1) OVER (PARTITION BY REGIONAL_ID ORDER BY REGIONAL_ID, VACINA_DATAAPLICACAO) AS D1,
+                        SUM(TBL.D2) OVER (PARTITION BY REGIONAL_ID ORDER BY REGIONAL_ID, VACINA_DATAAPLICACAO) AS D2
+                    FROM
+                        (SELECT VACINACAO_MS.REGIONAL AS REGIONAL_ID,
+                                DATE(VACINACAO_MS.VACINA_DATAAPLICACAO) AS VACINA_DATAAPLICACAO,
+                                SUM(CASE WHEN VACINACAO_MS.VACINA_DESCRICAO_DOSE = '1ª Dose' THEN VACINACAO_MS.DOSES_APLICADAS END) AS D1,
+                                SUM(CASE WHEN VACINACAO_MS.VACINA_DESCRICAO_DOSE != '1ª Dose' THEN VACINACAO_MS.DOSES_APLICADAS END) AS D2
+                            FROM VACINACAO_MS
+                            GROUP BY VACINACAO_MS.REGIONAL,
+                                VACINACAO_MS.VACINA_DATAAPLICACAO
+                            ORDER BY VACINACAO_MS.REGIONAL ASC, DATE(VACINACAO_MS.VACINA_DATAAPLICACAO) ASC) AS TBL,
+                        REGIONAIS
+                    WHERE TBL.REGIONAL_ID = REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+
     def create_table(self):
         print("Limpando e criando as tabelas...")
         # Limpa as tabelas

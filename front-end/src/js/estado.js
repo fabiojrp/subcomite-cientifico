@@ -68,7 +68,7 @@ $(document).ready(() => {
         })
         .then((dados) => {
             //Limpa célculas vazias. 
-            dadosRegionais = $.grep(dados.regionais, function(n) { return n == 0 || n });
+            dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
             var mm_layout = {
                 title: 'Vacinação 2ª Dose da População geral - fonte: <a href="https://www.coronavirus.sc.gov.br">Coronavírus SC</a>',
@@ -90,11 +90,15 @@ $(document).ready(() => {
         })
         .then((dados) => {
             //Limpa célculas vazias. 
-            dadosRegionais = $.grep(dados.regionais, function(n) { return n == 0 || n });
+            dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
             var mm_layout = {
                 title: 'Vacinação 2ª Dose + Dose Única da População geral - fonte: <a href="https://opendatasus.saude.gov.br/dataset/covid-19-vacinacao">OpenDatasus</a>',
-                showlegend: true
+                showlegend: true,
+                yaxis: {
+                    tickformat: '.2%',
+                }
+
             };
 
             var config = { responsive: true };
@@ -110,7 +114,7 @@ $(document).ready(() => {
         })
         .then((dados) => {
             //Limpa célculas vazias. 
-            dadosRegionais = $.grep(dados.regionais, function(n) { return n == 0 || n });
+            dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
             var mm_layout = {
                 title: 'Taxa de Transmissibilidade R(t) por região de SC <br> <a href="nota-explicativa.html#RT" id="RTreste"> Nota Explicativa</a>',
@@ -132,7 +136,7 @@ $(document).ready(() => {
             $("#dataAtualizacao").text(dados.maiorData);
 
             // Casos média Movel
-            dadosRegionaisCasosMediaMovel = $.grep(dados.regionais_casos_mediamovel, function(n) { return n == 0 || n });
+            dadosRegionaisCasosMediaMovel = $.grep(dados.regionais_casos_mediamovel, function (n) { return n == 0 || n });
             var mm_layout = {
                 title: 'Casos Média Móvel <br> <a href="nota-explicativa.html#mediaMovel"> Nota Explicativa</a>',
             };
@@ -141,7 +145,7 @@ $(document).ready(() => {
             Plotly.newPlot("casos-graph", dadosRegionaisCasosMediaMovel, mm_layout, config);
 
             // Óbitos média Movel
-            dadosRegionaisObitosMediaMovel = $.grep(dados.regionais_obitos_mediamovel, function(n) { return n == 0 || n });
+            dadosRegionaisObitosMediaMovel = $.grep(dados.regionais_obitos_mediamovel, function (n) { return n == 0 || n });
             var mm_layout = {
                 title: 'Óbitos Média Móvel <br> <a href="nota-explicativa.html#mediaMovel"> Nota Explicativa</a>',
             };
@@ -150,7 +154,7 @@ $(document).ready(() => {
             Plotly.newPlot("obitos-graph", dadosRegionaisObitosMediaMovel, mm_layout, config);
 
             // Incidencia
-            dadosRegionaisIncidencia = $.grep(dados.regionais_incidencia, function(n) { return n == 0 || n });
+            dadosRegionaisIncidencia = $.grep(dados.regionais_incidencia, function (n) { return n == 0 || n });
             var mm_layout = {
                 title: 'Incidência acumulada por 100 mil habitantes <br> <a href="nota-explicativa.html#incidencia"> Nota Explicativa</a>',
             };
@@ -159,7 +163,7 @@ $(document).ready(() => {
             Plotly.newPlot("incidencia-graph", dadosRegionaisIncidencia, mm_layout, config);
 
             // Letalidade
-            dadosRegionaisLetalidade = $.grep(dados.regionais_letalidade, function(n) { return n == 0 || n });
+            dadosRegionaisLetalidade = $.grep(dados.regionais_letalidade, function (n) { return n == 0 || n });
             var mm_layout = {
                 title: 'Letalidade - Óbitos / número de casos (em %) <br> <a href="nota-explicativa.html#letalidade"> Nota Explicativa</a>',
             };
@@ -176,7 +180,7 @@ $(document).ready(() => {
         .then((dados) => {
             /* Ocupacao de Leitos */
             //Limpa célculas vazias. 
-            ocupacao_leitos = $.grep(dados.regionais, function(n) { return n == 0 || n });
+            ocupacao_leitos = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
             var mm_layout = {
                 title: 'Ocupação de Leitos (UTI) Covid Adulto em porcentagem (%) <br> <a href="nota-explicativa.html#leitos"> Nota Explicativa</a>',
