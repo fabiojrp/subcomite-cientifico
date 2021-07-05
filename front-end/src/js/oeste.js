@@ -53,28 +53,51 @@ $(document).ready(() => {
     var id = 14; /* OESTE */
     
     fetch(base_url + "/api/vacinacao-por-regiao/" + id)
-    .then((response) => {
-        return response.json();
-    })
-    .then((dados) => {
-        /* Ocupacao de Leitos */
-        var vacinas = [dados.vacinados_D1, dados.vacinados_D2];
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            /* Ocupacao de Leitos */
+            var vacinas = [dados.vacinados_D1, dados.vacinados_D2];
 
-        var ol_layout = {
-            title: "Vacinados 1ª Dose / Vacinados 2ª Dose ",
-            barmode: "stack",
-            bargap: 0.5,
-            bargroupgap: 0.2,
-            yaxis: {
-                tickformat: '.2%',
-            }
-        };
+            var ol_layout = {
+                title: "Vacinados 1ª Dose / Vacinados 2ª Dose ",
+                barmode: "stack",
+                bargap: 0.5,
+                bargroupgap: 0.2,
+                yaxis: {
+                    tickformat: '.2%',
+                }
+            };
 
-        var config = { responsive: true };
+            var config = { responsive: true };
 
-        Plotly.newPlot("vacina-graph", vacinas, ol_layout, config);
-    })
+            Plotly.newPlot("vacina-graph", vacinas, ol_layout, config);
+        })
     .catch((err) => console.error(err));
+
+    fetch(base_url + "/api/vacinacao-ms-por-regiao/"+ id)
+        .then((response) => {
+            return response.json();
+        }).then((dados) => {
+
+            var vacinas = [dados.vacinados_D1, dados.vacinados_D2];
+
+            var mm_layout = {
+                title: 'Vacinação 2ª Dose + Dose Única da População geral - fonte: <a href="https://opendatasus.saude.gov.br/dataset/covid-19-vacinacao">OpenDatasus</a>',
+                showlegend: true,
+                yaxis: {
+                    tickformat: '.2%',
+                }
+
+            };
+
+            var config = { responsive: true };
+
+            Plotly.newPlot("vacina-ms-graph", vacinas, mm_layout, config);
+        })
+    .catch((err) => console.error(err));
+    
     fetch(base_url + '/api/rt-por-regiao/' + id).then(response => {
         return response.json()
     }).then(dados => {
