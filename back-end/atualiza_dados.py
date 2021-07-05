@@ -40,16 +40,16 @@ with open('covid.log', 'w') as f:
         # Carrega os valores de RT, lembrar de incluir o arquivo RtSC.xlsx - site.csv
         # importRT()
 
-        # # # Faz o download dos casos do site do Ministério da Saúde
+        # # Faz o download dos casos do site do Ministério da Saúde
         download_databases()
 
-        # # # # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
+        # # # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
         casos_municipios = processaCSV.readStoreCSVFile()
 
         # # # # # # # Faz o processado dos dados
         processaMunicipios.processamento(casos_municipios)
 
-        # # # # Faz o calculo da RT para as regionais
+        # # # # # Faz o calculo da RT para as regionais
         calculaRT.gerarRTRegionais()
 
         # #Faz a inserção do rt do banco na planilha no sheets
@@ -57,8 +57,8 @@ with open('covid.log', 'w') as f:
 
         # # Atualiza a vacinação da DIVE
         dv = download_vacinados()
-        if dv != 0:
-            dataDB = dv.getFile()
+        dataDB = dv.getFile()
+        if dataDB:
             df = dv.processData(dataDB)
             dv.storeBD(df)
 
@@ -67,8 +67,8 @@ with open('covid.log', 'w') as f:
 
         # Baixa e processa os dados de vacinados do MS
         dowVacMS = download_vacinados_MS()
-        dowVacMS.getFile()
-        dowVacMS.processaVacinacaoMS()
+        if dowVacMS.getFile(): 
+            dowVacMS.processaVacinacaoMS()
 
         print("\n\nConcluido\n")
         print("\n--- %s seconds ---\n" % (time.time() - start_time))

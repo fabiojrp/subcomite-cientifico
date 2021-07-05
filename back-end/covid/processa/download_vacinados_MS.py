@@ -171,19 +171,20 @@ class download_vacinados_MS:
             driver.quit()
 
             print("Fazendo download dos dados de Vacinação do MS...\n")
-            # os.system("wget -O Dados_MS/dados_vacinacao.csv " + href)
-            os.system("curl " + href + " -o Dados_MS/dados_vacinacao.csv")
+            # os.system("wget -O Dados_Vacinas/dados_vacinacao.csv " + href)
+            os.system("curl " + href + " -o Dados_Vacinas/dados_vacinacao.csv")
 
             print("\n Ok!")
 
         except Exception as error:
-            print(
-                "Possívelmente o chromedriver não está na pasta\n   %s \n\n %s ", '/covid/chromedriver/', error)
+            print("Error: ", error)
+            return None
+        return 1
 
     def getFileLocal(self):
 
-        dir_path = os.getcwd() + '/Dados_MS/dados_vacinacao.csv'
-        # dir_path = '/home/arthurssd/Documents/IFC/PROJETO DE PESQUISA/CÓDIGO/subcomite-cientifico/back-end/Dados_MS/dados_vacinacao.csv'
+        dir_path = os.getcwd() + '/Dados_Vacinas/dados_vacinacao.csv'
+        # dir_path = '/home/arthurssd/Documents/IFC/PROJETO DE PESQUISA/CÓDIGO/subcomite-cientifico/back-end/Dados_Vacinas/dados_vacinacao.csv'
 
         return dir_path
 
@@ -248,7 +249,7 @@ class download_vacinados_MS:
             # municipio_grupos_doses_dia['doses_aplicadas_sum'] = municipio_grupos_doses_dia.groupby(
             #     ['vacina_dataaplicacao', 'regional', 'municipio', 'vacina_descricao_dose'])['doses_aplicadas'].cumsum()
 
-            print(municipio_grupos_doses_dia)
+            # print(municipio_grupos_doses_dia)
 
             print(" Ok!")
 

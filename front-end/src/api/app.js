@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -752,21 +752,16 @@ app.get("/api/vacinacao-ms-por-regiao/:id", (req, res) => {
     id = req.params.id;
 
     pool.query(
-        `SELECT REGIONAIS.REGIONAL_SAUDE,
-                REGIONAIS.ID AS ID,
-                REGIONAIS.POPULACAO AS POPULACAO,
-                SUM(VACINACAO_DIVE."D1") AS VACINACAO_D1,
-                SUM(VACINACAO_DIVE."D2") AS VACINACAO_D2,
-                VACINACAO_DIVE."Data" AS DATA
-            FROM REGIONAIS,
-                VACINACAO_DIVE
-            WHERE VACINACAO_DIVE.REGIONAL = REGIONAIS.ID
-                AND REGIONAIS.ID = $1
-            GROUP BY REGIONAIS.ID,
-                REGIONAIS.REGIONAL_SAUDE,
-                VACINACAO_DIVE."Data"
-            ORDER BY REGIONAIS.ID,
-                VACINACAO_DIVE."Data"
+        `SELECT ID,
+            REGIONAL_SAUDE,
+            POPULACAO,
+            DATA,
+            D1 AS VACINACAO_D1,
+            D2 AS VACINACAO_D2
+        FROM VIEW_VACINACAO_MS_POR_REGIAO
+        WHERE ID = $1
+        ORDER BY REGIONAL_SAUDE,
+            DATA
             `, [id],
         (err, rows) => {
             if (err) {
@@ -912,7 +907,15 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
             }
 
             result = rows.rows;
-            regionais = [];
+            var regionais = [];
+            regionais[0] = {
+                name: "Estado de SC",
+                mode: "lines",
+                type: "scatter",
+                x: [],
+                y: [],
+            };
+
             totalEstadoData = new Set();
             totalEstado = new Map();
             result.forEach((item) => {
@@ -933,37 +936,47 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
                 regionais[item.id].y.push(
                     (item.doses_aplicadas / item.populacao),
                 );
-                totalEstadoData.add(dataItem)
-                if (!totalEstado.has(dataItem)) {
-                    totalEstado.set(dataItem, {
-                        populacao: parseInt(item.populacao),
-                        doses_aplicadas: 0,
-                        data: item.data,
+            });
+
+            pool.query(
+                `SELECT 
+                    T.DATA,
+                    SUM(REGIONAIS.POPULACAO) AS POPULACAO,
+                    SUM(T.D2) OVER (ORDER BY DATA ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS DOSES_APLICADAS
+                FROM
+                    (SELECT VACINA_DATAAPLICACAO AS DATA,
+                            SUM(DOSES_APLICADAS) AS D2
+                        FROM VACINACAO_MS
+                        WHERE VACINA_DESCRICAO_DOSE != '1ª Dose'
+                        GROUP BY VACINA_DATAAPLICACAO
+                        ORDER BY VACINA_DATAAPLICACAO) AS T,
+                    REGIONAIS
+                WHERE REGIONAIS.ID = 1
+                GROUP BY T.DATA, T.D2
+                ORDER  BY DATA;
+                    `,
+                (err, rows) => {
+                    if (err) {
+                        console.log("Erro ao buscar o valores de vacinação do estado da tabela de MS: " + err);
+                        return;
+                    }
+
+                    result = rows.rows;
+                    result.forEach((item) => {
+                        // dataItem = new Date(item.data);
+                        // dataItem = dataItem.getFullYear() + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + ("0" + dataItem.getUTCDay()).slice(-2)
+                        dataItem = item.data;
+
+                        regionais[0].x.push(item.data);
+                        regionais[0].y.push(
+                            (item.doses_aplicadas / item.populacao),
+                        );
                     });
-                }
-
-                totalEstado.get(dataItem).doses_aplicadas += parseInt(item.doses_aplicadas);
-                totalEstado.get(dataItem).populacao += parseInt(item.populacao);
-            });
-
-            regionais[0] = {
-                name: "Estado de SC",
-                mode: "lines",
-                type: "scatter",
-                x: [],
-                y: [],
-            };
+                    res.send({ regionais });
+                },
+            );
 
 
-            arrData = Array.from(totalEstadoData).sort();
-
-            arrData.forEach(function (key) {
-                // console.log(totalEstado.get(key).data);
-                regionais[0].x.push(totalEstado.get(key).data);
-                regionais[0].y.push((totalEstado.get(key).doses_aplicadas / totalEstado.get(key).populacao));
-            });
-
-            res.send({ regionais });
         },
     );
 });
@@ -1310,40 +1323,3 @@ app.get("/api/dados-rt/", (req, res) => {
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
 });
-
-
-// SELECT REGIONAIS.REGIONAL_SAUDE,
-// 	REGIONAIS.ID AS ID,
-// 	SUM(VACINACAO_DIVE."D1") AS DOSE1,
-// 	VACINACAO_DIVE."Data" AS DATA
-// FROM REGIONAIS,
-// 	VACINACAO_DIVE
-// WHERE VACINACAO_DIVE.REGIONAL = REGIONAIS.ID
-// GROUP BY REGIONAIS.ID,
-// 	VACINACAO_DIVE."Data",
-// 	REGIONAIS.REGIONAL_SAUDE
-// ORDER BY REGIONAIS.ID
-
-// select  index_regional, sum(leitos_ativos), atualizacao
-// from public.leitosgeraiscovid group by index_regional, atualizacao, index_regional
-// order by index_regional, atualizacao
-
-// SELECT *
-//     FROM t1 WHERE(id, rev) IN
-//         (SELECT id, MAX(rev)
-//   FROM t1
-//   GROUP BY id
-//         )
-
-// SELECT INDEX_REGIONAL,
-//     MAX(LEITOS_ATIVOS_TOTAL)
-// FROM
-//     (SELECT INDEX_REGIONAL,
-//         SUM(LEITOS_ATIVOS) AS LEITOS_ATIVOS_TOTAL
-// 					FROM PUBLIC.LEITOSGERAISCOVID
-// 					GROUP BY INDEX_REGIONAL,
-//         ATUALIZACAO,
-//         INDEX_REGIONAL
-// 					ORDER BY INDEX_REGIONAL,
-//         ATUALIZACAO) SUBTABLE
-// GROUP BY SUBTABLE.INDEX_REGIONAL

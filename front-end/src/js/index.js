@@ -238,10 +238,8 @@ $(document).ready(() => {
         return twoNfav;
       case 1:
         return oneNfav;
-      case 0:
-        return fav;
       default:
-        "transparent";
+        return fav;
     }
   }
 
