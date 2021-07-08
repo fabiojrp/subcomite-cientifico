@@ -1030,11 +1030,17 @@ app.get("/api/dados-estado/", (req, res) => {
                               }*/
 
                     /*
-                            15 - Verde
+                            >= 15 - Verde
                             12 >= e 15 = Amarelo
                             9 >= e 11 = laranja
                             9 < Vermelho
 
+                            Média = 5 pontos 
+                            R(t) = 5 pontos
+                            Leitos móvel = 5 pontos
+                            Casos acum. = 2 pontos
+                            Letalidade = 2 pontos
+                            Vacinação (D2) = 3 pontos
                     */
 
                     leitos = result[i].leitos_ocupados * 100;

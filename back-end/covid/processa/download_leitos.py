@@ -330,7 +330,7 @@ class download_leitos:
                         infoHospital['leitos_ocupados'] = valorHospital[2]
                         infoHospital['leitos_disponiveis'] = valorHospital[1] - \
                             valorHospital[2]
-                        infoHospital['pacientes_covid'] = self.valores[i-1]['C'][4]
+                        infoHospital['pacientes_covid'] = self.valores[i-1]['C'][5]
                     elif self.valores[i]['Ø'] == 40:
                         infoHospital['leitos_ocupados'] = 0
                         infoHospital['leitos_disponiveis'] = valorHospital[2]

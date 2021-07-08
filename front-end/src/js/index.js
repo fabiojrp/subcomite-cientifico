@@ -221,6 +221,8 @@ $(document).ready(() => {
     var oneNfav = "#FAD700";
 
     if (typeof d == "object") {
+      if (!(d.rt))
+        return "transparent";
       var levelRegion = 0;
       levelRegion += d.rt > 1 ? 1 : 0;
       levelRegion += d.media_movel > 15 ? 1 : 0;
@@ -229,7 +231,7 @@ $(document).ready(() => {
       if (levelRegion == 3) return threeNfav;
       else if (levelRegion == 2) return twoNfav;
       else if (levelRegion == 1) return oneNfav;
-      else fav;
+      else return fav;
     }
     switch (d) {
       case 3:

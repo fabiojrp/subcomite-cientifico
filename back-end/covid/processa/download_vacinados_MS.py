@@ -178,6 +178,7 @@ class download_vacinados_MS:
 
         except Exception as error:
             print("Error: ", error)
+            print(r"Chrome path: {}".format(path_chromedriver))
             return None
         return 1
 
