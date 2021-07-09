@@ -1312,6 +1312,55 @@ app.get("/api/dados-rt/", (req, res) => {
     );
 });
 
+app.get("/api/vacinacao-dive/", (req, res) => {
+    pool.query(
+        `SELECT
+            ID,
+            REGIONAL_SAUDE,
+            POPULACAO,
+            VACINACAO_D1,
+            VACINACAO_D2 AS VACINACAO_D2_UNICA,
+            DATA::DATE
+        FROM VIEW_VACINACAO`,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados de vacinação DIVE das regiões: " + err);
+                return;
+            }
+
+            var json2csv = require('json2csv').parse;
+            var data = json2csv(rows.rows);
+
+            res.attachment('vacinacao_dive.csv');
+            res.status(200).send(data);
+        });
+});
+
+app.get("/api/vacinacao-ms/", (req, res) => {
+    pool.query(
+        `SELECT
+            ID,
+            REGIONAL_SAUDE,
+            POPULACAO,
+            D1,
+            D2 AS D2_UNICA,
+            DATA::DATE
+        FROM VIEW_VACINACAO_MS_POR_REGIAO
+            WHERE DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO);
+        `,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados de vacinação MS das regiões: " + err);
+                return;
+            }
+
+            var json2csv = require('json2csv').parse;
+            var data = json2csv(rows.rows);
+
+            res.attachment('vacinacao_ms.csv');
+            res.status(200).send(data);
+        });
+});
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
