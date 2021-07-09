@@ -1334,6 +1334,11 @@ app.get("/api/vacinacao-dive/", (req, res) => {
             result.forEach((item) => {
                 item.percentual_d1 = (item.vacinacao_d1 / item.populacao * 100).toFixed(2).replace(".", ",");
                 item.percentual_d2 = (item.vacinacao_d2_unica / item.populacao * 100).toFixed(2).replace(".", ",");
+
+                var data = new Date(item.data);
+                var formatedDate = ("0" + data.getDate()).slice(-2) + "-" + ("0" + (data.getMonth() + 1)).slice(-2) + "-" + data.getFullYear();
+                item.data = formatedDate;
+
                 dados.push(item);
             });
 
@@ -1366,7 +1371,12 @@ app.get("/api/vacinacao-ms/", (req, res) => {
             dados = [];
             result.forEach((item) => {
                 item.percentual_d1 = (item.d1 / item.populacao * 100).toFixed(2).replace(".", ",");
-                item.percentual_d2 = (item.d2_unica / item.populacao * 100).toFixed(2).replace(".", ",") ;
+                item.percentual_d2 = (item.d2_unica / item.populacao * 100).toFixed(2).replace(".", ",");
+                
+                var data = new Date(item.data);
+                var formatedDate = ("0" + data.getDate()).slice(-2) + "-" + ("0" + (data.getMonth() + 1)).slice(-2) + "-" + data.getFullYear();
+                item.data = formatedDate;
+
                 dados.push(item);
             });
 
