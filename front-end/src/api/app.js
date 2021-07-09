@@ -1315,21 +1315,30 @@ app.get("/api/dados-rt/", (req, res) => {
 app.get("/api/vacinacao-dive/", (req, res) => {
     pool.query(
         `SELECT
+
             ID,
             REGIONAL_SAUDE,
             POPULACAO,
             VACINACAO_D1,
             VACINACAO_D2 AS VACINACAO_D2_UNICA,
-            DATA::DATE
+            DATA
+            
         FROM VIEW_VACINACAO`,
         (err, rows) => {
             if (err) {
                 console.log("Erro ao buscar os dados de vacinação DIVE das regiões: " + err);
                 return;
             }
+            result = rows.rows;
+            dados = [];
+            result.forEach((item) => {
+                item.percentual_d1 = (item.vacinacao_d1 / item.populacao * 100).toFixed(2).replace(".", ",");
+                item.percentual_d2 = (item.vacinacao_d2_unica / item.populacao * 100).toFixed(2).replace(".", ",");
+                dados.push(item);
+            });
 
             var json2csv = require('json2csv').parse;
-            var data = json2csv(rows.rows);
+            var data = json2csv(dados);
 
             res.attachment('vacinacao_dive.csv');
             res.status(200).send(data);
@@ -1344,18 +1353,25 @@ app.get("/api/vacinacao-ms/", (req, res) => {
             POPULACAO,
             D1,
             D2 AS D2_UNICA,
-            DATA::DATE
+            DATA
         FROM VIEW_VACINACAO_MS_POR_REGIAO
-            WHERE DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO);
+            WHERE DATA = (SELECT MAX(DATA)::DATE FROM VIEW_VACINACAO_MS_POR_REGIAO);
         `,
         (err, rows) => {
             if (err) {
                 console.log("Erro ao buscar os dados de vacinação MS das regiões: " + err);
                 return;
             }
+            result = rows.rows;
+            dados = [];
+            result.forEach((item) => {
+                item.percentual_d1 = (item.d1 / item.populacao * 100).toFixed(2).replace(".", ",");
+                item.percentual_d2 = (item.d2_unica / item.populacao * 100).toFixed(2).replace(".", ",") ;
+                dados.push(item);
+            });
 
             var json2csv = require('json2csv').parse;
-            var data = json2csv(rows.rows);
+            var data = json2csv(dados);
 
             res.attachment('vacinacao_ms.csv');
             res.status(200).send(data);
