@@ -214,34 +214,48 @@ $(document).ready(() => {
   // Média Móvel < 15%
   // UTI < 60%
   // get color depending on rt value
+
+  /*
+        >= 15 - Verde
+        12 >= e 15 = Amarelo
+        9 >= e 11 = laranja
+        9 < Vermelho
+
+        Média = 5 pontos 
+        R(t) = 5 pontos
+        Leitos móvel = 5 pontos
+        Casos acum. = 2 pontos
+        Letalidade = 2 pontos
+        Vacinação (D2) = 3 pontos
+                    */
   function getColor(d) {
     var fav = "#92efb6";
-    var threeNfav = "#ff7979";
-    var twoNfav = "#FA9600";
-    var oneNfav = "#FAD700";
+    var red = "#ff7979";
+    var orange = "#FA9600";
+    var yellow = "#FAD700";
 
     if (typeof d == "object") {
       if (!(d.rt))
         return "transparent";
       var levelRegion = 0;
-      levelRegion += d.rt > 1 ? 1 : 0;
-      levelRegion += d.media_movel > 15 ? 1 : 0;
-      levelRegion += d.ocupacao_leitos > 60 ? 1 : 0;
+      levelRegion += d.rt < 1 ? 5 : 0;
+      levelRegion += d.media_movel < 15 ? 5 : 0;
+      levelRegion += d.ocupacao_leitos < 60 ? 5 : 0;
 
-      if (levelRegion == 3) return threeNfav;
-      else if (levelRegion == 2) return twoNfav;
-      else if (levelRegion == 1) return oneNfav;
-      else return fav;
+      if (levelRegion >= 15) return fav;
+      else if (levelRegion >= 12 && levelRegion < 15) return yellow;
+      else if (levelRegion >= 9 && levelRegion <= 11) return orange;
+      else return red;
     }
     switch (d) {
-      case 3:
-        return threeNfav;
-      case 2:
-        return twoNfav;
-      case 1:
-        return oneNfav;
-      default:
+      case d >= 15:
         return fav;
+      case d >= 12 && d < 15:
+        return yellow;
+      case d >= 9 && d <= 11:
+        return orange;
+      default:
+        return red;
     }
   }
 
