@@ -1319,9 +1319,9 @@ app.get("/api/vacinacao-dive/", (req, res) => {
             ID,
             REGIONAL_SAUDE,
             POPULACAO,
-            VACINACAO_D1,
-            VACINACAO_D2 AS VACINACAO_D2_UNICA,
-            DATA
+            VACINACAO_D1 as D1,
+            VACINACAO_D2 AS D2_UNICA,
+            DATA AS DATA_ATUALIZACAO
             
         FROM VIEW_VACINACAO`,
         (err, rows) => {
@@ -1332,12 +1332,12 @@ app.get("/api/vacinacao-dive/", (req, res) => {
             result = rows.rows;
             dados = [];
             result.forEach((item) => {
-                item.percentual_d1 = (item.vacinacao_d1 / item.populacao * 100).toFixed(2).replace(".", ",");
-                item.percentual_d2 = (item.vacinacao_d2_unica / item.populacao * 100).toFixed(2).replace(".", ",");
+                item.percentual_d1 = (item.d1 / item.populacao * 100).toFixed(2).replace(".", ",");
+                item.percentual_d2 = (item.d2_unica / item.populacao * 100).toFixed(2).replace(".", ",");
 
-                var data = new Date(item.data);
+                var data = new Date(item.data_atualizacao);
                 var formatedDate = ("0" + data.getDate()).slice(-2) + "-" + ("0" + (data.getMonth() + 1)).slice(-2) + "-" + data.getFullYear();
-                item.data = formatedDate;
+                item.data_atualizacao = formatedDate;
 
                 dados.push(item);
             });
@@ -1352,13 +1352,15 @@ app.get("/api/vacinacao-dive/", (req, res) => {
 
 app.get("/api/vacinacao-ms/", (req, res) => {
     pool.query(
-        `SELECT
+        `SELECT 
+            
             ID,
             REGIONAL_SAUDE,
             POPULACAO,
             D1,
             D2 AS D2_UNICA,
-            DATA
+            DATA AS DATA_ATUALIZACAO
+
         FROM VIEW_VACINACAO_MS_POR_REGIAO
             WHERE DATA = (SELECT MAX(DATA)::DATE FROM VIEW_VACINACAO_MS_POR_REGIAO);
         `,
@@ -1373,9 +1375,9 @@ app.get("/api/vacinacao-ms/", (req, res) => {
                 item.percentual_d1 = (item.d1 / item.populacao * 100).toFixed(2).replace(".", ",");
                 item.percentual_d2 = (item.d2_unica / item.populacao * 100).toFixed(2).replace(".", ",");
                 
-                var data = new Date(item.data);
+                var data = new Date(item.data_atualizacao);
                 var formatedDate = ("0" + data.getDate()).slice(-2) + "-" + ("0" + (data.getMonth() + 1)).slice(-2) + "-" + data.getFullYear();
-                item.data = formatedDate;
+                item.data_atualizacao = formatedDate;
 
                 dados.push(item);
             });
