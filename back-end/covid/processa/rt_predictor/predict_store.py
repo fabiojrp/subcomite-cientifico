@@ -2,11 +2,12 @@ import pandas as pd
 import numpy as np
 import datetime
 import pickle
+import os
 from tensorflow import keras
-from dao import get_ml_data, get_engine
-from helper import predict_from_date
-# from covid.processa.dados import Tabelas
-from tabelas import Tabelas
+from covid.processa.rt_predictor.dao import get_ml_data, get_engine
+from covid.processa.rt_predictor.helper import predict_from_date
+from covid.processa.dados.tabelas import Tabelas
+# from tabelas import Tabelas
 
 
 class predict_store:
@@ -14,7 +15,7 @@ class predict_store:
         # ------------------------------------------------------------------------------------------
         # Carregar modelo, dicionário e estatísticas
         # ------------------------------------------------------------------------------------------
-        model_dir = 'back-end/covid/processa/rt_predictor/model'
+        model_dir = os.getcwd() + '/back-end/covid/processa/rt_predictor/model'
         model = keras.models.load_model(model_dir)
 
         scaler_dict = pickle.load(open(model_dir + '/scalers.dict', "rb"))

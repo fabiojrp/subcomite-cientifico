@@ -562,13 +562,26 @@ app.get("/api/rt-estado/", (req, res) => {
 app.get("/api/leitos-por-regiao/:id", (req, res) => {
     id = req.params.id;
     pool.query(
-        `SELECT SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
-                leitoscovid.ATUALIZACAO AS DATA
-            FROM leitoscovid
-            WHERE leitoscovid.INDEX_REGIONAL = $1
-            GROUP BY leitoscovid.ATUALIZACAO
-            ORDER BY leitoscovid.ATUALIZACAO
+        `SELECT TBL.LEITOS_OCUPADOS,
+                --TBL.LEITOS_ATIVOS,
+                MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX,
+                TO_CHAR(TBL.DATA, 'YYYY-MM-DD HH:MI:SS') AS DATA
+            FROM
+                (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,
+                        SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                        SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                        (LEITOSGERAISCOVID.ATUALIZACAO) AS DATA
+                    FROM LEITOSGERAISCOVID
+                    GROUP BY LEITOSGERAISCOVID.INDEX_REGIONAL,
+                        LEITOSGERAISCOVID.ATUALIZACAO
+                    ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,
+                        LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,
+                REGIONAIS
+            WHERE TBL.ID = REGIONAIS.ID
+                AND TBL.ID = $1
+                AND TBL.DATA > '2021-06-11'
+            ORDER BY TBL.ID,
+                TBL.DATA
             `, [id],
         (err, rows) => {
             if (err) {
@@ -591,7 +604,7 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
                 y: [],
             };
             leitos_disponiveis = {
-                name: "Leitos Totais",
+                name: "Leitos Máximo",
                 type: "scatter",
                 fill: 'tonextx',
                 opacity: 0.4,
@@ -605,7 +618,7 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
                 leitos_ocupados.y.push(item.leitos_ocupados);
 
                 leitos_disponiveis.x.push(item.data);
-                leitos_disponiveis.y.push(item.leitos_ativos);
+                leitos_disponiveis.y.push(item.leitos_ativos_max);
             });
 
             res.send({ leitos_disponiveis, leitos_ocupados });
@@ -701,6 +714,61 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
         },
     );
 });
+
+// app.get("/api/leitos-por-regiao/:id", (req, res) => {
+//     id = req.params.id;
+//     pool.query(
+//         `SELECT SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+//                 SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+//                 leitoscovid.ATUALIZACAO AS DATA
+//             FROM leitoscovid
+//             WHERE leitoscovid.INDEX_REGIONAL = $1
+//             GROUP BY leitoscovid.ATUALIZACAO
+//             ORDER BY leitoscovid.ATUALIZACAO
+//             `, [id],
+//         (err, rows) => {
+//             if (err) {
+//                 console.log("Erro ao buscar o valor de leitos da região: " + err);
+//                 return;
+//             }
+
+//             region = regions[id];
+//             if (typeof region === "undefined") {
+//                 res.send("Região não reconhecida. Informe um ID válido.");
+//                 return;
+//             }
+
+//             leitos_ocupados = {
+//                 name: "Leitos Ocupados",
+//                 type: "scatter",
+//                 fill: 'tozeroy',
+//                 opacity: 0.5,
+//                 x: [],
+//                 y: [],
+//             };
+//             leitos_disponiveis = {
+//                 name: "Leitos Totais",
+//                 type: "scatter",
+//                 fill: 'tonextx',
+//                 opacity: 0.4,
+//                 x: [],
+//                 y: [],
+//             };
+
+//             result = rows.rows;
+//             result.forEach((item) => {
+//                 leitos_ocupados.x.push(item.data);
+//                 leitos_ocupados.y.push(item.leitos_ocupados);
+
+//                 leitos_disponiveis.x.push(item.data);
+//                 leitos_disponiveis.y.push(item.leitos_ativos);
+//             });
+
+//             res.send({ leitos_disponiveis, leitos_ocupados });
+//         },
+//     );
+// });
+
 
 // app.get("/api/leitos-por-regiao/", (req, res) => {
 //     pool.query(
