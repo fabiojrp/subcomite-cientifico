@@ -633,7 +633,7 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
                     ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,
                         LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,
                 REGIONAIS
-            WHERE TBL.ID = REGIONAIS.ID
+            WHERE TBL.ID = REGIONAIS.ID AND TBL.DATA > '2021-06-11'
             ORDER BY TBL.ID, TBL.DATA
             `,
         (err, rows) => {
@@ -685,10 +685,16 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
 
             arrData = Array.from(totalEstadoData).sort();
 
+            leitos_ativos_max_anterior =  totalEstado.get(arrData[0]).leitos_ativos_max 
             arrData.forEach(function (key) {
                 // console.log(totalEstado.get(key).data);
                 regionais[0].x.push(totalEstado.get(key).data);
                 regionais[0].y.push((totalEstado.get(key).leitos_ocupados / totalEstado.get(key).leitos_ativos_max));
+                if (totalEstado.get(key).leitos_ativos_max != leitos_ativos_max_anterior){
+                    console.log("Mudança no dia " + key + ", era: " + leitos_ativos_max_anterior + ", passou:" + totalEstado.get(key).leitos_ativos_max); 
+                    // Alex: inserir as anotações das mudanças
+                }
+                leitos_ativos_max_anterior = totalEstado.get(key).leitos_ativos_max;
             });
 
             res.send({ regionais });
