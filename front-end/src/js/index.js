@@ -235,8 +235,8 @@ $(document).ready(() => {
     var yellow = "#FAD700";
 
     if (typeof d == "object") {
-      if (!(d.rt))
-        return "transparent";
+      if (!(d.rt)) return "transparent";
+
       var levelRegion = 0;
       levelRegion += d.rt < 1 ? 5 : 0;
       levelRegion += d.media_movel < 15 ? 5 : 0;
@@ -247,15 +247,21 @@ $(document).ready(() => {
       else if (levelRegion >= 9 && levelRegion <= 11) return orange;
       else return red;
     }
-    switch (d) {
-      case d >= 15:
-        return fav;
-      case d >= 12 && d < 15:
-        return yellow;
-      case d >= 9 && d <= 11:
-        return orange;
-      default:
-        return red;
+    // switch (d) {
+    //   case d >= 15:
+    //     return fav;
+    //   case d >= 12 && d < 15:
+    //     return yellow;
+    //   case d >= 9 && d <= 11:
+    //     return orange;
+    //   default:
+    //     return red;
+    // }
+    else {
+      if ( d >= 15 ) return fav;
+      else if ( d >= 12 && d < 15 ) return yellow;
+      else if ( d >= 9 && d <= 11 ) return orange;
+      else return red;
     }
   }
 
@@ -326,22 +332,22 @@ $(document).ready(() => {
     var div = L.DomUtil.create("div", "map-info legend");
     labels = ['<h6><b>Condição de retorno das aulas</b><img class="close-map-info" src="img/close-icon.png" /></h6> '];
     labels.push(
-      '<p><i style="background:' + getColor(0) + '"></i> (Favorável)</p>',
+      '<p><i style="background:' + getColor(16) + '"></i> (Favorável)</p>',
     );
     labels.push(
       '<p><i style="background:' +
-      getColor(1) +
-      '"></i> (1 Indicador não Favorável)</p>',
+      getColor(12) +
+      '"></i> (Entre 12 e 14 pontos)</p>',
     );
     labels.push(
       '<p><i style="background:' +
-      getColor(2) +
-      '"></i> (2 Indicadores não Favoráveis)</p>',
+      getColor(10) +
+      '"></i> (Entre 9 e 11 pontos)</p>',
     );
     labels.push(
       '<p><i style="background:' +
-      getColor(3) +
-      '"></i> (3 Indicadores não Favoráveis)</p>',
+      getColor(6) +
+      '"></i> (Abaixo de 8 pontos)</p>',
     );
     div.innerHTML = labels.join("");
     return div;
