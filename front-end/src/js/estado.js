@@ -117,7 +117,7 @@ $(document).ready(() => {
             dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
             var mm_layout = {
-                title: 'Taxa de Transmissibilidade R(t) por região de SC <br> <a href="nota-explicativa.html#RT" id="RTreste"> Nota Explicativa</a>',
+                title: 'Taxa média de transmissibilidade (Rt) por região de SC <br> <a href="nota-explicativa.html#RT" id="RTreste"> Nota Explicativa</a>',
                 showlegend: true,
             };
 
@@ -156,7 +156,7 @@ $(document).ready(() => {
             // Incidencia
             dadosRegionaisIncidencia = $.grep(dados.regionais_incidencia, function (n) { return n == 0 || n });
             var mm_layout = {
-                title: 'Incidência acumulada por 100 mil habitantes <br> <a href="nota-explicativa.html#incidencia"> Nota Explicativa</a>',
+                title: 'Incidência acumulada de casos a cada 100 mil habitantes <br> <a href="nota-explicativa.html#incidencia"> Nota Explicativa</a>',
             };
 
             var config = { responsive: true };
@@ -165,7 +165,7 @@ $(document).ready(() => {
             // Letalidade
             dadosRegionaisLetalidade = $.grep(dados.regionais_letalidade, function (n) { return n == 0 || n });
             var mm_layout = {
-                title: 'Letalidade - Óbitos / número de casos (em %) <br> <a href="nota-explicativa.html#letalidade"> Nota Explicativa</a>',
+                title: 'Taxa de letalidade (em %) <br> <a href="nota-explicativa.html#letalidade"> Nota Explicativa</a>',
             };
 
             var config = { responsive: true };
@@ -183,7 +183,10 @@ $(document).ready(() => {
             ocupacao_leitos = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
             var mm_layout = {
-                title: 'Ocupação de Leitos (UTI) Covid Adulto em porcentagem (%) <br> <a href="nota-explicativa.html#leitos"> Nota Explicativa</a>',
+                title: 'Taxa de ocupação de leitos UTI Adulto em relação ao MÁXIMO de leitos ativos (em %)  <br> <a href="nota-explicativa.html#leitos"> Nota Explicativa</a>',
+                yaxis: {
+                    tickformat: '.2%',
+                }
             };
 
             var config = { responsive: true };

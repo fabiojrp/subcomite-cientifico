@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -615,19 +615,26 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
 
 app.get("/api/leitos-por-regiao/", (req, res) => {
     pool.query(
-        `SELECT REGIONAIS.REGIONAL_SAUDE,
-                REGIONAIS.ID as ID,
-                SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
-                SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                leitoscovid.ATUALIZACAO AS DATA
-            FROM REGIONAIS,
-            leitoscovid
-            WHERE leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
-            GROUP BY REGIONAIS.ID,
-                leitoscovid.ATUALIZACAO,
-                REGIONAIS.REGIONAL_SAUDE
-            ORDER BY REGIONAIS.ID,
-                leitoscovid.ATUALIZACAO
+        `SELECT 
+                REGIONAIS.REGIONAL_SAUDE,
+                TBL.ID,
+                TBL.LEITOS_OCUPADOS,
+                --TBL.LEITOS_ATIVOS,
+                MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID ORDER BY DATA) AS LEITOS_ATIVOS_MAX,
+                TO_CHAR(TBL.DATA,'YYYY-MM-DD HH:MI:SS') AS DATA
+            FROM
+                (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,
+                        SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                        SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                        (LEITOSGERAISCOVID.ATUALIZACAO) AS DATA
+                    FROM LEITOSGERAISCOVID
+                    GROUP BY LEITOSGERAISCOVID.INDEX_REGIONAL,
+                        LEITOSGERAISCOVID.ATUALIZACAO
+                    ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,
+                        LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,
+                REGIONAIS
+            WHERE TBL.ID = REGIONAIS.ID
+            ORDER BY TBL.ID, TBL.DATA
             `,
         (err, rows) => {
             if (err) {
@@ -636,8 +643,11 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
             }
             result = rows.rows;
             regionais = [];
-            totalEstado = [];
+            totalEstado = new Map();
+            totalEstadoData = new Set();
+
             result.forEach((item) => {
+                dataItem = item.data;
                 if (!regionais[item.id]) {
                     regionais[item.id] = {
                         name: item.regional_saude,
@@ -650,20 +660,19 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
                 }
                 regionais[item.id].x.push(item.data);
                 regionais[item.id].y.push(
-                    (item.leitos_ocupados / item.leitos_ativos) * 100,
+                    (item.leitos_ocupados / item.leitos_ativos_max),
                 );
 
-                if (!totalEstado[item.data]) {
-                    totalEstado[item.data] = {
+                totalEstadoData.add(dataItem)
+                if (!totalEstado.has(dataItem)) {
+                    totalEstado.set(dataItem, {
                         leitos_ocupados: 0,
-                        leitos_ativos: 0,
+                        leitos_ativos_max: 0,
                         data: item.data,
-                    };
+                    });
                 }
-                totalEstado[item.data].leitos_ocupados += parseInt(
-                    item.leitos_ocupados,
-                );
-                totalEstado[item.data].leitos_ativos += parseInt(item.leitos_ativos);
+                totalEstado.get(dataItem).leitos_ocupados += parseInt(item.leitos_ocupados);
+                totalEstado.get(dataItem).leitos_ativos_max += parseInt(item.leitos_ativos_max);
             });
 
             regionais[0] = {
@@ -674,15 +683,89 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
                 y: [],
             };
 
-            for (var [key, item] of Object.entries(totalEstado)) {
-                regionais[0].x.push(item.data);
-                regionais[0].y.push((item.leitos_ocupados / item.leitos_ativos) * 100);
-            }
+            arrData = Array.from(totalEstadoData).sort();
+
+            arrData.forEach(function (key) {
+                // console.log(totalEstado.get(key).data);
+                regionais[0].x.push(totalEstado.get(key).data);
+                regionais[0].y.push((totalEstado.get(key).leitos_ocupados / totalEstado.get(key).leitos_ativos_max));
+            });
 
             res.send({ regionais });
         },
     );
 });
+
+// app.get("/api/leitos-por-regiao/", (req, res) => {
+//     pool.query(
+//         `SELECT REGIONAIS.REGIONAL_SAUDE,
+//                 REGIONAIS.ID as ID,
+//                 SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+//                 SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+//                 leitoscovid.ATUALIZACAO AS DATA
+//             FROM REGIONAIS,
+//             leitoscovid
+//             WHERE leitoscovid.INDEX_REGIONAL = REGIONAIS.ID
+//             GROUP BY REGIONAIS.ID,
+//                 leitoscovid.ATUALIZACAO,
+//                 REGIONAIS.REGIONAL_SAUDE
+//             ORDER BY REGIONAIS.ID,
+//                 leitoscovid.ATUALIZACAO
+//             `,
+//         (err, rows) => {
+//             if (err) {
+//                 console.log("Erro ao buscar o valor de leitos das regiões: " + err);
+//                 return;
+//             }
+//             result = rows.rows;
+//             regionais = [];
+//             totalEstado = [];
+//             result.forEach((item) => {
+//                 if (!regionais[item.id]) {
+//                     regionais[item.id] = {
+//                         name: item.regional_saude,
+//                         mode: "lines",
+//                         type: "scatter",
+//                         visible: "legendonly",
+//                         x: [],
+//                         y: [],
+//                     };
+//                 }
+//                 regionais[item.id].x.push(item.data);
+//                 regionais[item.id].y.push(
+//                     (item.leitos_ocupados / item.leitos_ativos) * 100,
+//                 );
+
+//                 if (!totalEstado[item.data]) {
+//                     totalEstado[item.data] = {
+//                         leitos_ocupados: 0,
+//                         leitos_ativos: 0,
+//                         data: item.data,
+//                     };
+//                 }
+//                 totalEstado[item.data].leitos_ocupados += parseInt(
+//                     item.leitos_ocupados,
+//                 );
+//                 totalEstado[item.data].leitos_ativos += parseInt(item.leitos_ativos);
+//             });
+
+//             regionais[0] = {
+//                 name: "Estado de SC",
+//                 mode: "lines",
+//                 type: "scatter",
+//                 x: [],
+//                 y: [],
+//             };
+
+//             for (var [key, item] of Object.entries(totalEstado)) {
+//                 regionais[0].x.push(item.data);
+//                 regionais[0].y.push((item.leitos_ocupados / item.leitos_ativos) * 100);
+//             }
+
+//             res.send({ regionais });
+//         },
+//     );
+// });
 
 app.get("/api/vacinacao-por-regiao/:id", (req, res) => {
     id = req.params.id;
@@ -1315,7 +1398,6 @@ app.get("/api/dados-rt/", (req, res) => {
 app.get("/api/vacinacao-dive/", (req, res) => {
     pool.query(
         `SELECT
-
             ID,
             REGIONAL_SAUDE,
             POPULACAO,
