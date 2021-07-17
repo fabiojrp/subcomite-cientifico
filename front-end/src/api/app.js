@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -1131,6 +1131,7 @@ app.get("/api/dados-estado/", (req, res) => {
                             // result[i].variacao,
                             // "ocupacao_leitos": leitos.toFixed(0) + "%",
                             ocupacao_leitos: leitos,
+                            // casos_acumulados: casos_acumulados,
                             path: result[i].url,
                         },
                         geometry: result[i].poligono,

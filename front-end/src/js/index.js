@@ -199,6 +199,10 @@ $(document).ready(() => {
         "</p><p>Ocupação de Leitos Covid Adulto: " +
         props.ocupacao_leitos.toFixed(2) +
         "%" +
+        "</p><p> Casos acumulados por 100 mil hab: " +
+        // props.casos_acumulados +
+        "</p><p> Taxa de letalidade: " +
+        "</p><p> Percentual de vacinação: " +
         '</p><p><a href="' +
         props.path +
         '?region=1">Saiba mais sobre essa região</a></p>'
