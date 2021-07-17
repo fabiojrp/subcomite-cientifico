@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
+import os
 
 # ------------------------------------------------------------------------------------------
 # Inicializar variáveis
@@ -37,7 +38,7 @@ def predict_from_date(model, scaler_dict, encoder_dict, df, date, df_y_pred_stat
     df['data'] = pd.to_datetime(df['data'])    
     df['weekend'] = np.where( df['data'].dt.dayofweek < 5, 0, 1)
     
-    df_feriados = pd.read_csv('back-end/covid/processa/rt_predictor/feriados.csv')
+    df_feriados = pd.read_csv(os.getcwd() + '/back-end/covid/processa/rt_predictor/feriados.csv')
     df_feriados['data'] = pd.to_datetime(df_feriados['data'])
 
     df['holiday'] = df.merge(df_feriados[['data','feriado']], how='left', on='data')['feriado'].fillna(0)
