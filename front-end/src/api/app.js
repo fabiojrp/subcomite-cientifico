@@ -617,7 +617,7 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
         `SELECT REGIONAL_SAUDE, ID,
             LEITOS_OCUPADOS,
             LEITOS_ATIVOS_MAX,
-            DATA
+            TO_CHAR(DATA,'YYYY-MM-DD') AS DATA
         FROM PUBLIC.VIEW_LEITOS_MAX
             `,
         (err, rows) => {

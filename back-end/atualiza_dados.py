@@ -42,16 +42,16 @@ with open('covid.log', 'w') as f:
         #     df = dv.processData(dataDB)
         #     dv.storeBD(df)
 
+        # # # Baixa e processa os dados de vacinados do MS
+        dowVacMS = download_vacinados_MS()
+        if dowVacMS.getFile(): 
+            dowVacMS.processaVacinacaoMS()
+
         # # # # # Executa o script para prever o RT
         # # predict_store()
 
-        # # # Baixa e processa os dados de vacinados do MS
-        # dowVacMS = download_vacinados_MS()
-        # if dowVacMS.getFile(): 
-        #     dowVacMS.processaVacinacaoMS()
-
         # # # Ainda em fase de teste - Faz o download dos leitos - Método 1
-        download_leitos()
+        # download_leitos()
 
         # Ainda em fase de teste - Faz o download dos leitos - Método 2
         # importLeitos = importLeitos()
