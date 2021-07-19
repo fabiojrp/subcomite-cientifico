@@ -203,7 +203,7 @@ $(document).ready(() => {
         props.ocupacao_leitos.toFixed(2) +
         "%" +
         "</p><p> Casos acumulados por 100 mil hab: " +
-        props.incidencia.toFixed(2) +
+        props.incidencia.toFixed(0) +
         "</p><p> Taxa de letalidade: " +
         props.letalidade.toFixed(2) + "%" +
         "</p><p> Percentual de vacinação: " +
