@@ -38,9 +38,12 @@ $(document).ready(() => {
       url: base_url + '/api/dados-regiao/' + id,
       async: false,
       success: function (dados) {
-        regionData.features[0].properties.rt = dados.rt;
         regionData.features[0].properties.media_movel = dados.media_movel;
+        regionData.features[0].properties.rt = dados.rt;    
         regionData.features[0].properties.ocupacao_leitos = dados.ocupacao_leitos;
+        regionData.features[0].properties.incidencia = dados.incidencia;
+        regionData.features[0].properties.letalidade = dados.letalidade;
+        regionData.features[0].properties.vacinacao = dados.vacinacao;
       },
       error: function (result) {
         console.log("Erro");
@@ -176,7 +179,7 @@ $(document).ready(() => {
   ]).addTo(map);
 
   // control that shows state info on hover
-  var info = L.control({ position: "topleft" });
+  var info = L.control({ position: "bottomleft" });
 
   info.onAdd = function (map) {
     this._div = L.DomUtil.create("div", "map-info");
@@ -200,9 +203,11 @@ $(document).ready(() => {
         props.ocupacao_leitos.toFixed(2) +
         "%" +
         "</p><p> Casos acumulados por 100 mil hab: " +
-        // props.casos_acumulados +
+        props.incidencia.toFixed(2) +
         "</p><p> Taxa de letalidade: " +
+        props.letalidade.toFixed(2) + "%" +
         "</p><p> Percentual de vacinação: " +
+        props.vacinacao.toFixed(2) + "%" +
         '</p><p><a href="' +
         props.path +
         '?region=1">Saiba mais sobre essa região</a></p>'
@@ -330,7 +335,7 @@ $(document).ready(() => {
     'Dados de UTI &copy; <a href="https://www.ciasc.sc.gov.br/">CIASC</a>',
   );
 
-  var legend = L.control({ position: "bottomleft" });
+  var legend = L.control({ position: "topleft" });
 
   legend.onAdd = function (map) {
     var div = L.DomUtil.create("div", "map-info legend");
@@ -359,7 +364,7 @@ $(document).ready(() => {
 
   legend.addTo(map);
 
-  var btnLegend = L.control({ position: "bottomleft" });
+  var btnLegend = L.control({ position: "topleft" });
   btnLegend.onAdd = function (map) {
     var div = L.DomUtil.create("div", "btnLegend");
     div.innerHTML = '<h6><b>Legenda</b></h6><p><img src="img/legend.svg" /></p>'

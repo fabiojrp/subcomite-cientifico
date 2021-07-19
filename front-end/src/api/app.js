@@ -1150,14 +1150,21 @@ app.get("/api/dados-estado/", (req, res) => {
             VIEW_LEITOS.MAX_DATA AS LEITOS_DATA,
             VIEW_CASOS_ATUAL.DATA AS DATA_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR.DATA AS DATA_CASOS_ANTERIOR,
-            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,
+            VIEW_INCIDENCIA.LETALIDADE,
+            VIEW_INCIDENCIA.INCIDENCIA,
+            VACINACAO.D2_POPULACAO
         FROM VIEW_RT,
             VIEW_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR,
-            VIEW_LEITOS
+            VIEW_LEITOS,
+            VIEW_INCIDENCIA,
+            (SELECT ID, (D2 / POPULACAO) AS D2_POPULACAO FROM VIEW_VACINACAO_MS_POR_REGIAO WHERE DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO) ) AS VACINACAO
         WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
                         AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
                         AND VIEW_RT.ID = VIEW_LEITOS.ID
+                        AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+                        AND VIEW_RT.ID = VACINACAO.ID
             `,
         (err, rows) => {
             if (err) {
@@ -1188,6 +1195,10 @@ app.get("/api/dados-estado/", (req, res) => {
 
                 
                     leitos = result[i].leitos_ocupados * 100;
+                    incidencia = result[i].incidencia;
+                    letalidade  = result[i].letalidade;
+                    vacinacao = result[i].d2_populacao * 100;
+                    
 
                     stateData.features.push({
                         type: "Feature",
@@ -1199,7 +1210,10 @@ app.get("/api/dados-estado/", (req, res) => {
                             // result[i].variacao,
                             // "ocupacao_leitos": leitos.toFixed(0) + "%",
                             ocupacao_leitos: leitos,
-                            // casos_acumulados: casos_acumulados,
+                            incidencia:incidencia,
+                            letalidade:letalidade,
+                            vacinacao: vacinacao,
+                            
                             path: result[i].url,
                         },
                         geometry: result[i].poligono,
@@ -1215,28 +1229,42 @@ app.get("/api/dados-estado/", (req, res) => {
 app.get("/api/dados-regiao/:id", (req, res) => {
     id = req.params.id;
     pool.query(
-        `SELECT  VIEW_RT.RT AS RT_VALOR,
+        `SELECT DISTINCT
+            VIEW_RT.RT AS RT_VALOR,
             1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
-            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,
+            VIEW_INCIDENCIA.LETALIDADE,
+            VIEW_INCIDENCIA.INCIDENCIA,
+            VACINACAO.D2_POPULACAO
+            
         FROM VIEW_RT,
             VIEW_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR,
-            VIEW_LEITOS
+            VIEW_LEITOS,
+            VIEW_INCIDENCIA,
+            (SELECT ID, (D2 / POPULACAO) AS D2_POPULACAO FROM VIEW_VACINACAO_MS_POR_REGIAO WHERE DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO) ) AS VACINACAO
+
         WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
-                        AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
-                        AND VIEW_RT.ID = VIEW_LEITOS.ID
-						AND VIEW_RT.ID = $1
+                    AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+                    AND VIEW_RT.ID = VIEW_LEITOS.ID
+                    AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+                    AND VIEW_RT.ID = VACINACAO.ID
+                    AND VIEW_RT.ID = $1
             `, [id],
+
         (err, rows) => {
             if (err) {
                 console.log("Erro ao buscar os dados do estado: " + err);
                 return;
             }
 
+            console.log(rows.rows);
+
             if (rows.rows.length > 0) {
                 result = rows.rows;
                 mediamovel = result[0].variacao * 100;
                 leitos = result[0].leitos_ocupados * 100;
+                
 
                 dados = {
                     rt: (result[0].rt_valor * 1).toFixed(2),
