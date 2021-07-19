@@ -1126,15 +1126,15 @@ app.get("/api/dados-estado/", (req, res) => {
             TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
             VIEW_INCIDENCIA.LETALIDADE,
             TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
-            view_vacinacao.vacinacao_d2 / view_vacinacao.populacao AS D2_DIVE,
-            (VIEW_VACINACAO_MS_POR_REGIAO.D2 / VIEW_VACINACAO_MS_POR_REGIAO.POPULACAO) AS D2_MS
+            view_vacinacao.vacinacao_d2 / view_vacinacao.populacao AS D2_DIVE
+            --(VIEW_VACINACAO_MS_POR_REGIAO.D2 / VIEW_VACINACAO_MS_POR_REGIAO.POPULACAO) AS D2_MS
         FROM VIEW_RT,
             VIEW_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR,
             VIEW_LEITOS_MAX,
             VIEW_INCIDENCIA,
             view_vacinacao,
-            VIEW_VACINACAO_MS_POR_REGIAO,
+            --VIEW_VACINACAO_MS_POR_REGIAO,
             (SELECT VIEW_INCIDENCIA.LETALIDADE, VIEW_INCIDENCIA.INCIDENCIA
                 FROM VIEW_INCIDENCIA
                 WHERE VIEW_INCIDENCIA.ID  = 1) as TABELA_ESTADO
@@ -1142,10 +1142,10 @@ app.get("/api/dados-estado/", (req, res) => {
             AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
             AND VIEW_RT.ID = VIEW_LEITOS_MAX.ID
             AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
-            AND VIEW_RT.ID = VIEW_VACINACAO_MS_POR_REGIAO.ID
+            --AND VIEW_RT.ID = VIEW_VACINACAO_MS_POR_REGIAO.ID
             AND VIEW_RT.ID = view_vacinacao.ID	
             AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
-            AND VIEW_VACINACAO_MS_POR_REGIAO.DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO)
+            --AND VIEW_VACINACAO_MS_POR_REGIAO.DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO)
             `,
         (err, rows) => {
             if (err) {
@@ -1178,7 +1178,7 @@ app.get("/api/dados-estado/", (req, res) => {
                     leitos = result[i].leitos_ocupados * 100;
                     incidencia = result[i].incidencia;
                     letalidade  = result[i].letalidade;
-                    vacinacao = result[i].d2_populacao * 100;
+                    vacinacao = result[i].d2_dive * 100;
                     
 
                     stateData.features.push({
