@@ -75,7 +75,8 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO")
-
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS_MAX")
+        
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
@@ -213,6 +214,30 @@ class Create:
                     REGIONAIS.REGIONAL_SAUDE, 
                     VACINACAO_DIVE."Data"
                 ORDER BY REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE OR REPLACE VIEW VIEW_LEITOS_MAX AS
+                SELECT REGIONAIS.REGIONAL_SAUDE,
+                    TBL.ID,
+                    TBL.LEITOS_OCUPADOS,
+                    TBL.LEITOS_ATIVOS,
+					MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX
+                FROM
+                    (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,
+                            SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                            SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                            (LEITOSGERAISCOVID.ATUALIZACAO) AS DATA
+                        FROM LEITOSGERAISCOVID
+                        GROUP BY LEITOSGERAISCOVID.INDEX_REGIONAL,
+                            LEITOSGERAISCOVID.ATUALIZACAO
+                        ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,
+                            LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,
+                    REGIONAIS
+                WHERE TBL.ID = REGIONAIS.ID
+                    AND TBL.DATA > '2021-06-11'
+                ORDER BY TBL.ID,
+                    TBL.DATA
         """
         self.db.execute_query(sql)
 
@@ -446,6 +471,7 @@ class Create:
                 GROUP BY REGIONAIS.ID
         """
         self.db.execute_query(sql)
+        
 
         sql = """CREATE VIEW VIEW_LEITOSGERAL AS
                     SELECT REGIONAIS.REGIONAL_SAUDE,

@@ -173,6 +173,11 @@ class download_leitos:
                 infoHospital['pacientes_covid'] = valorHospital[6]
             elif self.valores[i]['Ø'] == 80:
                 infoHospital['pacientes_covid'] = 0
+            elif self.valores[i]['Ø'] == 104:
+                infoHospital['pacientes_covid'] = 0
+                infoHospital['leitos_disponiveis'] = valorHospital[3]
+                infoHospital['leitos_ocupados'] = valorHospital[2] - \
+                valorHospital[3]
             else:
                 raise Exception("!-- Erro processando: ", i, ";",
                                 self.hospitais[i], ";", valorHospital)

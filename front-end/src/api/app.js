@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -562,26 +562,12 @@ app.get("/api/rt-estado/", (req, res) => {
 app.get("/api/leitos-por-regiao/:id", (req, res) => {
     id = req.params.id;
     pool.query(
-        `SELECT TBL.LEITOS_OCUPADOS,
-                --TBL.LEITOS_ATIVOS,
-                MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX,
-                TO_CHAR(TBL.DATA, 'YYYY-MM-DD HH:MI:SS') AS DATA
-            FROM
-                (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,
-                        SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                        SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
-                        (LEITOSGERAISCOVID.ATUALIZACAO) AS DATA
-                    FROM LEITOSGERAISCOVID
-                    GROUP BY LEITOSGERAISCOVID.INDEX_REGIONAL,
-                        LEITOSGERAISCOVID.ATUALIZACAO
-                    ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,
-                        LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,
-                REGIONAIS
-            WHERE TBL.ID = REGIONAIS.ID
-                AND TBL.ID = $1
-                AND TBL.DATA > '2021-06-11'
-            ORDER BY TBL.ID,
-                TBL.DATA
+        `SELECT REGIONAL_SAUDE, ID,
+        LEITOS_OCUPADOS,
+        LEITOS_ATIVOS_MAX,
+        DATA
+    FROM PUBLIC.VIEW_LEITOS_MAX
+    WHERE ID = $1
             `, [id],
         (err, rows) => {
             if (err) {
@@ -628,26 +614,11 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
 
 app.get("/api/leitos-por-regiao/", (req, res) => {
     pool.query(
-        `SELECT 
-                REGIONAIS.REGIONAL_SAUDE,
-                TBL.ID,
-                TBL.LEITOS_OCUPADOS,
-                --TBL.LEITOS_ATIVOS,
-                MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID ORDER BY DATA) AS LEITOS_ATIVOS_MAX,
-                TO_CHAR(TBL.DATA,'YYYY-MM-DD HH:MI:SS') AS DATA
-            FROM
-                (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,
-                        SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
-                        SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
-                        (LEITOSGERAISCOVID.ATUALIZACAO) AS DATA
-                    FROM LEITOSGERAISCOVID
-                    GROUP BY LEITOSGERAISCOVID.INDEX_REGIONAL,
-                        LEITOSGERAISCOVID.ATUALIZACAO
-                    ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,
-                        LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,
-                REGIONAIS
-            WHERE TBL.ID = REGIONAIS.ID AND TBL.DATA > '2021-06-11'
-            ORDER BY TBL.ID, TBL.DATA
+        `SELECT REGIONAL_SAUDE, ID,
+            LEITOS_OCUPADOS,
+            LEITOS_ATIVOS_MAX,
+            DATA
+        FROM PUBLIC.VIEW_LEITOS_MAX
             `,
         (err, rows) => {
             if (err) {
@@ -703,10 +674,10 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
                 // console.log(totalEstado.get(key).data);
                 regionais[0].x.push(totalEstado.get(key).data);
                 regionais[0].y.push((totalEstado.get(key).leitos_ocupados / totalEstado.get(key).leitos_ativos_max));
-                if (totalEstado.get(key).leitos_ativos_max != leitos_ativos_max_anterior){
-                    console.log("Mudança no dia " + key + ", era: " + leitos_ativos_max_anterior + ", passou:" + totalEstado.get(key).leitos_ativos_max); 
-                    // Alex: inserir as anotações das mudanças
-                }
+                // if (totalEstado.get(key).leitos_ativos_max != leitos_ativos_max_anterior){
+                //     console.log("Mudança no dia " + key + ", era: " + leitos_ativos_max_anterior + ", passou:" + totalEstado.get(key).leitos_ativos_max); 
+                //     // Alex: inserir as anotações das mudanças
+                // }
                 leitos_ativos_max_anterior = totalEstado.get(key).leitos_ativos_max;
             });
 
@@ -1141,30 +1112,40 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
 app.get("/api/dados-estado/", (req, res) => {
     pool.query(
         `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
-            VIEW_RT.ID AS ID,
+            VIEW_RT.ID AS ID, 
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,
             VIEW_RT.DATA AS RT_DATA,
             VIEW_RT.RT AS RT_VALOR,
             VIEW_RT.poligono AS POLIGONO,
             VIEW_RT.url AS url,
-            1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
-            VIEW_LEITOS.MAX_DATA AS LEITOS_DATA,
+            (VIEW_LEITOS_MAX.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX:: NUMERIC) LEITOS_OCUPADOS,
+            VIEW_LEITOS_MAX.DATA AS LEITOS_DATA, 
             VIEW_CASOS_ATUAL.DATA AS DATA_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR.DATA AS DATA_CASOS_ANTERIOR,
-            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,
-            VIEW_INCIDENCIA.LETALIDADE,
             VIEW_INCIDENCIA.INCIDENCIA,
-            VACINACAO.D2_POPULACAO
+            TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
+            VIEW_INCIDENCIA.LETALIDADE,
+            TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
+            view_vacinacao.vacinacao_d2 / view_vacinacao.populacao AS D2_DIVE,
+            (VIEW_VACINACAO_MS_POR_REGIAO.D2 / VIEW_VACINACAO_MS_POR_REGIAO.POPULACAO) AS D2_MS
         FROM VIEW_RT,
             VIEW_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR,
-            VIEW_LEITOS,
+            VIEW_LEITOS_MAX,
             VIEW_INCIDENCIA,
-            (SELECT ID, (D2 / POPULACAO) AS D2_POPULACAO FROM VIEW_VACINACAO_MS_POR_REGIAO WHERE DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO) ) AS VACINACAO
+            view_vacinacao,
+            VIEW_VACINACAO_MS_POR_REGIAO,
+            (SELECT VIEW_INCIDENCIA.LETALIDADE, VIEW_INCIDENCIA.INCIDENCIA
+                FROM VIEW_INCIDENCIA
+                WHERE VIEW_INCIDENCIA.ID  = 1) as TABELA_ESTADO
         WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
-                        AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
-                        AND VIEW_RT.ID = VIEW_LEITOS.ID
-                        AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
-                        AND VIEW_RT.ID = VACINACAO.ID
+            AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+            AND VIEW_RT.ID = VIEW_LEITOS_MAX.ID
+            AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+            AND VIEW_RT.ID = VIEW_VACINACAO_MS_POR_REGIAO.ID
+            AND VIEW_RT.ID = view_vacinacao.ID	
+            AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
+            AND VIEW_VACINACAO_MS_POR_REGIAO.DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO)
             `,
         (err, rows) => {
             if (err) {

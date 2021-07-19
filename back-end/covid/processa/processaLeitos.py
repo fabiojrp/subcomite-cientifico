@@ -93,6 +93,7 @@ class processaLeitos:
             'HOSPITAL NOSSA SENHORA DOS PRAZERES': {'municipio': 420930, 'index_regional': 16},
             'HOSPITAL MONSENHOR JOSE LOCKS DE SAO JOAO BATISTA': {'municipio': 421630, 'index_regional': 9},
             'ASSOCIACAO BENEFICENTE HOSPITAL SAO LUCAS': {'municipio': 420640, 'index_regional': 6},
+            'UNIDADE DE PRONTO ATENDIMENTO UPA 24 H PADRE ALDO SEIDEL': {'municipio': 421010, 'index_regional': 15},
 
         }
         try:
