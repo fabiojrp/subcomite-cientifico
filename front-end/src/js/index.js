@@ -196,29 +196,29 @@ $(document).ready(() => {
         props.name +
         "</h4><p>Taxa de Transmissibilidade: " +
 
-        props.rt + "<span>("+ props.pontos_rt +" / 5)</span>"+
+        props.rt + "<span>("+ props.pontos_rt +" / 5 Pontos)</span>"+
 
         "</p><p>Média Móvel: " +
         props.media_movel.toFixed(2) +
 
-        "%" + "<span>("+ props.pontos_media_movel +" / 5)</span>"+
+        "%" + "<span>("+ props.pontos_media_movel +" / 5 Pontos)</span>"+
 
         "</p><p>Ocupação de Leitos Covid Adulto: " +
         props.ocupacao_leitos.toFixed(2) +
 
-        "%" + "<span>("+ props.pontos_ocupacao_leitos +" / 5)</span>"+
+        "%" + "<span>("+ props.pontos_ocupacao_leitos +" / 5 Pontos)</span>"+
 
         "</p><p> Casos acumulados por 100 mil hab: " +
 
-        props.incidencia.toFixed(0) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2)</span>"+
+        props.incidencia.toFixed(0) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span>"+
         
         "</p><p> Taxa de letalidade: " +
 
-        props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2)</span>"+
+        props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span>"+
 
         "</p><p> Percentual de vacinação: " +
         
-        props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3)</span>"+
+        props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3 Pontos)</span>"+
 
         '</p><p><a href="' +
         props.path +
@@ -239,7 +239,7 @@ $(document).ready(() => {
       dados.features[i].properties.pontos_letalidade = (dados.features[i].properties.letalidade <= dados.features[i].properties.letalidade_sc ? 2 : 0);
       dados.features[i].properties.pontos_vacinacao = (dados.features[i].properties['vacinacao'] >= 20 ? 3 : 0); 
     }
-    console.log(dados);
+    //console.log(dados);
     return dados.features;
   }
 
@@ -275,8 +275,16 @@ $(document).ready(() => {
       levelRegion += d.rt < 1 ? 5 : 0;
       levelRegion += d.media_movel < 15 ? 5 : 0;
       levelRegion += d.ocupacao_leitos < 60 ? 5 : 0;
+      levelRegion += d.incidencia <= d.incidencia_sc ? 2 : 0;
+      levelRegion += d.letalidade <= d.letalidade_sc ? 2 : 0;
+      levelRegion += d.vacinacao >= 20 ? 3 : 0; 
 
-      if (levelRegion >= 15) return fav;
+      if (levelRegion >= 15){
+        if (d.ocupacao_leitos > 80)
+            return orange;
+        return fav;
+      } 
+        
       else if (levelRegion >= 12 && levelRegion < 15) return yellow;
       else if (levelRegion >= 9 && levelRegion <= 11) return orange;
       else return red;

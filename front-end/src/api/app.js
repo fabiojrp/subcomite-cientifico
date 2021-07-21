@@ -1238,7 +1238,7 @@ app.get("/api/dados-regiao/:id", (req, res) => {
                 return;
             }
 
-            console.log(rows.rows);
+           // console.log(rows.rows);
 
             if (rows.rows.length > 0) {
                 result = rows.rows;
