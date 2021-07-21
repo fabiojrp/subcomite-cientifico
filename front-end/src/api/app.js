@@ -1179,7 +1179,7 @@ app.get("/api/dados-estado/", (req, res) => {
                     incidencia = result[i].incidencia;
                     letalidade  = result[i].letalidade;
                     vacinacao = result[i].d2_dive * 100;
-                    
+                    ocupacao_leitos = result[i].leitos_ocupados * 100;
 
                     stateData.features.push({
                         type: "Feature",
@@ -1188,13 +1188,12 @@ app.get("/api/dados-estado/", (req, res) => {
                             name: result[i].regionais,
                             rt: Number(result[i].rt_valor),
                             media_movel: mediamovel,
-                            // result[i].variacao,
-                            // "ocupacao_leitos": leitos.toFixed(0) + "%",
-                            ocupacao_leitos: leitos,
+                            ocupacao_leitos: ocupacao_leitos,
                             incidencia:incidencia,
+                            incidencia_sc: result[i].incidencia_sc,
                             letalidade:letalidade,
+                            letalidade_sc: result[i].letalidade_sc,
                             vacinacao: vacinacao,
-                            
                             path: result[i].url,
                         },
                         geometry: result[i].poligono,

@@ -97,6 +97,14 @@ header .logo {
   color: #777;
 }
 
+.map-info p {
+  width: 100%;
+}
+.map-info p span{
+  margin-left: 30px;
+  float: right;
+}
+
 .legend {
   text-align: left;
   line-height: 18px;

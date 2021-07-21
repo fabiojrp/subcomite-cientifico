@@ -19,7 +19,7 @@ $(document).ready(() => {
       url: base_url + "/api/dados-estado/",
       async: false,
       success: function (data) {
-        stateData = data.stateData;
+        stateData = get_pontuacao_regionais(data.stateData);
       },
       error: function (result) {
         console.log("Erro");
@@ -195,19 +195,31 @@ $(document).ready(() => {
         ? "<h4><b>Regional:</b> " +
         props.name +
         "</h4><p>Taxa de Transmissibilidade: " +
-        props.rt +
+
+        props.rt + "<span>("+ props.pontos_rt +" / 5)</span>"+
+
         "</p><p>Média Móvel: " +
         props.media_movel.toFixed(2) +
-        "%" +
+
+        "%" + "<span>("+ props.pontos_media_movel +" / 5)</span>"+
+
         "</p><p>Ocupação de Leitos Covid Adulto: " +
         props.ocupacao_leitos.toFixed(2) +
-        "%" +
+
+        "%" + "<span>("+ props.pontos_ocupacao_leitos +" / 5)</span>"+
+
         "</p><p> Casos acumulados por 100 mil hab: " +
-        props.incidencia.toFixed(0) +
+
+        props.incidencia.toFixed(0) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2)</span>"+
+        
         "</p><p> Taxa de letalidade: " +
-        props.letalidade.toFixed(2) + "%" +
+
+        props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2)</span>"+
+
         "</p><p> Percentual de vacinação: " +
-        props.vacinacao.toFixed(2) + "%" +
+        
+        props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3)</span>"+
+
         '</p><p><a href="' +
         props.path +
         '?region=1">Saiba mais sobre essa região</a></p>'
@@ -216,6 +228,19 @@ $(document).ready(() => {
 
   if (regionData === null) {
     info.addTo(map);
+  }
+
+  function get_pontuacao_regionais(dados){
+    for (var i = 0; i < dados.features.length; i++){
+      dados.features[i].properties.pontos_rt = (dados.features[i].properties['rt'] <= 1 ? 5 : 0);
+      dados.features[i].properties.pontos_media_movel = (dados.features[i].properties.media_movel < 15 ? 5 : 0);
+      dados.features[i].properties.pontos_ocupacao_leitos = (dados.features[i].properties.ocupacao_leitos <= 60 ? 5 : 0);
+      dados.features[i].properties.pontos_incidencia = (dados.features[i].properties.incidencia <= dados.features[i].properties.incidencia_sc ? 2 : 0);
+      dados.features[i].properties.pontos_letalidade = (dados.features[i].properties.letalidade <= dados.features[i].properties.letalidade_sc ? 2 : 0);
+      dados.features[i].properties.pontos_vacinacao = (dados.features[i].properties['vacinacao'] >= 20 ? 3 : 0); 
+    }
+    console.log(dados);
+    return dados.features;
   }
 
   // TODO: Fazer a cor verde:
