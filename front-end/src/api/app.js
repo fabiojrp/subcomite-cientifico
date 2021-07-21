@@ -563,11 +563,11 @@ app.get("/api/leitos-por-regiao/:id", (req, res) => {
     id = req.params.id;
     pool.query(
         `SELECT REGIONAL_SAUDE, ID,
-        LEITOS_OCUPADOS,
-        LEITOS_ATIVOS_MAX,
-        DATA
-    FROM PUBLIC.VIEW_LEITOS_MAX
-    WHERE ID = $1
+            LEITOS_OCUPADOS,
+            LEITOS_ATIVOS_MAX,
+            DATA
+        FROM PUBLIC.VIEW_LEITOS_MAX
+        WHERE ID = $1
             `, [id],
         (err, rows) => {
             if (err) {
@@ -618,7 +618,7 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
             LEITOS_OCUPADOS,
             LEITOS_ATIVOS_MAX,
             TO_CHAR(DATA,'YYYY-MM-DD') AS DATA
-        FROM PUBLIC.VIEW_LEITOS_MAX
+        FROM VIEW_LEITOS_MAX
             `,
         (err, rows) => {
             if (err) {
@@ -1363,18 +1363,19 @@ app.get("/api/dados-boletim/", (req, res) => {
             }
 
             pool.query(
-                `SELECT VIEW_LEITOS.ID AS ID,
-                        VIEW_LEITOS.MAX_DATA AS DATA,
-                        VIEW_LEITOS.LEITOS_ATIVOS LEITOS_ATIVOS,
-                        VIEW_LEITOS.LEITOS_OCUPADOS AS LEITOS_OCUPADOS,
+                `SELECT VIEW_LEITOS_MAX.ID AS ID,
+                        VIEW_LEITOS_MAX.DATA AS DATA,
+                        VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX LEITOS_ATIVOS,
+                        VIEW_LEITOS_MAX.LEITOS_OCUPADOS AS LEITOS_OCUPADOS,
                         VIEW_VACINACAO.VACINACAO_D1,
                         VIEW_VACINACAO.VACINACAO_D2,
                         VIEW_VACINACAO.POPULACAO
                     FROM VIEW_RT,
-                        VIEW_LEITOS,
+                        VIEW_LEITOS_MAX,
                         VIEW_VACINACAO
-                    WHERE VIEW_RT.ID = VIEW_LEITOS.ID
+                    WHERE VIEW_RT.ID = VIEW_LEITOS_MAX.ID
                         AND VIEW_RT.ID = VIEW_VACINACAO.ID
+                        AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
                     ORDER BY ID`,
                 (err2, rows2) => {
                     if (err2) {
@@ -1407,14 +1408,15 @@ app.get("/api/dados-boletim/", (req, res) => {
                         regionais[item.id].vacinacao_d1 = ((item.vacinacao_d1 / item.populacao) * 100).toFixed(4).replace(".", ",");
                         regionais[item.id].vacinacao_d2 = ((item.vacinacao_d2 / item.populacao) * 100).toFixed(4).replace(".", ",");
 
-                        totalEstado.leitos_ocupados += parseInt(item.leitos_ocupados);
-                        totalEstado.leitos_ativos += parseInt(item.leitos_ativos);
+                        //totalEstado.leitos_ocupados += parseInt(item.leitos_ocupados);
+                        //totalEstado.leitos_ativos += parseInt(item.leitos_ativos);
 
                         totalEstado.populacao += parseInt(item.populacao);
                         totalEstado.vacinacao_d1 += parseInt(item.vacinacao_d1);
                         totalEstado.vacinacao_d2 += parseInt(item.vacinacao_d2);
                     });
-                    regionais[1].ocupacao_leitos = ((totalEstado.leitos_ocupados / totalEstado.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+                    //regionais[1].ocupacao_leitos = ((totalEstado.leitos_ocupados / totalEstado.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+                    regionais[1].ocupacao_leitos = "-";
                     regionais[1].vacinacao_d1 = ((totalEstado.vacinacao_d1 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
                     regionais[1].vacinacao_d2 = ((totalEstado.vacinacao_d2 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
                     regionais[1].regional = "Estado de SC";
