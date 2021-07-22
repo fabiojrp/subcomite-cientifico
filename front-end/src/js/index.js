@@ -253,9 +253,9 @@ $(document).ready(() => {
 
   /*
         >= 15 - Verde
-        12 >= e 15 = Amarelo
-        9 >= e 11 = laranja
-        9 < Vermelho
+        11 >= e 14 = Amarelo
+        6 >= e 10 = laranja
+        5 <= Vermelho
 
         Média = 5 pontos 
         R(t) = 5 pontos
@@ -281,14 +281,15 @@ $(document).ready(() => {
       levelRegion += d.letalidade <= d.letalidade_sc ? 2 : 0;
       levelRegion += d.vacinacao >= 20 ? 3 : 0; 
 
+      if (levelRegion < 0) 
+        return "transparent";
       if (levelRegion >= 15){
         if (d.ocupacao_leitos > 80)
             return orange;
         return fav;
       } 
-        
-      else if (levelRegion >= 12 && levelRegion < 15) return yellow;
-      else if (levelRegion >= 9 && levelRegion <= 11) return orange;
+      else if (levelRegion >= 11 && levelRegion < 15) return yellow;
+      else if (levelRegion >= 6 && levelRegion < 11) return orange;
       else return red;
     }
     // switch (d) {
@@ -302,9 +303,11 @@ $(document).ready(() => {
     //     return red;
     // }
     else {
+      if (d < 0) 
+        return "transparent";
       if ( d >= 15 ) return fav;
-      else if ( d >= 12 && d < 15 ) return yellow;
-      else if ( d >= 9 && d <= 11 ) return orange;
+      else if ( d >= 11 && d < 15 ) return yellow;
+      else if ( d >= 6 && d < 11 ) return orange;
       else return red;
     }
   }

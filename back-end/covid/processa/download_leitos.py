@@ -279,13 +279,18 @@ class download_leitos:
                 infoHospital['pacientes_covid'] = valorHospital[5]
             elif self.valores[i]['R'] == 18:
                 infoHospital['leitos_ativos'] = valorHospital[1]
-                infoHospital['leitos_ocupados'] = valorHospital[2]
-                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
-                    valorHospital[2]
                 if 'Ø' in self.valores[i]:
                     if self.valores[i]['Ø'] == 64:
+                        infoHospital['leitos_disponiveis'] = valorHospital[1] - valorHospital[2]
+                        infoHospital['leitos_ocupados'] = valorHospital[2]
+                        infoHospital['pacientes_covid'] = -1
+                    if self.valores[i]['Ø'] == 104:
+                        infoHospital['leitos_disponiveis'] = 2
+                        infoHospital['leitos_ocupados'] = 0
                         infoHospital['pacientes_covid'] = -1
                 else:
+                    infoHospital['leitos_disponiveis'] = valorHospital[1] - valorHospital[2]
+                    infoHospital['leitos_ocupados'] = valorHospital[2]
                     infoHospital['pacientes_covid'] = valorHospital[4]
             elif self.valores[i]['R'] == 34:
                 infoHospital['leitos_ativos'] = valorHospital[1]
@@ -321,13 +326,13 @@ class download_leitos:
                 else:
                     infoHospital['pacientes_covid'] = valorHospital[3]
             elif self.valores[i]['R'] == 62:
-                return self.processaHospital(i-1)
+                # return self.processaHospital(i-1)
                 valorHospital = self.valores[i-1]['C']
-                # infoHospital['leitos_ativos'] = valorHospital[1]
-                # infoHospital['leitos_ocupados'] = valorHospital[2]
-                # infoHospital['leitos_disponiveis'] = valorHospital[1] - \
-                #     valorHospital[2]
-                # infoHospital['pacientes_covid'] = -1
+                infoHospital['leitos_ativos'] = valorHospital[1]
+                infoHospital['leitos_ocupados'] = valorHospital[2]
+                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                     valorHospital[2]
+                infoHospital['pacientes_covid'] = valorHospital[4]
             elif self.valores[i]['R'] == 66:
                 infoHospital['leitos_ativos'] = valorHospital[1]
                 if 'Ø' in self.valores[i]:
@@ -406,11 +411,11 @@ class download_leitos:
                 infoHospital['pacientes_covid'] = valorHospital[1]
             elif self.valores[i]['R'] == 126:
                 valorHospital = self.valores[i-1]['C']
-                infoHospital['leitos_ativos'] = valorHospital[1]
-                infoHospital['leitos_ocupados'] = valorHospital[2]
-                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
-                    valorHospital[2]
-                infoHospital['pacientes_covid'] = 14
+                infoHospital['leitos_ativos'] = valorHospital[2]
+                infoHospital['leitos_ocupados'] = valorHospital[3]
+                infoHospital['leitos_disponiveis'] = valorHospital[2] - \
+                    valorHospital[3]
+                infoHospital['pacientes_covid'] = valorHospital[6]
             else:
                 raise Exception("!-- Erro processando: ", i, ";", self.hospitais[i], ";",
                                 valorHospital, ";", self.valores[i]['R'])
