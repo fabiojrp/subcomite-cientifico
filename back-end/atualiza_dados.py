@@ -23,7 +23,7 @@ with open('covid.log', 'w') as f:
     try:
         start_time = time.time()
 
-        # # # # Faz o download dos casos do site do Ministério da Saúde
+        # # # # # Faz o download dos casos do site do Ministério da Saúde
         # download_databases()
 
         # # # # # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
@@ -42,16 +42,16 @@ with open('covid.log', 'w') as f:
         #     df = dv.processData(dataDB)
         #     dv.storeBD(df)
 
-        # # # Baixa e processa os dados de vacinados do MS
-        dowVacMS = download_vacinados_MS()
-        if dowVacMS.getFile(): 
-            dowVacMS.processaVacinacaoMS()
+        # # # # Baixa e processa os dados de vacinados do MS
+        # dowVacMS = download_vacinados_MS()
+        # if dowVacMS.getFile(): 
+        #     dowVacMS.processaVacinacaoMS()
 
         # # # # # Executa o script para prever o RT
         # # predict_store()
 
         # # # Ainda em fase de teste - Faz o download dos leitos - Método 1
-        # download_leitos()
+        download_leitos()
 
         # Ainda em fase de teste - Faz o download dos leitos - Método 2
         # importLeitos = importLeitos()
