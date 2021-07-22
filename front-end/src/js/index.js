@@ -44,6 +44,8 @@ $(document).ready(() => {
         regionData.features[0].properties.incidencia = dados.incidencia;
         regionData.features[0].properties.letalidade = dados.letalidade;
         regionData.features[0].properties.vacinacao = dados.vacinacao;
+        regionData.features[0].properties.incidencia_sc = dados.incidencia_sc;
+        regionData.features[0].properties.letalidade_sc = dados.letalidade_sc;
       },
       error: function (result) {
         console.log("Erro");

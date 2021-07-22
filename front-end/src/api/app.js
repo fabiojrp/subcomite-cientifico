@@ -1209,27 +1209,31 @@ app.get("/api/dados-estado/", (req, res) => {
 app.get("/api/dados-regiao/:id", (req, res) => {
     id = req.params.id;
     pool.query(
-        `SELECT DISTINCT
-            VIEW_RT.RT AS RT_VALOR,
-            1 - (VIEW_LEITOS.LEITOS_ATIVOS - VIEW_LEITOS.LEITOS_OCUPADOS)/VIEW_LEITOS.LEITOS_ATIVOS :: NUMERIC LEITOS_OCUPADOS,
-            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,
-            VIEW_INCIDENCIA.LETALIDADE,
+        `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
+                VIEW_RT.RT AS RT_VALOR,
+            (VIEW_LEITOS_MAX.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX:: NUMERIC) LEITOS_OCUPADOS,
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,         
             VIEW_INCIDENCIA.INCIDENCIA,
-            VACINACAO.D2_POPULACAO
-            
+            TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
+            VIEW_INCIDENCIA.LETALIDADE,
+            TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
+            view_vacinacao.vacinacao_d2 / view_vacinacao.populacao AS D2_DIVE
         FROM VIEW_RT,
             VIEW_CASOS_ATUAL,
             VIEW_CASOS_ANTERIOR,
-            VIEW_LEITOS,
+            VIEW_LEITOS_MAX,
             VIEW_INCIDENCIA,
-            (SELECT ID, (D2 / POPULACAO) AS D2_POPULACAO FROM VIEW_VACINACAO_MS_POR_REGIAO WHERE DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO) ) AS VACINACAO
-
+            VIEW_VACINACAO,
+            (SELECT VIEW_INCIDENCIA.LETALIDADE, VIEW_INCIDENCIA.INCIDENCIA
+                FROM VIEW_INCIDENCIA
+                WHERE VIEW_INCIDENCIA.ID  = 1) as TABELA_ESTADO
         WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
-                    AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
-                    AND VIEW_RT.ID = VIEW_LEITOS.ID
-                    AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
-                    AND VIEW_RT.ID = VACINACAO.ID
-                    AND VIEW_RT.ID = $1
+            AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+            AND VIEW_RT.ID = VIEW_LEITOS_MAX.ID
+            AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+            AND VIEW_RT.ID = view_vacinacao.ID	
+            AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
+            AND VIEW_RT.ID =  $1
             `, [id],
 
         (err, rows) => {
@@ -1243,13 +1247,17 @@ app.get("/api/dados-regiao/:id", (req, res) => {
             if (rows.rows.length > 0) {
                 result = rows.rows;
                 mediamovel = result[0].variacao * 100;
-                leitos = result[0].leitos_ocupados * 100;
-                
+                ocupacao_leitos = result[0].leitos_ocupados * 100;
 
                 dados = {
                     rt: (result[0].rt_valor * 1).toFixed(2),
                     media_movel: mediamovel.toFixed(2),
-                    ocupacao_leitos: leitos.toFixed(2),
+                    vacinacao: result[0].d2_dive * 100,
+                    ocupacao_leitos: ocupacao_leitos,
+                    incidencia: result[0].incidencia.toFixed(2),
+                    incidencia_sc: result[0].incidencia_sc.toFixed(2),
+                    letalidade: result[0].letalidade.toFixed(2),
+                    letalidade_sc: result[0].letalidade_sc.toFixed(2),
                 };
 
                 res.send(dados);
