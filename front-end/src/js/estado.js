@@ -182,13 +182,44 @@ $(document).ready(() => {
             //Limpa célculas vazias. 
             ocupacao_leitos = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
+            var max = ocupacao_leitos[0].y.reduce(function(y) {
+                return Math.max(y);
+            });
+            console.log(max);
+            
             var mm_layout = {
                 title: 'Taxa de ocupação de leitos UTI Adulto em relação ao MÁXIMO de leitos ativos (em %)  <br> <a href="nota-explicativa.html#leitos"> Nota Explicativa</a>',
                 yaxis: {
                     tickformat: '.2%',
-                }
+                },
+                // annotations: [
+                //     {
+                //       y: max,
+                //       yref: 'y',
+                //       text: 'max=5',
+                //       showarrow: true,
+                //       font: {
+                //         family: 'Courier New, monospace',
+                //         size: 16,
+                //         color: '#ffffff'
+                //       },
+                //       align: 'center',
+                //       arrowhead: 2,
+                //       arrowsize: 1,
+                //       arrowwidth: 2,
+                //       arrowcolor: '#636363',
+                //       ax: 20,
+                //       ay: -30,
+                //       bordercolor: '#c7c7c7',
+                //       borderwidth: 2,
+                //       borderpad: 4,
+                //       bgcolor: '#ff7f0e',
+                //       opacity: 0.8
+                //     }
+                //   ]
+                
             };
-
+            
             var config = { responsive: true };
 
             Plotly.newPlot("leitos-graph", ocupacao_leitos, mm_layout, config);
