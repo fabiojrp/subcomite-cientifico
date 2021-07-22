@@ -374,22 +374,22 @@ $(document).ready(() => {
     var div = L.DomUtil.create("div", "map-info legend");
     labels = ['<h6><b>Condição de retorno das aulas</b><img class="close-map-info" src="img/close-icon.png" /></h6> '];
     labels.push(
-      '<p><i style="background:' + getColor(16) + '"></i> (Favorável)</p>',
+      '<p><i style="background:' + getColor(16) + '"></i> (Maior ou igual a 15 pontos)</p>',
     );
     labels.push(
       '<p><i style="background:' +
       getColor(12) +
-      '"></i> (Entre 12 e 14 pontos)</p>',
+      '"></i> (11 a 14 pontos)</p>',
     );
     labels.push(
       '<p><i style="background:' +
       getColor(10) +
-      '"></i> (Entre 9 e 11 pontos)</p>',
+      '"></i> (6 a 10 pontos)</p>',
     );
     labels.push(
       '<p><i style="background:' +
       getColor(6) +
-      '"></i> (Abaixo de 8 pontos)</p>',
+      '"></i> (Menor ou igual a 5 pontos)</p>',
     );
     div.innerHTML = labels.join("");
     return div;
