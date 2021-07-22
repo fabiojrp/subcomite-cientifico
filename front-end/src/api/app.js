@@ -1565,6 +1565,49 @@ app.get("/api/vacinacao-ms/", (req, res) => {
         });
 });
 
+app.get("/api/dados-vacinacao/", (req, res) => {
+    pool.query(
+        `SELECT MUNICIPIOS.MUNICIPIO_CORRIGIDO,
+            REGIONAIS.REGIONAL_SAUDE,
+            SUM(VACINACAO_DIVE."D1") AS VACINACAO_D1,
+            SUM(VACINACAO_DIVE."D2") AS VACINACAO_D2,
+            VACINACAO_DIVE."Data" AS DATA
+        FROM MUNICIPIOS,
+            REGIONAIS,
+            VACINACAO_DIVE
+        WHERE VACINACAO_DIVE."Municipio" = MUNICIPIOS.COD_MUNICIPIO
+            AND REGIONAIS.ID = MUNICIPIOS.REGIONAL_SAUDE
+            AND VACINACAO_DIVE."Data" BETWEEN
+                (SELECT MAX(VACINACAO_DIVE."Data")
+                    FROM VACINACAO_DIVE) - interval '14 day' AND
+                (SELECT MAX(VACINACAO_DIVE."Data")
+                    FROM VACINACAO_DIVE)
+        GROUP BY MUNICIPIOS.MUNICIPIO_CORRIGIDO,
+            MUNICIPIOS.MUNICIPIO_CIASC,
+            VACINACAO_DIVE."Data",
+            REGIONAIS.REGIONAL_SAUDE
+        ORDER BY MUNICIPIOS.MUNICIPIO_CIASC,
+            VACINACAO_DIVE."Data"`,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados de leitos das regiões: " + err);
+                return;
+            }
+
+            var json2csv = require('json2csv').parse;
+            var data = json2csv(rows.rows, { expandArrayObjects: true });
+
+            res.attachment('dados-vacinacao.csv');
+            res.status(200).send(data);
+        },
+    );
+});
+
+
+app.listen(port, () => {
+    console.log(`App running on port ${port}.`);
+});
+
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
 });
