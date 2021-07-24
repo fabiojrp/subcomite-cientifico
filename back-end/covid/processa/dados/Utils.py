@@ -46,11 +46,15 @@ class Utils:
 
         if date == None:
             return -1
-
+        
         exp = date.split(' ')
         ##return datetime.datetime.strptime(exp[0], '%d/%m/%Y').strftime("%Y-%m-%d")
         
-        formated_date = datetime.datetime.strptime(exp[0], '%Y-%m-%d')
+        try:
+            formated_date = datetime.datetime.strptime(exp[0], '%Y-%m-%d')
+        except Exception as error:
+            formated_date = datetime.datetime.strptime(exp[0], '%d/%m/%Y')    
+            
         if formated_date < datetime.datetime(2020,2,25, 0, 0):
             return date_alternative
         else:
