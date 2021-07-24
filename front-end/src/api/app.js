@@ -1607,7 +1607,3 @@ app.get("/api/dados-vacinacao/", (req, res) => {
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
 });
-
-app.listen(port, () => {
-    console.log(`App running on port ${port}.`);
-});

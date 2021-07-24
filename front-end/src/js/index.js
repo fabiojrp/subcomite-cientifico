@@ -383,17 +383,17 @@ $(document).ready(() => {
     );
     labels.push(
       '<p><i style="background:' +
-      getColor(12) +
+      getColor(13) +
       '"></i> (11 a 14 pontos)</p>',
     );
     labels.push(
       '<p><i style="background:' +
-      getColor(10) +
+      getColor(8) +
       '"></i> (6 a 10 pontos)</p>',
     );
     labels.push(
       '<p><i style="background:' +
-      getColor(6) +
+      getColor(4) +
       '"></i> (Menor ou igual a 5 pontos)</p>',
     );
     div.innerHTML = labels.join("");
