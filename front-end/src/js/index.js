@@ -233,7 +233,7 @@ $(document).ready(() => {
   }
 
   function get_pontuacao_regionais(dados){
-    for (var i = 0; i < dados.features.length; i++){
+    for (var i = 0; i < dados.features.length; i++) {
       dados.features[i].properties.pontos_rt = (dados.features[i].properties['rt'] <= 1 ? 5 : 0);
       dados.features[i].properties.pontos_media_movel = (dados.features[i].properties.media_movel < 15 ? 5 : 0);
       dados.features[i].properties.pontos_ocupacao_leitos = (dados.features[i].properties.ocupacao_leitos <= 60 ? 5 : 0);
@@ -241,29 +241,9 @@ $(document).ready(() => {
       dados.features[i].properties.pontos_letalidade = (dados.features[i].properties.letalidade <= dados.features[i].properties.letalidade_sc ? 2 : 0);
       dados.features[i].properties.pontos_vacinacao = (dados.features[i].properties['vacinacao'] >= 20 ? 3 : 0); 
     }
-    //console.log(dados);
     return dados.features;
-  }
+  };
 
-  // TODO: Fazer a cor verde:
-  // RT: < 1
-  // Média Móvel < 15%
-  // UTI < 60%
-  // get color depending on rt value
-
-  /*
-        >= 15 - Verde
-        11 >= e 14 = Amarelo
-        6 >= e 10 = laranja
-        5 <= Vermelho
-
-        Média = 5 pontos 
-        R(t) = 5 pontos
-        Leitos móvel = 5 pontos
-        Casos acum. = 2 pontos
-        Letalidade = 2 pontos
-        Vacinação (D2) = 3 pontos
-                    */
   function getColor(d) {
     var fav = "#92efb6";
     var red = "#ff7979";
@@ -281,36 +261,34 @@ $(document).ready(() => {
       levelRegion += d.letalidade <= d.letalidade_sc ? 2 : 0;
       levelRegion += d.vacinacao >= 20 ? 3 : 0; 
 
-      if (levelRegion < 0) 
-        return "transparent";
-      if (levelRegion >= 15){
-        if (d.ocupacao_leitos > 80)
-            return orange;
+      if (levelRegion < 0) return "transparent";
+       
+      if (levelRegion >= 15) {
+        // ↓↓↓ teste removido ↓↓↓
+        // if (d.ocupacao_leitos > 80) 
+        //   return orange;         
         return fav;
       } 
+
       else if (levelRegion >= 11 && levelRegion < 15) return yellow;
+
       else if (levelRegion >= 6 && levelRegion < 11) return orange;
+      
       else return red;
     }
-    // switch (d) {
-    //   case d >= 15:
-    //     return fav;
-    //   case d >= 12 && d < 15:
-    //     return yellow;
-    //   case d >= 9 && d <= 11:
-    //     return orange;
-    //   default:
-    //     return red;
-    // }
+
     else {
-      if (d < 0) 
-        return "transparent";
+      if (d < 0) return "transparent";
+
       if ( d >= 15 ) return fav;
+
       else if ( d >= 11 && d < 15 ) return yellow;
+
       else if ( d >= 6 && d < 11 ) return orange;
+
       else return red;
     }
-  }
+  };
 
   function style(feature) {
     return {
@@ -321,7 +299,7 @@ $(document).ready(() => {
       fillOpacity: 0.5,
       fillColor: getColor(feature.properties.child ? -1 : feature.properties),
     };
-  }
+  };
 
   function highlightFeature(e) {
     geojson.resetStyle();
@@ -339,7 +317,7 @@ $(document).ready(() => {
     }
 
     info.update(layer.feature.properties);
-  }
+  };
 
   var geojson;
 
