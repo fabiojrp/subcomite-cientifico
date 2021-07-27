@@ -1603,6 +1603,72 @@ app.get("/api/dados-vacinacao/", (req, res) => {
     );
 });
 
+app.get("/api/leitos_max", (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.REGIONAL_SAUDE,				
+        TO_CHAR(TBL.DATA, 'YYYY-MM-DD HH:MI:SS') AS DATA,			
+        TBL.LEITOS_OCUPADOS,			
+        TBL.LEITOS_ATIVOS,			
+        MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX			
+    FROM				
+        (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,			
+                SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,	
+                SUM(LEITOSGERAISCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,	
+                (LEITOSGERAISCOVID.ATUALIZACAO) AS DATA	
+            FROM LEITOSGERAISCOVID		
+            GROUP BY LEITOSGERAISCOVID.INDEX_REGIONAL,		
+                LEITOSGERAISCOVID.ATUALIZACAO	
+            ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,		
+                LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,	
+        REGIONAIS			
+    WHERE TBL.ID = REGIONAIS.ID				
+        AND TBL.DATA > '2021-06-11'			
+    ORDER BY TBL.ID,				
+        TBL.DATA`,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados de leitos das regiões: " + err);
+                return;
+            }
+
+            var json2csv = require('json2csv').parse;
+            var data = json2csv(rows.rows, { expandArrayObjects: true });
+
+            res.attachment('leitos_max.csv');
+            res.status(200).send(data);
+        },
+    );
+});
+
+app.get("/api/leitos_ativos", (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.REGIONAL_SAUDE,		
+        SUM(LEITOSCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,	
+        SUM(LEITOSCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,	
+        TO_CHAR(LEITOSCOVID.ATUALIZACAO, 'YYYY-MM-DD HH:MI:SS') AS DATA	
+    FROM REGIONAIS,		
+        LEITOSCOVID	
+    WHERE LEITOSCOVID.INDEX_REGIONAL = REGIONAIS.ID		
+        AND LEITOSCOVID.ATUALIZACAO > '2021-03-19'	
+    GROUP BY LEITOSCOVID.ATUALIZACAO,		
+        REGIONAIS.REGIONAL_SAUDE	
+    ORDER BY REGIONAIS.REGIONAL_SAUDE,		
+        LEITOSCOVID.ATUALIZACAO`,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados de leitos das regiões: " + err);
+                return;
+            }
+
+            var json2csv = require('json2csv').parse;
+            var data = json2csv(rows.rows, { expandArrayObjects: true });
+
+            res.attachment('leitos_ativos.csv');
+            res.status(200).send(data);
+        },
+    );
+});
+
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
