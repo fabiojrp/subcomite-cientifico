@@ -9,9 +9,9 @@ import psycopg2
 from urllib.parse import quote
 from sqlalchemy import create_engine
 
-from processaLeitos import processaLeitos
+# from processaLeitos import processaLeitos
 
-# from covid.processa.processaLeitos import processaLeitos
+from covid.processa.processaLeitos import processaLeitos
 # from covid.processa.dados.Utils import Utils
 # from covid.processa.dao.DadosDao import DadosDao
 # from covid.processa.db.create import Create
@@ -323,31 +323,31 @@ class importLeitos:
         )
         print(" Ok.")
 
-if __name__ == "__main__":
-    importLeitos = importLeitos()
+# if __name__ == "__main__":
+#     importLeitos = importLeitos()
 
-    print("Leitos Gerais ...")
-    for i in range(1,4):
-        try:
-            print("Tentativa {0}".format(i))
-            soupData = importLeitos.getData("Geral")
-            df = importLeitos.processData(soupData, "Geral")
-            importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
-        except Exception as mensagem:
-            print("Erro processando dados:", mensagem)
-            continue
-        break
+#     print("Leitos Gerais ...")
+#     for i in range(1,4):
+#         try:
+#             print("Tentativa {0}".format(i))
+#             soupData = importLeitos.getData("Geral")
+#             df = importLeitos.processData(soupData, "Geral")
+#             importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
+#         except Exception as mensagem:
+#             print("Erro processando dados:", mensagem)
+#             continue
+#         break
 
 
-    print("\nApenas Leitos Covid...")
-    for i in range(1,4):
-        try:
-            print("Tentativa {0}....".format(i))
-            soupData = importLeitos.getData("Covid")
-            df = importLeitos.processData(soupData, "Covid")
-            importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
-        except Exception as mensagem:
-            print("Erro processando dados:", mensagem)
-            continue
-        break
+#     print("\nApenas Leitos Covid...")
+#     for i in range(1,4):
+#         try:
+#             print("Tentativa {0}....".format(i))
+#             soupData = importLeitos.getData("Covid")
+#             df = importLeitos.processData(soupData, "Covid")
+#             importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
+#         except Exception as mensagem:
+#             print("Erro processando dados:", mensagem)
+#             continue
+#         break
 

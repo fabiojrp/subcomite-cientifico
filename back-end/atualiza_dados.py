@@ -48,20 +48,39 @@ with open('covid.log', 'w') as f:
         #     dowVacMS.processaVacinacaoMS()
 
         # # # # # Executa o script para prever o RT
-        # # predict_store()
+        # predict_store()
 
         # # # Ainda em fase de teste - Faz o download dos leitos - Método 1
-        download_leitos()
+        # download_leitos()
 
         # Ainda em fase de teste - Faz o download dos leitos - Método 2
-        # importLeitos = importLeitos()
-        # print("Leitos Gerais ...")
-        # soupData = importLeitos.getData("Geral")
-        # importLeitos.processData(soupData, "Geral")
+        importLeitos = importLeitos()
 
-        # print("\nApenas Leitos  Covid...")
-        # soupData = importLeitos.getData("Covid")
-        # importLeitos.processData(soupData, "Covid")
+        print("Leitos Gerais ...")
+        for i in range(1,4):
+            try:
+                print("Tentativa {0}".format(i))
+                soupData = importLeitos.getData("Geral")
+                df = importLeitos.processData(soupData, "Geral")
+                importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
+            except Exception as mensagem:
+                print("Erro processando dados:", mensagem)
+                continue
+            break
+
+
+        print("\nApenas Leitos Covid...")
+        for i in range(1,4):
+            try:
+                print("Tentativa {0}....".format(i))
+                soupData = importLeitos.getData("Covid")
+                df = importLeitos.processData(soupData, "Covid")
+                importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
+            except Exception as mensagem:
+                print("Erro processando dados:", mensagem)
+                continue
+            break
+
 
         print("\n\nConcluido\n")
         print("\n--- %s seconds ---\n" % (time.time() - start_time))
