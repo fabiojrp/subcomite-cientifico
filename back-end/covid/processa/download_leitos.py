@@ -229,10 +229,16 @@ class download_leitos:
                 infoHospital['pacientes_covid'] = valorHospital[4]
             elif self.valores[i]['R'] == 6:
                 if 'Ø' in self.valores[i]:
-                    infoHospital['leitos_ativos'] = valorHospital[1]
-                    infoHospital['leitos_ocupados'] = valorHospital[1]
-                    infoHospital['leitos_disponiveis'] = 0
-                    infoHospital['pacientes_covid'] = valorHospital[3]
+                    if self.valores[i]['Ø'] == 104: # Adicionado dia 29/07
+                        infoHospital['leitos_ativos'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = 0
+                        infoHospital['leitos_disponiveis'] = valorHospital[1]
+                        infoHospital['pacientes_covid'] = 0
+                    else:
+                        infoHospital['leitos_ativos'] = valorHospital[1]
+                        infoHospital['leitos_ocupados'] = valorHospital[1]
+                        infoHospital['leitos_disponiveis'] = 0
+                        infoHospital['pacientes_covid'] = valorHospital[3]
                 else:
                     infoHospital['leitos_ativos'] = valorHospital[1] + \
                         valorHospital[2]
@@ -399,6 +405,12 @@ class download_leitos:
                     valorHospital[2]
                 infoHospital['pacientes_covid'] = valorHospital[1] - \
                     valorHospital[2]
+            elif self.valores[i]['R'] == 98:
+                infoHospital['leitos_ativos'] = valorHospital[1]
+                infoHospital['leitos_ocupados'] = valorHospital[2]
+                infoHospital['leitos_disponiveis'] = valorHospital[1] - \
+                    valorHospital[2]
+                infoHospital['pacientes_covid'] = valorHospital[2]
             elif self.valores[i]['R'] == 114:
                 infoHospital['leitos_ativos'] = valorHospital[1]
                 infoHospital['leitos_ocupados'] = valorHospital[2]

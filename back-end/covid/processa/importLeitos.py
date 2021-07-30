@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -43,11 +44,12 @@ class importLeitos:
 
             # Inicia o driver baseado nas opções e no path do webdriver
             self.driver = webdriver.Chrome(
-                options=self.options, executable_path=r'/Users/marcelocendron/Downloads/covid/chromedriver')
+                options=self.options, executable_path=r'/Users/marcelocendron/Downloads/chromedriver')
+
             # self.driver = webdriver.Chrome(
             #     options=self.options, executable_path=r'/home/usuario/subcomite-cientifico/back-end/covid/processa/chromedriver')
             self.driver.get("https://app.powerbi.com/view?r=eyJrIjoiMTgwN2I4NTEtM2RhYi00OTYzLWJiMmYtOTRmNjBmZmM4Y2NjIiwidCI6ImExN2QwM2ZjLTRiYWMtNGI2OC1iZDY4LWUzOTYzYTJlYzRlNiJ9&pageName=ReportSectiona4ec0366fe4acb30c1b7")
-            wait = WebDriverWait(self.driver, 60)
+            wait = WebDriverWait(self.driver, 30)
 
             # Obtemos o slicer-dropdown-menu de Tipos de Leito
             xpath = "//div[@aria-label='Tipo de Leito,  All']"
@@ -78,11 +80,20 @@ class importLeitos:
                 # Escondemos o menu clicando novamente nele
                 dropdown_menu.click()
 
-            # <button _ngcontent-ehu-c35="" class="vcPopOutBtn" aria-label="Focus mode"><i _ngcontent-ehu-c35="" class="glyphicon pbi-glyph-miniexpand glyph-small"></i></button>
-            # wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Focus mode']"))).click()
+            # xpath = "//div[@title='Macroregião']"
+            # wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+
+            xpath = "//div[@class='bodyCells']"
+            wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+            self.driver.execute_script("document.querySelector('div[class=\"bodyCells\"]').scrollTo(0, 600)")
+            self.driver.execute_script("document.querySelector('div[class=\"bodyCells\"]').click()")
+            # self.driver.implicitly_wait(40) # seconds
+            wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+
             # Extraimos o código html e usamos BeautifulSoup (muito útil para achar conteúdo no DOM)
             htmlSource = self.driver.page_source
             soup = BeautifulSoup(htmlSource, 'html.parser')
+
             return soup
 
         except Exception as mensagem:
@@ -92,8 +103,10 @@ class importLeitos:
 
 
     def processData(self, soup, tipo):
-        # Esta é a DIV que contém a tabela
-        bodyCells = soup.find('div', 'bodyCells')
+
+        # with open("/Users/marcelocendron/Downloads/01.html", "w") as file:
+        #     file.write(str(bodyCells))
+
         data = soup.find('tspan')
         dataAtualizacao = datetime.datetime.strptime(
             data.text, '%d/%m/%Y %H:%M').strftime("%Y-%m-%d %H:%M")
@@ -110,12 +123,18 @@ class importLeitos:
         totais['leitos_disponiveis'] = int(
             divTotalSoup[4].text.replace(",", ""))
 
-        totalSoup2 = soup.find('div', {'class': 'tableExContainer'})
+        # totalSoup2 = soup.find('div', {'class': 'tableExContainer'})
 
+        # Esta é a DIV que contém a tabela
+        bodyCells = soup.find('div', 'bodyCells')
         # A tabela de dados é o primeiro filho de de bodyCells
         div_table = bodyCells.findChildren("div", recursive=False)[0]
         # Dentro da tabela pode ter várias páginas de dados
         div_pages = div_table.findChildren("div", recursive=False)
+
+        tableExContainer = soup.find('div', 'tableExContainer')
+        with open("/Users/marcelocendron/Downloads/01.html", "w") as file:
+             file.write(str(tableExContainer))   
 
         list_list_list = []
         # Para página da tabela
