@@ -252,7 +252,7 @@ $(document).ready(() => {
 
     if (typeof d == "object") {
       if (!(d.rt)) return "transparent";
-
+      d.ocupacao_leitos = 60;
       var levelRegion = 0;
       levelRegion += d.rt < 1 ? 5 : 0;
       levelRegion += d.media_movel < 15 ? 5 : 0;

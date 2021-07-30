@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "postgres", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -528,6 +528,56 @@ app.get("/api/rt-por-regiao/", (req, res) => {
             res.send({ regionais });
         },
     );
+});
+
+app.get("/api/rt-predicao", (req, res) => {
+            pool.query(
+                `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+                    RT_REGIONAL_PREDICTION.REGIONAL_SAUDE AS ID,
+                    RT_REGIONAL_PREDICTION.DATA AS DATA,
+                    RT_REGIONAL_PREDICTION.PRED AS RT,
+                    RT_REGIONAL_PREDICTION."pred_IC_95_inf",
+                    RT_REGIONAL_PREDICTION."pred_IC_95_sup"
+                FROM REGIONAIS,
+                    RT_REGIONAL_PREDICTION
+                WHERE RT_REGIONAL_PREDICTION.REGIONAL_SAUDE = REGIONAIS.ID`,
+                (err, rows) => {
+                    if (err) {
+                        console.log("Erro ao buscar o valor da predição do R(t): " + err);
+                        res.send({ regionais });
+                    }
+
+                    result = rows.rows;
+                    regionais = [];
+                    result.forEach((item) => {
+                        var id = parseInt(item.id);
+                        if (!regionais[id + 20]) {
+                            if (id == 1 + 20) {
+                                regionais[id + 20] = {
+                                    name: "Estado de SC - Predição",
+                                    mode: "lines",
+                                    type: "scatter",
+                                    x: [],
+                                    y: [],
+                                };
+                            } else {
+                                regionais[id + 20] = {
+                                    name: item.regional_saude + " - Predição",
+                                    mode: "lines",
+                                    type: "scatter",
+                                    visible: "legendonly",
+                                    x: [],
+                                    y: [],
+                                };
+                            }
+                        }
+                        regionais[id + 20].x.push(item.data);
+                        regionais[id + 20].y.push(item.rt);
+                    });
+
+                    res.send({ regionais });
+                },
+            );
 });
 
 app.get("/api/rt-estado/", (req, res) => {
