@@ -15,7 +15,7 @@ class predict_store:
         # ------------------------------------------------------------------------------------------
         # Carregar modelo, dicionário e estatísticas
         # ------------------------------------------------------------------------------------------
-        model_dir = os.getcwd() + '/back-end/covid/processa/rt_predictor/model'
+        model_dir = os.getcwd() + '/covid/processa/rt_predictor/model'
         model = keras.models.load_model(model_dir)
 
         scaler_dict = pickle.load(open(model_dir + '/scalers.dict', "rb"))
