@@ -551,9 +551,9 @@ app.get("/api/rt-predicao", (req, res) => {
                     regionais = [];
                     result.forEach((item) => {
                         var id = parseInt(item.id);
-                        if (!regionais[id + 20]) {
-                            if (id == 1 + 20) {
-                                regionais[id + 20] = {
+                        if (!regionais[id]) {
+                            if (id == 1) {
+                                regionais[id] = {
                                     name: "Estado de SC - Predição",
                                     mode: "lines",
                                     type: "scatter",
@@ -561,7 +561,7 @@ app.get("/api/rt-predicao", (req, res) => {
                                     y: [],
                                 };
                             } else {
-                                regionais[id + 20] = {
+                                regionais[id] = {
                                     name: item.regional_saude + " - Predição",
                                     mode: "lines",
                                     type: "scatter",
@@ -571,8 +571,8 @@ app.get("/api/rt-predicao", (req, res) => {
                                 };
                             }
                         }
-                        regionais[id + 20].x.push(item.data);
-                        regionais[id + 20].y.push(item.rt);
+                        regionais[id].x.push(item.data);
+                        regionais[id].y.push(item.rt);
                     });
 
                     res.send({ regionais });
