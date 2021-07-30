@@ -5,6 +5,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from pandas import ExcelWriter
+import psycopg2
+from urllib.parse import quote
+from sqlalchemy import create_engine
+
+from processaLeitos import processaLeitos
 
 # from covid.processa.processaLeitos import processaLeitos
 # from covid.processa.dados.Utils import Utils
@@ -12,7 +17,7 @@ from pandas import ExcelWriter
 # from covid.processa.db.create import Create
 
 import time
-import datetime
+from datetime import datetime
 import pandas as pd
 
 """
@@ -28,7 +33,12 @@ O <endereço> de constar na seguinte linha de código webdrive.Chrome(..., execu
 
 class importLeitos:
     def __init__(self, simulacao=0):
-        print("initing....")
+        self.param_dic = {
+            "host": "127.0.0.1",
+            "database": "covid",
+            "user": "postgres",
+            "password": "!admpasswd@covid"
+        }
         # create = Create()
         # create.create_leitos()
         # self.dadosDao = DadosDao()
@@ -107,9 +117,9 @@ class importLeitos:
         # with open("/Users/marcelocendron/Downloads/01.html", "w") as file:
         #     file.write(str(bodyCells))
 
-        data = soup.find('tspan')
-        dataAtualizacao = datetime.datetime.strptime(
-            data.text, '%d/%m/%Y %H:%M').strftime("%Y-%m-%d %H:%M")
+        # data = soup.find('tspan')
+        # dataAtualizacao = datetime.datetime.strptime(
+        #     data.text, '%d/%m/%Y %H:%M').strftime("%Y-%m-%d %H:%M")
 
         totalSoup = soup.find('div', {'class': 'floatingBodyCells'})
         divTotalSoup = totalSoup.findChildren(
@@ -131,10 +141,6 @@ class importLeitos:
         div_table = bodyCells.findChildren("div", recursive=False)[0]
         # Dentro da tabela pode ter várias páginas de dados
         div_pages = div_table.findChildren("div", recursive=False)
-
-        tableExContainer = soup.find('div', 'tableExContainer')
-        with open("/Users/marcelocendron/Downloads/01.html", "w") as file:
-             file.write(str(tableExContainer))   
 
         list_list_list = []
         # Para página da tabela
@@ -207,8 +213,8 @@ class importLeitos:
         df.columns = ['macrorregiao', 'hospital', 'leitos_ativos', 'leitos_ocupados',
                       'leitos_disponiveis', 'taxa_ocupacao', 'pacientes_covid']
 
-        with ExcelWriter('dados.xlsx') as writer:
-            df.to_excel(writer, sheet_name='df')
+        # with ExcelWriter('dados.xlsx') as writer:
+        #     df.to_excel(writer, sheet_name='df')
 
         #  converte os valores para números
         df['leitos_ativos'] = pd.to_numeric(
@@ -217,14 +223,48 @@ class importLeitos:
             df['leitos_ocupados'], errors='coerce', downcast='integer')
         df['leitos_disponiveis'] = pd.to_numeric(
             df['leitos_disponiveis'], errors='coerce', downcast='integer')
+        df['pacientes_covid'] = pd.to_numeric(
+            df['pacientes_covid'], errors='coerce', downcast='integer')
+
+        # Converte os valores de percentual
+        df['taxa_ocupacao'] = pd.to_numeric(
+             df['taxa_ocupacao'].str.rstrip('%'), errors='coerce', downcast='integer')
+
+        # # Substitui o que for NA
+        df = df.fillna(0)
+
+        tabelas = processaLeitos().hospital
+        tabelas_municipios = {}
+        tabelas_regionais = {}
+        for key, value in tabelas.items():
+                tabelas_municipios[key] = value['municipio']
+                tabelas_regionais[key] = value['index_regional']
+
+        df.insert(2, 'municipio', 'NULL')
+        df.insert(3, 'codigo_ibge_municipio', df['hospital'])
+        df.insert(4, 'regional_saude', 'NULL')
+        df.insert(5, 'index_regional', df['hospital'])
+
+        df['codigo_ibge_municipio'] = df['codigo_ibge_municipio'].replace(tabelas_municipios)
+        df['index_regional'] = df['index_regional'].replace(tabelas_regionais)
+
+        # atribui as colunas como Int
+        df['leitos_ativos'] = df['leitos_ativos'].astype(int)
+        df['leitos_ocupados'] = df['leitos_ocupados'].astype(int)
+        df['leitos_disponiveis'] = df['leitos_disponiveis'].astype(int)
+        df['pacientes_covid'] = df['leitos_disponiveis'].astype(int)
+
+        # df['atualizacao'] = dataAtualizacao
+
 
         # Verifica se os valores estão fechando:
         for valor in totais:
-            print("Total {0}, BD: {1}".format(totais[valor], df[valor].sum()))
+            # print("Total {0}, BD: {1}".format(totais[valor], df[valor].sum()))
+            if totais[valor] != df[valor].sum():
+                raise Exception(
+                    "!--- {0} não fecha [encontrado: {1}, deveria ser:  {2}]---!".format(valor, df[valor].sum(), totais[valor])) 
 
-        # if somaAtivos != totais[0]:
-        #     raise Exception(
-        #         "!--- Leitos Totais não fecha {encontrado:", somaAtivos, ", deveria ser: ", totais[0], "} ---!")
+        return df
 
 # CREATE TABLE IF NOT EXISTS public.leitosgeraiscovid
 # (
@@ -242,22 +282,72 @@ class importLeitos:
 #     atualizacao timestamp without time zone
 # )
 
-        # Mostramos dataset
-        print(df)
+        # # Mostramos dataset
+        # print(df)
 
         # # Salvamos o DataFrame em um arquivo usando o horário atual
         # timestr = time.strftime("%Y%m%d-%H%M%S")
         # df.to_csv('sc/' + timestr + '.csv', index=False)
 
-        # Neste local teria que escrever na tabela do banco de dados em postgres
+    #     # Neste local teria que escrever na tabela do banco de dados em postgres
+    # def connect(self):
+    #     try:
+    #         conn = psycopg2.connect(**self.param_dic)
+    #         conn.autocommit = True
+    #         self.conn = conn
+    #         print(self.conn)
 
+    #     except psycopg2.Error as error:
+    #         print(error)
+
+    #     return conn
+
+    def salvaBD(self, df, param_dic, table):
+
+        df['atualizacao'] = pd.to_datetime(
+            datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+        print("Salvando os dados... ", end='', flush=True)
+        connect = "postgresql+psycopg2://%s:%s@%s:5432/%s" % (
+            self.param_dic['user'],
+            quote(self.param_dic['password']),
+            self.param_dic['host'],
+            self.param_dic['database']
+        )
+        engine = create_engine(connect)
+        df.to_sql(
+            table,
+            con=engine,
+            index=False,
+            if_exists='append'
+        )
+        print(" Ok.")
 
 if __name__ == "__main__":
     importLeitos = importLeitos()
-    print("Leitos Gerais ...")
-    soupData = importLeitos.getData("Geral")
-    importLeitos.processData(soupData, "Geral")
 
-    print("\nApenas Leitos  Covid...")
-    soupData = importLeitos.getData("Covid")
-    importLeitos.processData(soupData, "Covid")
+    print("Leitos Gerais ...")
+    for i in range(1,4):
+        try:
+            print("Tentativa {0}".format(i))
+            soupData = importLeitos.getData("Geral")
+            df = importLeitos.processData(soupData, "Geral")
+            importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
+        except Exception as mensagem:
+            print("Erro processando dados:", mensagem)
+            continue
+        break
+
+
+    print("\nApenas Leitos Covid...")
+    for i in range(1,4):
+        try:
+            print("Tentativa {0}....".format(i))
+            soupData = importLeitos.getData("Covid")
+            df = importLeitos.processData(soupData, "Covid")
+            importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
+        except Exception as mensagem:
+            print("Erro processando dados:", mensagem)
+            continue
+        break
+

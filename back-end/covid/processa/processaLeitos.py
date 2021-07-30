@@ -1,8 +1,6 @@
 class processaLeitos:
-
-    def buscaInfoHospital(nome_hospital):
-        # Tabela de regionais
-        hospital = {
+    def __init__(self):
+        self.hospital = {
             'ACENI': {'municipio': 420550, 'index_regional': 4},
             'ASSOCIACAO HOSPITALAR PE JOAO BERTHIER': {'municipio': 421600, 'index_regional': 14},
             'CEPON': {'municipio': 420540, 'index_regional': 9},
@@ -96,8 +94,11 @@ class processaLeitos:
             'UNIDADE DE PRONTO ATENDIMENTO UPA 24 H PADRE ALDO SEIDEL': {'municipio': 421010, 'index_regional': 15},
 
         }
+    def buscaInfoHospital(self, nome_hospital):
+        # Tabela de regionais
+        
         try:
-            hospital = hospital[nome_hospital]
+            hospital = self.hospital[nome_hospital]
         except KeyError as ex:
             #print("!--- Hospital não encontrado: {", nome_hospital, "} ---!")
             hospital = -1
