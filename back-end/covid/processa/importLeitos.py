@@ -33,7 +33,7 @@ O <endereço> de constar na seguinte linha de código webdrive.Chrome(..., execu
 
 
 class importLeitos:
-    def __init__(self, simulacao=0):
+    def __init__(self):
         self.param_dic = {
             "host": "127.0.0.1",
             "database": "covid",
@@ -44,7 +44,7 @@ class importLeitos:
         # create.create_leitos()
         # self.dadosDao = DadosDao()
 
-    def getData(self, tipo="Geral"):
+    def getData(self, tipo="Geral", deslocamento=200):
         try:
             # Objeto com configurações do Chrome
             self.options = webdriver.ChromeOptions()
@@ -103,7 +103,7 @@ class importLeitos:
 
             xpath = "//div[@class='bodyCells']"
             wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
-            self.driver.execute_script("document.querySelector('div[class=\"bodyCells\"]').scrollTo(0, 200)")
+            self.driver.execute_script("document.querySelector('div[class=\"bodyCells\"]').scrollTo(0, {0})".format(deslocamento))
             self.driver.execute_script("document.querySelector('div[class=\"bodyCells\"]').click()")
             # self.driver.implicitly_wait(40) # seconds
             wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
