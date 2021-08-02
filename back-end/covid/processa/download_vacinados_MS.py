@@ -2,6 +2,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from datetime import datetime
 from urllib.parse import quote
@@ -10,6 +11,8 @@ import os
 import pandas as pd
 import numpy as np
 import psycopg2
+from os.path import isfile
+from sys import platform
 
 from covid.processa.db.create import Create
 from covid.processa.dados.tabelas import Tabelas
@@ -140,8 +143,14 @@ class download_vacinados_MS:
         # DOWNLOAD DO ARQUIVO DE VACINAÇÃO DO MS
 
         try:
-            # O <endereço> de constar na seguinte linha de código webdrive.Chrome(..., executable_path='<endereço>')
-            path_chromedriver = os.getcwd() + '/back-end/covid/chromedriver/chromedriver'
+            if platform == "linux" or platform == "linux2":
+                path_chromedriver = os.getcwd() + '/covid/chromedriver/chromedriver'
+            elif platform == "darwin":
+                path_chromedriver = '/Users/marcelocendron/Documents/web/chromedriver'
+  
+            
+            if not isfile(path_chromedriver):
+                raise("Binário chrome não encontrado: " + path_chromedriver)
 
             driver = webdriver.Chrome(
                 options=chrome_options, executable_path=r"{}".format(path_chromedriver))
@@ -176,11 +185,13 @@ class download_vacinados_MS:
 
             print("\n Ok!")
 
+        except  TimeoutException as ex:
+            print("Erro aguardando componente: " + str(ex))
+            return None
         except Exception as error:
             print("Error: ", error)
-            print(r"Chrome path: {}".format(path_chromedriver))
             return None
-        return 1
+
 
     def getFileLocal(self):
 

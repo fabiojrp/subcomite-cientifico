@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import os
 from sys import platform
-# from pandas import ExcelWriter
+from pandas import ExcelWriter
 from urllib.parse import quote
 from sqlalchemy import create_engine
 
@@ -249,6 +249,14 @@ class importLeitos:
             if_exists='append'
         )
         print(" Ok.")
+
+    def salvaExcel(self, df):
+        print("Salvando os dados no excel...", end='', flush=True)
+
+        with ExcelWriter('leitos.xlsx') as writer:
+            df.to_excel(writer, sheet_name='dados')
+
+        print(" Ok")
 
 # if __name__ == "__main__":
 #     importLeitos = importLeitos()
