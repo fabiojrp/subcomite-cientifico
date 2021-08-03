@@ -1891,6 +1891,33 @@ app.get("/api/leitos_ativos", (req, res) => {
     );
 });
 
+app.get("/api/media-movel/", (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.ID,
+            REGIONAIS.REGIONAL_SAUDE,
+            CASOS.DATA,
+            SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
+            SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
+            SUM(CASOS.POPULACAO) AS POPULACAO
+        FROM REGIONAIS, CASOS
+        WHERE CASOS.REGIONAL = REGIONAIS.ID
+            AND REGIONAIS.ID <> 0
+        GROUP BY REGIONAIS.ID, REGIONAIS.REGIONAL_SAUDE, CASOS.DATA
+        ORDER BY REGIONAIS.ID, CASOS.DATA`,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar os dados da média movel: " + err);
+                return;
+            }
+
+            var json2csv = require('json2csv').parse;
+            var data = json2csv(rows.rows, { expandArrayObjects: true });
+
+            res.attachment('dados_media_movel.csv');
+            res.status(200).send(data);
+        },
+    );
+});
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
