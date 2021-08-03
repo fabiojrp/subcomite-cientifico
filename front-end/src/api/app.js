@@ -438,7 +438,6 @@ app.get('/api/rt-por-regiao/', (req, res) => {
 })
 */
 
-
 app.get("/api/rt-predict-por-regiao/", (req, res) => {
     pool.query(
         `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
@@ -525,8 +524,6 @@ app.get("/api/rt-predict-por-regiao/", (req, res) => {
     );
 });
 
-
-
 app.get("/api/rt-predict-por-regiao/:id", (req, res) => {
     id = req.params.id;
 
@@ -537,7 +534,7 @@ app.get("/api/rt-predict-por-regiao/:id", (req, res) => {
                 RT_REGIONAL.VALOR_R AS RT_PRED_SUP
             FROM RT_REGIONAL
             WHERE RT_REGIONAL.regional = $1
-                AND RT_REGIONAL.DATA >= (SELECT NOW() - INTERVAL '15 DAYS')
+                AND RT_REGIONAL.DATA >= (SELECT NOW() - INTERVAL '30 DAYS')
             UNION
             SELECT RT_REGIONAL_PREDICTION.DATA AS DATA,
                 RT_REGIONAL_PREDICTION.PRED AS RT,
@@ -547,60 +544,65 @@ app.get("/api/rt-predict-por-regiao/:id", (req, res) => {
             WHERE RT_REGIONAL_PREDICTION.regional_saude = $1
             ORDER BY DATA`, [id] ,
         (err, rows) => {
+            region = regions[id];
+            if (typeof region === "undefined") {
+                res.send("Região não reconhecida. Informe um ID válido.");
+                return;
+            }
+
             if (err) {
                 console.log("Erro ao buscar o valor de R(t) por região: " + err);
                 return;
             }
+            
+            regional = {
+                name: "RT + predição",
+                x: [],
+                y: [],
+                mode: 'lines',
+                line: {'color': 'red'},
+                type: 'scatter'
+            };
+
+            regional_inferior = {
+                name: 'IC inferior',
+                x: [],
+                y: [],
+                showlegend: false,
+                line: {'width': 0},
+                mode: 'lines'
+                // type: 'scatter'
+            };
+
+            regional_superior = {
+                name: 'IC superior',
+                x: [],
+                y: [],
+                fillcolor:'rgba(68, 68, 68, 0.2)',
+                fill: 'tonexty',
+                showlegend: false,
+                mode: 'lines',
+                line: {'width': 0}
+                // type: 'scatter'
+            };
             rt = rows.rows;
-            regionais = [];
+            count = 0;
             rt.forEach((item) => {
-                if (!regionais[item.id]) {
-                    regionais[item.id] = [];
-                    
-                    regionais[item.id].push({
-                        name: item.regional_saude,
-                        x: [],
-                        y: [],
-                        mode: 'lines+markers',
-                        line: {'dash': 'dash', 'color': 'green'},
-                        type: 'scatter'
-                    });
+                regional.x.push(item.data);
+                regional.y.push(item.rt);
 
-                    regionais[item.id].push({
-                        name: 'IC inferior',
-                        x: [],
-                        y: [],
-                        showlegend: false,
-                        line: {'width': 0},
-                        mode: 'lines'
-                        // type: 'scatter'
-                    });
-
-                    regionais[item.id].push({
-                        name: 'IC superior',
-                        x: [],
-                        y: [],
-                        fillcolor:'rgba(68, 68, 68, 0.2)',
-                        fill: 'tonexty',
-                        showlegend: false,
-                        mode: 'lines',
-                        line: {'width': 0}
-                        // type: 'scatter'
-                    });
+                if (count >= rt.length - 5){
+                    regional_inferior.x.push(item.data);
+                    regional_inferior.y.push(item.rt_pred_inf);
+                    regional_superior.x.push(item.data);
+                    regional_superior.y.push(item.rt_pred_sup);
                 }
-                regionais[item.id][0].x.push(item.data);
-                regionais[item.id][0].y.push(item.rt);
-
-                regionais[item.id][1].x.push(item.data);
-                regionais[item.id][1].y.push(item.rt_pred_inf);
-                regionais[item.id][2].x.push(item.data);
-                regionais[item.id][2].y.push(item.rt_pred_sup);
+                count++;
             });
-            res.send({ regionais });
+            res.send({ regional, regional_inferior, regional_superior });
         },
     );
 });
-
 
 
 app.get("/api/rt-por-regiao/", (req, res) => {
