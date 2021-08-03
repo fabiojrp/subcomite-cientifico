@@ -1896,7 +1896,7 @@ app.get("/api/leitos_ativos", (req, res) => {
 app.get("/api/media-movel/", (req, res) => {
     pool.query(
         `SELECT REGIONAIS.ID,
-            REGIONAIS.REGIONAL_SAUDE,
+            CASE WHEN REGIONAIS.ID=1 THEN 'Estado de Santa Catarina' ELSE REGIONAIS.REGIONAL_SAUDE END,
             CASOS.DATA,
             SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL,
             SUM(CASOS.OBITOS_MEDIAMOVEL) AS OBITOS_MEDIAMOVEL,
