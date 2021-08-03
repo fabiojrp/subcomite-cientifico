@@ -438,6 +438,221 @@ app.get('/api/rt-por-regiao/', (req, res) => {
 })
 */
 
+
+app.get("/api/rt-predict-por-regiao/", (req, res) => {
+    pool.query(
+        `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT_REGIONAL.DATA as data,
+            RT_REGIONAL.VALOR_R as rt
+            FROM REGIONAIS, RT_REGIONAL
+            WHERE RT_REGIONAL.REGIONAL = REGIONAIS.ID
+                AND RT_REGIONAL.DATA >= (SELECT NOW() - INTERVAL '15 DAYS')
+            ORDER BY REGIONAIS.REGIONAL_SAUDE, RT_REGIONAL.DATA
+            `,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valor de R(t) por região: " + err);
+                return;
+            }
+
+            pool.query(
+                `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+                    RT_REGIONAL_PREDICTION.REGIONAL_SAUDE AS ID,
+                    RT_REGIONAL_PREDICTION.DATA AS DATA,
+                    RT_REGIONAL_PREDICTION.PRED AS RT_PRED,
+                    RT_REGIONAL_PREDICTION."pred_IC_95_inf" AS RT_PRED_INF,
+                    RT_REGIONAL_PREDICTION."pred_IC_95_sup" AS RT_PRED_SUP
+                FROM REGIONAIS,
+                    RT_REGIONAL_PREDICTION
+                WHERE RT_REGIONAL_PREDICTION.REGIONAL_SAUDE = REGIONAIS.ID`,
+                (err2, rows2) => {
+                    if (err2) {
+                        console.log("Erro ao buscar o valor da predição do R(t): " + err2);
+                        res.send({ regionais });
+                    }
+
+                    rt = rows.rows;
+                    rt_predito = rows2.rows;
+
+                    regionais = [];
+
+                    rt.forEach((item) => {
+                        if (!regionais[item.id]) {
+                            regionais[item.id] = [];
+                            
+                            regionais[item.id].push({
+                                name: item.regional_saude,
+                                mode: "lines",
+                                type: "scatter",
+                                visible: "true",
+                                x: [],
+                                y: [],
+                            });
+                        }
+                        regionais[item.id][0].x.push(item.data);
+                        regionais[item.id][0].y.push(item.rt);
+                    });
+
+                    rt_predito.forEach((item) => {
+                        if (!regionais[item.id][1] && !regionais[item.id][2] && !regionais[item.id][3]) {
+                            regionais[item.id].push({
+                                name: item.regional_saude + '_predict',
+                                x: [],
+                                y: [],
+                                mode: 'lines+markers',
+                                line: {'dash': 'dash', 'color': 'green'},
+                                type: 'scatter'
+                            });
+        
+                            regionais[item.id].push({
+                                name: 'IC inferior',
+                                x: [],
+                                y: [],
+                                showlegend: false,
+                                line: {'width': 0},
+                                mode: 'lines'
+                                // type: 'scatter'
+                            });
+        
+                            regionais[item.id].push({
+                                name: 'IC superior',
+                                x: [],
+                                y: [],
+                                fillcolor:'rgba(68, 68, 68, 0.2)',
+                                fill: 'tonexty',
+                                showlegend: false,
+                                mode: 'lines',
+                                line: {'width': 0}
+                                // type: 'scatter'
+                            });
+                        }
+
+                        regionais[item.id][1].x.push(item.data);
+                        regionais[item.id][1].y.push(item.rt_pred);
+                        regionais[item.id][2].x.push(item.data);
+                        regionais[item.id][2].y.push(item.rt_pred_inf);
+                        regionais[item.id][3].x.push(item.data);
+                        regionais[item.id][3].y.push(item.rt_pred_sup);
+                    });
+
+                    res.send({ regionais });
+                },
+            );
+        },
+    );
+});
+
+
+
+
+
+app.get("/api/rt-predict-por-regiao/:id", (req, res) => {
+    id = req.params.id;
+
+    pool.query(
+        `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT_REGIONAL.DATA as data,
+            RT_REGIONAL.VALOR_R as rt
+            FROM REGIONAIS, RT_REGIONAL
+            WHERE RT_REGIONAL.REGIONAL = REGIONAIS.ID
+                AND RT_REGIONAL.DATA >= (SELECT NOW() - INTERVAL '15 DAYS')
+                AND REGIONAIS.ID = $1
+            ORDER BY REGIONAIS.REGIONAL_SAUDE, RT_REGIONAL.DATA
+            `, [id] ,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valor de R(t) por região: " + err);
+                return;
+            }
+
+            pool.query(
+                `SELECT REGIONAIS.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+                    RT_REGIONAL_PREDICTION.REGIONAL_SAUDE AS ID,
+                    RT_REGIONAL_PREDICTION.DATA AS DATA,
+                    RT_REGIONAL_PREDICTION.PRED AS RT_PRED,
+                    RT_REGIONAL_PREDICTION."pred_IC_95_inf" AS RT_PRED_INF,
+                    RT_REGIONAL_PREDICTION."pred_IC_95_sup" AS RT_PRED_SUP
+                FROM REGIONAIS,
+                    RT_REGIONAL_PREDICTION
+                WHERE RT_REGIONAL_PREDICTION.REGIONAL_SAUDE = REGIONAIS.ID
+                    AND REGIONAIS.ID = $1`, [id],
+                (err2, rows2) => {
+                    if (err2) {
+                        console.log("Erro ao buscar o valor da predição do R(t): " + err2);
+                        res.send({ regionais });
+                    }
+
+                    rt = rows.rows;
+                    rt_predito = rows2.rows;
+
+                    regionais = [];
+
+                    rt.forEach((item) => {
+                        if (!regionais[item.id]) {
+                            regionais[item.id] = [];
+                            
+                            regionais[item.id].push({
+                                name: item.regional_saude,
+                                mode: "lines",
+                                type: "scatter",
+                                visible: "true",
+                                x: [],
+                                y: [],
+                            });
+                        }
+                        regionais[item.id][0].x.push(item.data);
+                        regionais[item.id][0].y.push(item.rt);
+                    });
+
+                    regionais[id].push({
+                        name: 'rt_predict',
+                        x: [],
+                        y: [],
+                        mode: 'lines+markers',
+                        line: {'dash': 'dash', 'color': 'green'},
+                        type: 'scatter'
+                    });
+
+                    regionais[id].push({
+                        name: 'IC inferior',
+                        x: [],
+                        y: [],
+                        showlegend: false,
+                        line: {'width': 0},
+                        mode: 'lines'
+                        // type: 'scatter'
+                    });
+
+                    regionais[id].push({
+                        name: 'IC superior',
+                        x: [],
+                        y: [],
+                        fillcolor:'rgba(68, 68, 68, 0.2)',
+                        fill: 'tonexty',
+                        showlegend: false,
+                        mode: 'lines',
+                        line: {'width': 0}
+                        // type: 'scatter'
+                    });
+
+                    console.log(regionais[id][1]);
+
+                    rt_predito.forEach((item) => {
+                        regionais[item.id][1].x.push(item.data);
+                        regionais[item.id][1].y.push(item.rt_pred);
+                        regionais[item.id][2].x.push(item.data);
+                        regionais[item.id][2].y.push(item.rt_pred_inf);
+                        regionais[item.id][3].x.push(item.data);
+                        regionais[item.id][3].y.push(item.rt_pred_sup);
+                    });
+                    
+                    res.send({ regionais });
+                },
+            );
+        },
+    );
+});
+
+
+
 app.get("/api/rt-por-regiao/", (req, res) => {
     pool.query(
         `SELECT REGIONAIS.regional_saude, REGIONAIS.id, RT_REGIONAL.DATA as data,
@@ -1659,7 +1874,8 @@ app.get("/api/leitos_max", (req, res) => {
         TO_CHAR(TBL.DATA, 'YYYY-MM-DD HH:MI:SS') AS DATA,			
         TBL.LEITOS_OCUPADOS,			
         TBL.LEITOS_ATIVOS,			
-        MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX			
+        MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX,
+        MIN(MAX_DATA.DATA) OVER (PARTITION BY MAX_DATA.ID ORDER BY DATA) AS MAX_DATA_REGION			
     FROM				
         (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,			
                 SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,	
@@ -1670,7 +1886,13 @@ app.get("/api/leitos_max", (req, res) => {
                 LEITOSGERAISCOVID.ATUALIZACAO	
             ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,		
                 LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,	
-        REGIONAIS			
+        REGIONAIS,
+        (SELECT ID,
+                MIN(DATA) 
+            FROM VIEW_LEITOS_MAX
+                WHERE MAX(LEITOS_ATIVOS_MAX) 
+            GROUP BY ID
+            ORDER BY ID)
     WHERE TBL.ID = REGIONAIS.ID				
         AND TBL.DATA > '2021-06-11'			
     ORDER BY TBL.ID,				

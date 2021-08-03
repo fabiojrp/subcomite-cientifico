@@ -127,6 +127,23 @@ $(document).ready(() => {
         })
         .catch((err) => console.error(err));
 
+    fetch(base_url + "/api/rt-predict-por-regiao/")
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            console.log(dados);
+            var mm_layout = {
+                title: 'Taxa média de transmissibilidade (Rt) 15 dias + previsão 5 dias por regiões',
+                showlegend: true,
+            };
+
+            var config = { responsive: true };
+
+            Plotly.newPlot("rt-predict-graph", [dados], mm_layout, config);
+        })
+        .catch((err) => console.error(err));
+
 
     fetch(base_url + "/api/casos-por-regiao/")
         .then((response) => {
