@@ -9,7 +9,7 @@ from covid.processa.importLeitos import importLeitos
 from covid.processa.calculaRT import calculaRT
 from covid.processa.download_vacinados import download_vacinados
 from covid.processa.download_vacinados_MS import download_vacinados_MS
-# from covid.processa.rt_predictor.predict_store import predict_store
+from covid.processa.rt_predictor.predict_store import predict_store
 
 with open('covid.log', 'w') as f:
     # sys.stdout = f  # Change the standard output to the file we created.from covid.processa.download_leitos import download_leitos
@@ -21,7 +21,7 @@ with open('covid.log', 'w') as f:
     try:
         start_time = time.time()
 
-        # # # # # Faz o download dos casos do site do Ministério da Saúde
+        # # # # Faz o download dos casos do site do Ministério da Saúde
         download_databases()
 
         # # # # # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
@@ -34,19 +34,23 @@ with open('covid.log', 'w') as f:
         calculaRT.gerarRTRegionais()
 
         # # Atualiza a vacinação da DIVE
-        dv = download_vacinados()
-        dataDB = dv.getFile()
-        if dataDB:
-            df = dv.processData(dataDB)
-            dv.storeBD(df)
+        try:
+            dv = download_vacinados()
+            dataDB = dv.getFile()
+            if dataDB:
+                df = dv.processData(dataDB)
+                dv.storeBD(df)
+        except Exception as mensagem:
+            print("Erro: ", mensagem)
 
-        # # # # # Baixa e processa os dados de vacinados do MS
-        dowVacMS = download_vacinados_MS()
-        if dowVacMS.getFile(): 
-            dowVacMS.processaVacinacaoMS()
 
-        # # # # # Executa o script para prever o RT
-        # predict_store()
+        # # # # Baixa e processa os dados de vacinados do MS
+        try:
+            dowVacMS = download_vacinados_MS()
+            if dowVacMS.getFile(): 
+                dowVacMS.processaVacinacaoMS()
+        except Exception as mensagem:
+            print("Erro: ", mensagem)
 
         # # # Script apresenta bastante problema, foi migrado para o método seguinte    
         # download_leitos()
@@ -81,6 +85,11 @@ with open('covid.log', 'w') as f:
                 continue
             break
 
+        # # # # # Executa o script para prever o RT
+        try:
+            predict_store()
+        except Exception as mensagem:
+            print("Erro: ", mensagem)
 
         print("\n\nConcluido\n")
         print("\n--- %s seconds ---\n" % (time.time() - start_time))

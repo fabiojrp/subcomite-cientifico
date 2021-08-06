@@ -54,7 +54,7 @@ class download_vacinados:
             'Reservado 7': 35,
         }
 
-        with open(os.getcwd() + '/back-end/covid/processa/vacinas/municipios.txt') as f:
+        with open(os.getcwd() + '/covid/processa/vacinas/municipios.txt') as f:
             dadosMunicipio = f.read().upper()
         # Reconstruindo a lista dos munícipios.
         self.listaMunicipios = json.loads(dadosMunicipio)

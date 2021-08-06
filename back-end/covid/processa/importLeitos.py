@@ -232,7 +232,7 @@ class importLeitos:
     def salvaBD(self, df, param_dic, table):
 
         df['atualizacao'] = pd.to_datetime(
-            datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
 
         print("Salvando os dados... ", end='', flush=True)
         connect = "postgresql+psycopg2://%s:%s@%s:5432/%s" % (

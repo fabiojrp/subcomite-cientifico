@@ -35,13 +35,13 @@ class processaCSV:
                 dados = csv.DictReader(arquivo, delimiter=";")
                 # LinhasTotaisCsv = len(dados)
                 for value in dados:
-                    index = index + 1
-                    if index % 1000000 == 0:
-                        print(index, flush=True)
-                    elif index % 100000 == 0:
-                        print(index, end='', flush=True)
-                    elif index % 10000 == 0:
-                        print('.', end='', flush=True)
+                    # index = index + 1
+                    # if index % 1000000 == 0:
+                    #     print(index, flush=True)
+                    # elif index % 100000 == 0:
+                    #     print(index, end='', flush=True)
+                    # elif index % 10000 == 0:
+                    #     print('.', end='', flush=True)
 
                     if (value['estado'] != 'SC'):
                         continue
@@ -115,5 +115,5 @@ class processaCSV:
                     # casos_municipios[codigo_ibge_municipio]['datas'][data]['casos_acumulados'] =  Utils.convert_to_int(value['casosAcumulado'])
                     # casos_municipios[codigo_ibge_municipio]['datas'][data]['obitos_acumulados'] =  Utils.convert_to_int(value['obitosAcumulado'])
 
-        print('Fim', flush=True)
+        print('..OK', flush=True)
         return casos_municipios
