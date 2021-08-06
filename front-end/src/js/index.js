@@ -252,7 +252,7 @@ $(document).ready(() => {
 
     if (typeof d == "object") {
       if (!(d.rt)) return "transparent";
-
+      d.ocupacao_leitos = 90;
       var levelRegion = 0;
       levelRegion += d.rt <= 1 ? 5 : 0;
       levelRegion += d.media_movel < 15 ? 5 : 0;
@@ -264,10 +264,10 @@ $(document).ready(() => {
       if (levelRegion < 0) return "transparent";
        
       if (levelRegion >= 15) {
-        // ↓↓↓ teste ocupacao>80 = laranja ↓↓↓
-        if (d.ocupacao_leitos > 80) 
-          return orange;         
-        return fav;
+        // ↓↓↓ teste ocupacao > 80 = amarelo ↓↓↓
+        if (d.ocupacao_leitos > 80) {
+          return yellow;  
+        } else return fav;
       } 
 
       else if (levelRegion >= 11 && levelRegion < 15) return yellow;

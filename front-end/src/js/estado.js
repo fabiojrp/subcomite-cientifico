@@ -132,7 +132,6 @@ $(document).ready(() => {
             return response.json();
         })
         .then((dados) => {
-            console.log(dados);
             var mm_layout = {
                 title: 'Taxa média de transmissibilidade (Rt) 15 dias + previsão 5 dias por regiões',
                 showlegend: true,
@@ -199,11 +198,6 @@ $(document).ready(() => {
             //Limpa célculas vazias. 
             ocupacao_leitos = $.grep(dados.regionais, function (n) { return n == 0 || n });
 
-            var max = ocupacao_leitos[0].y.reduce(function(y) {
-                return Math.max(y);
-            });
-            console.log(max);
-            
             var mm_layout = {
                 title: 'Taxa de ocupação de leitos UTI Adulto em relação ao MÁXIMO de leitos ativos (em %)  <br> <a href="nota-explicativa.html#leitos"> Nota Explicativa</a>',
                 yaxis: {
