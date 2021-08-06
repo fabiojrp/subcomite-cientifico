@@ -112,9 +112,9 @@ $(document).ready(() => {
         return response.json()
     }).then(dados => {
         /* R(t) */
-        var rt = dados['regionais'][id];
+        var rt = [dados.regional, dados.regional_inferior, dados.regional_superior];
         var rt_layout = {
-            title: 'Taxa de Transmissibilidade R(t) 15 dias + predição 5 dias',
+            title: 'Taxa de Transmissibilidade R(t) últimos 30 dias + Predição 5 dias',
         };
         var config = { responsive: true }
         Plotly.newPlot('rt-predict-graph', rt, rt_layout, config);
