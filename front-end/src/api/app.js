@@ -1202,7 +1202,7 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
                 totalEstadoData.add(dataItem)
                 if (!totalEstado.has(dataItem)) {
                     totalEstado.set(dataItem, {
-                        populacao: parseInt(item.populacao),
+                        populacao: 0,
                         vacinacao_d1: 0,
                         vacinacao_d2: 0,
                         data: item.data,
