@@ -1,6 +1,5 @@
 import datetime
 
-
 from io import StringIO
 import os.path
 
@@ -15,8 +14,8 @@ def getDados():
 
     # strBase = "http://www.coronavirus.sc.gov.br/wp-content/uploads/{0}/{1:02d}/boletim-epidemiologico-{2:02d}-{1:02d}-{0}.pdf"
     strBase = "{2:02d}-{1:02d}-{0}.pdf"
-    # data_inicio = datetime.datetime(2020, 4, 21, 0, 0)
-    data_inicio = datetime.datetime(2021, 3, 3, 0, 0)
+    data_inicio = datetime.datetime(2020, 4, 21, 0, 0)
+    # data_inicio = datetime.datetime(2021, 3, 3, 0, 0)
     # data_fim = datetime.datetime.today()
     data_fim = datetime.datetime(2021, 3, 6, 0, 0)
     dados = [];
@@ -37,7 +36,8 @@ def extraiDadosPdf(file_path):
     extrairObj = extrair()
     file_path = "boletins/"+file_path;
     if not os.path.isfile(file_path):
-        return
+        print("arquivo não encontrado: " + file_path)
+        return 
     area = (134, 50, 192, 550)
     try:
         df = tabula.read_pdf(file_path, output_format="json",

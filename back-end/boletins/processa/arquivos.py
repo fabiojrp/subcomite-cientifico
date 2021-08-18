@@ -14,7 +14,7 @@ class arquivos:
             return
 
         f = open(
-            "/Users/marcelocendron/Dropbox/web/subcomite/back-end/boletins/boletins/" + file_name, 'wb')
+            "/Users/marcelocendron/Documents/web/subcomite/back-end/boletins/boletins/" + file_name, 'wb')
         file_size = u.length
 
         print("Downloading: ", file_name, " Bytes: ", file_size)
@@ -49,6 +49,23 @@ class arquivos:
 
             writer.writerow(cabecalho1)
             writer.writerow(cabecalho2)
+            print("Ok")
+
+            print("Gerando dados... ", end='', flush=True)
+            for item in dados:
+                if item['dados'] == None:
+                    continue
+                lineData = []
+                lineData.insert(0, item['data'].strftime('%d/%m/%Y'))
+                for itemData in item['dados']:
+                    if itemData == None:
+                        continue
+                    for itemDataTotal in itemData['total']:
+                        lineData.append(itemData['total'][itemDataTotal])
+                    for itemDataTotal in itemData['adulto']:
+                        lineData.append(itemData['adulto'][itemDataTotal])
+
+                writer.writerow(lineData)
             print("Ok")
 
     def salvaCSVLeitos(_self, dados):
