@@ -18,6 +18,7 @@ fases = {
     6: "Fase 4"
 }
 
+# APTO A MELHORAR
 def pontuacao_por_fase(df_dados):
     if ((df_dados[16] == 0 and df_dados[15] >= 20) or \
         (df_dados[16] == 1 and df_dados[15] >= 30) or \
@@ -26,7 +27,8 @@ def pontuacao_por_fase(df_dados):
         return 3
     else:
         return 0
-    
+
+# APTO A MELHORAR
 def aplica_fase(df_avaliado):
     df_avaliado['fase_atual'] = [fases[regional[3]+1] if regional[2] >= 15 else fases[regional[3]] for regional in df_avaliado.values]
     df_avaliado['id_fase'] = [regional[3]+1 if regional[2] >= 15 else regional[3] for regional in df_avaliado.values]
@@ -40,44 +42,68 @@ def calcula_pontos(df_avaliacao, df_dados):
     df_avaliacao['pontos'] += [2 if x <= y else 0 for x,y in zip(df_dados['incidencia'], df_dados['incidencia_sc'])]
     df_avaliacao['pontos'] += [pontuacao_por_fase(x) for x in df_dados.values]
     
-def dados_atual():
-    dados_last = buscar_dados_atuais()
-    dados_last['leitos_ocupados'] *= 100
-    dados_last['id_fase'] = 0
-    
-    return dados_last
+    if df_avaliacao['pontos'] >= 15:
+        df_avaliacao['isAdvancing'] = True
+        df_avaliacao['isRegressing'] = False
+    elif df_avaliacao['pontos'] > 5:
+        df_avaliacao['isAdvancing'] = False
+        df_avaliacao['isRegressing'] = False
+    else:
+        df_avaliacao['isAdvancing'] = False
+        df_avaliacao['isRegressing'] = True
 
-def normaliza_avaliacao(dados_last):
+
+def normaliza_avaliacao(df_dados_atuais, df_ultima_avaliacao):
     df_avaliacao = pd.DataFrame()
     
-    df_avaliacao['id'] = dados_last['id']
-    df_avaliacao['regionais'] = dados_last['regionais']
+    df_avaliacao['id'] = df_dados_atuais['id']
+    df_avaliacao['regionais'] = df_dados_atuais['regionais']
     df_avaliacao['pontos'] = 0
-    
-    calcula_pontos(df_avaliacao, dados_last)
-    
-    df_avaliacao.insert(3, 'id_fase', dados_last['id_fase'])
-    
-    aplica_fase(df_avaliacao)
-    
-    df_avaliacao['created_at'] = datetime.strptime(str(datetime.now()), '%Y-%m-%d %H:%M:%S.%f').strftime("%Y-%m-%d %H:%M")
 
-def avaliar_campi():
+    calcula_pontos(df_avaliacao, df_dados_atuais)
+    df_avaliacao.insert(3, 'id_fase', (df_ultima_avaliacao['id_fase'] if df_ultima_avaliacao['id_fase'] else 1 ))
+    aplica_fase(df_avaliacao)
+    df_avaliacao['created_at'] = pd.to_datetime(datetime.strptime(str(datetime.now()), '%Y-%m-%d %H:%M:%S.%f').strftime("%Y-%m-%d %H:%M"))
+    
+    return df_avaliacao
+
+
+def avaliacao(df_dados, df_ultima_avaliacao):
+    if df_ultima_avaliacao == None:
+        pass
+
+def avaliacao_completa():
+    data_inicio = datetime.datetime(2021, 7, 21)
+    data_fim = datetime.datetime.today()
+    data_quarta = data_inicio
+    
+    df_ultima_avaliacao = None
+    while True:
+        df_dados = buscar_dados_por_data(data_quarta)
+        df_avaliacao = normaliza_avaliacao(df_dados, df_ultima_avaliacao)
+        
+        data_quarta = data_quarta + datetime.timedelta(7)
+        df_ultima_avaliacao = busca_ultima_avaliacao()
+        if data_quarta > data_fim:
+            break
+            
+
+def avaliar_regionais():
     try:
         ultima_avaliacao = busca_ultima_avaliacao()
     except Exception as error:
-        ultima_avaliacao = None
+        ultima_avaliacao = avaliacao_completa()
         
-    if ultima_avaliacao == None:
-        pass
-    else:
-        df_dadosAtuais = dados_atual()
+    # if ultima_avaliacao == None:
+    #     pass
+    # else:
+    #     df_dadosAtuais = dados_atual()
         
     df_avaliacao = normaliza_avaliacao(df_dadosAtuais)
     print(df_avaliacao)
     
 
-avaliar_campi()
+avaliar_regionais()
 
 
 
