@@ -135,6 +135,14 @@ $(document).ready(() => {
             var mm_layout = {
                 title: 'Taxa média de transmissibilidade (Rt) 15 dias + previsão 5 dias por regiões',
                 showlegend: true,
+                xaxis: {
+                    title: {
+                      text: '©<a href="https://sites.google.com/view/idaifsc-ptbr/">IDA IFSC</a>',
+                      font: {
+                        size: 16,
+                      }
+                    },
+                  }
             };
 
             var config = { responsive: true };
