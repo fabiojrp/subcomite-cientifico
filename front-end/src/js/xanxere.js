@@ -238,7 +238,7 @@ $(document).ready(() => {
             var ocupacao_leitos = [dados.leitos_ocupados, dados.leitos_disponiveis];
 
             var ol_layout = {
-                title: "Leitos Totais / Ocupados (UTI - Covid Adulto)",
+                title: "Taxa de ocupação de leitos UTI Adulto em relação ao MÁXIMO de leitos ativos (em %)",
                 barmode: "stack",
                 bargap: 0.5,
                 bargroupgap: 0.2,
