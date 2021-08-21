@@ -82,7 +82,7 @@ def buscar_dados_atuais():
     return consultar(sql)
 
 def buscar_dados_por_data(data):
-    sql = '''
+    sql = """
     SELECT 
         RT_REGIONAIS.ID,
         RT_REGIONAIS.REGIONAL_SAUDE,
@@ -111,9 +111,9 @@ def buscar_dados_por_data(data):
         AND RT_REGIONAIS.DATA = VACINACAO.DATA
         AND RT_REGIONAIS.ID = LEITOS_REGIONAIS.ID
         AND RT_REGIONAIS.DATA = LEITOS_REGIONAIS.DATA
-        AND RT_REGIONAIS.DATA = {}::DATE
+        AND RT_REGIONAIS.DATA = '{}'
     ORDER BY RT_REGIONAIS.ID, RT_REGIONAIS.DATA
-    '''.format(str(data))
+    """.format(str(data))
     return consultar(sql)
 
 def busca_ultima_avaliacao():
