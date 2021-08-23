@@ -41,16 +41,20 @@ with open(dir_path + 'boletins.csv', 'r') as arquivo:
     print(df.head(2))
 
     pontuacaoVacinas = {
-        1.0: {'eval': lambda a: a < 0.2},
-        2.0: {'eval': lambda a: a > 0.2},
-        3.1: { 'eval': lambda a: a > 0.3},
-        3.2: {'eval': lambda a: a > 0.4},
-        3.3: {'eval': lambda a: a > 0.5},
-        4.0: {'eval': lambda a: a > 0.75},
-        '': {'eval': lambda a: a > 1},
+        1.0: {'proximo': 2.0, 'eval': lambda a: a < 0.2},
+        2.0: {'proximo': 3.1, 'eval': lambda a: a > 0.2},
+        3.1: {'proximo': 3.2, 'eval': lambda a: a > 0.3},
+        3.2: {'proximo': 3.3, 'eval': lambda a: a > 0.4},
+        3.3: {'proximo': 4.0, 'eval': lambda a: a > 0.5},
+        4.0: {'proximo': '',  'eval': lambda a: a > 0.75},
+        '':  {'proximo': '',  'eval': lambda a: a > 1},
     }
 
     df['pontuacao'] = df.apply(pontuacaoRegiao, axis=1)
+    df['fase_anterior'] = df.apply(
+        lambda row: pontuacaoVacinas[row['fase_anterior']]['proximo']  if row['pontuacao'] >= 15
+               else row['fase_anterior'], axis=1)
+
     print(df.head(1))
 
 
