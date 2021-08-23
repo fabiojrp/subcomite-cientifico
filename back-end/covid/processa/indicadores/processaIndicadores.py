@@ -52,7 +52,7 @@ with open(dir_path + 'boletins.csv', 'r') as arquivo:
 
     df['pontuacao'] = df.apply(pontuacaoRegiao, axis=1)
     df['fase_anterior'] = df.apply(
-        lambda row: pontuacaoVacinas[row['fase_anterior']]['proximo']  if row['pontuacao'] >= 15
+        lambda row: pontuacaoVacinas[row['fase_anterior']]['proximo'] if row['pontuacao'] >= 15
                else row['fase_anterior'], axis=1)
 
     print(df.head(1))
