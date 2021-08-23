@@ -75,8 +75,15 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_DADOS_BOLETIM")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS_BOLETIM")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS_MAX")
-        
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT_BOLETIM")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO_BOLETIM")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA_LETALIDADE_REG_BOLETIM")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA_LETALIDADE_SC_BOLETIM")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_VARIACAO_MM_BOLETIM")
+           
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
         self.db.execute_query("DROP TABLE IF EXISTS casos")
@@ -241,7 +248,164 @@ class Create:
                     TBL.DATA
         """
         self.db.execute_query(sql)
-
+        
+        # RT boletim
+        sql = """ CREATE OR REPLACE VIEW VIEW_RT_BOLETIM AS
+        SELECT 
+            REGIONAIS.REGIONAL_SAUDE,
+            REGIONAIS.ID,
+            RT_REGIONAL.DATA,
+            RT_REGIONAL.VALOR_R AS RT
+        FROM REGIONAIS, RT_REGIONAL
+        WHERE RT_REGIONAL.DATA >= '2021-07-21'
+            AND RT_REGIONAL.REGIONAL = REGIONAIS.ID
+        AND REGIONAIS.ID <> 1
+        ORDER BY REGIONAIS.ID,
+            RT_REGIONAL.DATA
+        """
+        self.db.execute_query(sql)
+        
+        # leitos boletim
+        sql = """ CREATE OR REPLACE VIEW VIEW_LEITOS_BOLETIM AS
+        SELECT
+            VIEW_LEITOS_MAX.ID,
+            VIEW_LEITOS_MAX.REGIONAL_SAUDE,
+            VIEW_LEITOS_MAX.LEITOS_OCUPADOS,
+            VIEW_LEITOS_MAX.LEITOS_ATIVOS,
+            VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX,
+            VIEW_LEITOS_MAX.DATA::DATE
+        FROM VIEW_LEITOS_MAX
+            WHERE VIEW_LEITOS_MAX.DATA >= '2021-07-21'
+        ORDER BY VIEW_LEITOS_MAX.ID,
+            VIEW_LEITOS_MAX.DATA
+        """
+        self.db.execute_query(sql)
+        
+        # variacao boletim
+        sql = """ CREATE OR REPLACE VIEW VIEW_VARIACAO_MM_BOLETIM AS
+        SELECT 
+            REGIONAIS.ID,
+            CASOS_ATUAL.DATA,
+            ((CASOS_ATUAL.CASOS_MEDIAMOVEL::NUMERIC / CASOS_ANTERIOR.CASOS_MEDIAMOVEL::NUMERIC - 1) * 100) AS VARIACAO_MM
+        FROM REGIONAIS,
+            (SELECT 
+                REGIONAIS.ID,
+                CASOS.DATA,
+                SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+            FROM REGIONAIS,CASOS
+            WHERE CASOS.DATA >= '2021-07-21'::DATE - INTERVAL '14 DAYS'
+                AND CASOS.DATA < (SELECT MAX(DATA)::DATE - INTERVAL '13 DAY' FROM CASOS)
+                AND CASOS.REGIONAL = REGIONAIS.ID
+                AND CASOS.REGIONAL <> 0
+                AND CASOS.REGIONAL <> 1
+            GROUP BY REGIONAIS.ID, CASOS.DATA
+            ORDER BY REGIONAIS.ID, CASOS.DATA
+            ) AS CASOS_ANTERIOR,
+            
+            (SELECT 
+                REGIONAIS.ID,
+                CASOS.DATA,
+                SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+            FROM REGIONAIS, CASOS
+            WHERE CASOS.DATA >= '2021-07-21' 
+                AND CASOS.REGIONAL = REGIONAIS.ID
+                AND CASOS.REGIONAL <> 0
+                AND CASOS.REGIONAL <> 1
+            GROUP BY REGIONAIS.ID, CASOS.DATA
+            ORDER BY REGIONAIS.ID, CASOS.DATA 
+            ) AS CASOS_ATUAL
+        WHERE CASOS_ATUAL.ID = CASOS_ANTERIOR.ID
+            AND CASOS_ATUAL.ID = REGIONAIS.ID
+            AND CASOS_ANTERIOR.DATA = CASOS_ATUAL.DATA::DATE - INTERVAL '14 days'
+        """
+        self.db.execute_query(sql)
+        
+        # letalidade e incidencia regionais boletim
+        sql = """ CREATE OR REPLACE VIEW VIEW_INCIDENCIA_LETALIDADE_REG_BOLETIM AS
+        SELECT 
+            REGIONAIS.ID,
+            CASOS.DATA,
+            CASE WHEN (SUM(CASOS.CASOS_ACUMULADOS) < 100) THEN 0 ELSE (SUM(CASOS.OBITOS_ACUMULADOS)::real / SUM(CASOS.CASOS_ACUMULADOS)::real) * 100
+            END AS LETALIDADE,
+            CASE WHEN (SUM(CASOS.POPULACAO) <= 0) THEN 0 ELSE (SUM(CASOS.CASOS_ACUMULADOS)::real / SUM(CASOS.POPULACAO)::real) * 1e5
+            END AS INCIDENCIA
+        FROM REGIONAIS, CASOS
+        WHERE CASOS.REGIONAL = REGIONAIS.ID
+            AND CASOS.DATA >= '2021-07-21'
+        GROUP BY CASOS.DATA, REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+        
+        # letalidade e incidencia estado boletim
+        sql = """ CREATE OR REPLACE VIEW VIEW_INCIDENCIA_LETALIDADE_SC_BOLETIM AS
+        SELECT 
+            REGIONAIS.ID,
+            CASOS.DATA,
+            CASE WHEN (SUM(CASOS.CASOS_ACUMULADOS) < 100) THEN 0 ELSE (SUM(CASOS.OBITOS_ACUMULADOS)::real / SUM(CASOS.CASOS_ACUMULADOS)::real) * 100
+            END AS LETALIDADE,
+            CASE WHEN (SUM(CASOS.POPULACAO) <= 0) THEN 0 ELSE (SUM(CASOS.CASOS_ACUMULADOS)::real / SUM(CASOS.POPULACAO)::real) * 1e5
+            END AS INCIDENCIA
+        FROM REGIONAIS, CASOS
+        WHERE CASOS.REGIONAL = 1
+            AND CASOS.REGIONAL = REGIONAIS.ID
+            AND CASOS.DATA >= '2021-07-21'
+        GROUP BY CASOS.DATA, REGIONAIS.ID
+        """
+        self.db.execute_query(sql)
+        
+        # vacinação boletim
+        sql = """ CREATE OR REPLACE VIEW VIEW_VACINACAO_BOLETIM AS
+        SELECT 
+            REGIONAIS.REGIONAL_SAUDE,
+            REGIONAIS.ID AS ID,
+            REGIONAIS.POPULACAO AS POPULACAO,
+            SUM(VACINACAO_DIVE."D1") AS VACINACAO_D1,
+            SUM(VACINACAO_DIVE."D2") AS VACINACAO_D2,
+            VACINACAO_DIVE."Data" AS DATA
+        FROM REGIONAIS,
+            VACINACAO_DIVE
+        WHERE VACINACAO_DIVE."Data" >= '2021-07-21'
+            AND VACINACAO_DIVE.REGIONAL = REGIONAIS.ID
+        GROUP BY VACINACAO_DIVE."Data", REGIONAIS.ID
+        ORDER BY REGIONAIS.ID, VACINACAO_DIVE."Data"
+        """
+        self.db.execute_query(sql)
+        
+        # dados boletim
+        sql = """ CREATE OR REPLACE VIEW VIEW_DADOS_BOLETIM AS
+        SELECT 
+            RT_REGIONAIS.ID,
+            RT_REGIONAIS.REGIONAL_SAUDE,
+            RT_REGIONAIS.DATA,
+            RT_REGIONAIS.RT,
+            TABELA_REGIONAIS.LETALIDADE,
+            TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
+            TABELA_REGIONAIS.INCIDENCIA,
+            TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
+            ((VACINACAO.VACINACAO_D2::REAL / VACINACAO.POPULACAO) * 100) AS D2_PERCENTUAL,
+            (LEITOS_REGIONAIS.LEITOS_OCUPADOS::NUMERIC / LEITOS_REGIONAIS.LEITOS_ATIVOS::NUMERIC * 100) AS OCUPACAO_LEITOS,
+            VARIACAO_REGIONAIS.VARIACAO_MM AS VARIACAO
+        FROM
+            VIEW_RT_BOLETIM AS RT_REGIONAIS,
+            VIEW_LEITOS_BOLETIM AS LEITOS_REGIONAIS,
+            VIEW_VARIACAO_MM_BOLETIM AS VARIACAO_REGIONAIS,
+            VIEW_INCIDENCIA_LETALIDADE_REG_BOLETIM AS TABELA_REGIONAIS,
+            VIEW_INCIDENCIA_LETALIDADE_SC_BOLETIM AS TABELA_ESTADO,
+            VIEW_VACINACAO_BOLETIM AS VACINACAO
+        WHERE RT_REGIONAIS.ID = VARIACAO_REGIONAIS.ID
+            AND RT_REGIONAIS.DATA = VARIACAO_REGIONAIS.DATA
+            AND RT_REGIONAIS.ID = TABELA_REGIONAIS.ID
+            AND RT_REGIONAIS.DATA = TABELA_REGIONAIS.DATA
+            AND RT_REGIONAIS.DATA = TABELA_ESTADO.DATA
+            AND RT_REGIONAIS.ID = VACINACAO.ID
+            AND RT_REGIONAIS.DATA = VACINACAO.DATA
+            AND RT_REGIONAIS.ID = LEITOS_REGIONAIS.ID
+            AND RT_REGIONAIS.DATA = LEITOS_REGIONAIS.DATA
+            AND EXTRACT(DOW FROM RT_REGIONAIS.DATA) = 3
+		ORDER BY RT_REGIONAIS.ID, RT_REGIONAIS.DATA
+        """
+        self.db.execute_query(sql)
+        
         print("OK")
 
     def create_view_vacinacao(self):

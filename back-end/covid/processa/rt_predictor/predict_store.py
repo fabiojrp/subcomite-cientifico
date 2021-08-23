@@ -15,12 +15,12 @@ class predict_store:
         # ------------------------------------------------------------------------------------------
         # Carregar modelo, dicionário e estatísticas
         # ------------------------------------------------------------------------------------------
-        model_dir = os.getcwd() + '/covid/processa/rt_predictor/model'
-        model = keras.models.load_model(model_dir)
+        model_dir = os.getcwd() + '/covid/processa/rt_predictor/'
+        model = keras.models.load_model(model_dir + '/keras_model.h5', compile=False)
 
-        scaler_dict = pickle.load(open(model_dir + '/scalers.dict', "rb"))
-        encoder_dict = pickle.load(open(model_dir + '/encoders.dict', "rb"))
-        df_y_pred_stats = pd.read_csv(model_dir + '/df_y_pred_stats.csv')
+        scaler_dict = pickle.load(open(model_dir + 'model/scalers.dict', "rb"))
+        encoder_dict = pickle.load(open(model_dir + 'model/encoders.dict', "rb"))
+        df_y_pred_stats = pd.read_csv(model_dir + 'model/df_y_pred_stats.csv')
 
         # ------------------------------------------------------------------------------------------
         # Obter os dados
