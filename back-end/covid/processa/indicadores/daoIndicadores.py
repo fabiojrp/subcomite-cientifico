@@ -58,39 +58,43 @@ class daoIndicadores:
 
     def buscar_dados_atuais(self):
         sql = '''
-        SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
-                VIEW_RT.ID AS ID, 
-                (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,
-                VIEW_RT.RT AS RT_VALOR,
-                (VIEW_LEITOS.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS.LEITOS_ATIVOS:: NUMERIC) LEITOS_OCUPADOS_ATIVOS,
-                (VIEW_LEITOS_MAX.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX:: NUMERIC) LEITOS_OCUPADOS_MAX,
-                VIEW_INCIDENCIA.INCIDENCIA,
-                TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
-                VIEW_INCIDENCIA.LETALIDADE,
-                TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
-                view_vacinacao.vacinacao_d2 / view_vacinacao.populacao AS D2_DIVE,
-                (VIEW_VACINACAO_MS_POR_REGIAO.D2 / VIEW_VACINACAO_MS_POR_REGIAO.POPULACAO) AS D2_MS
-            FROM VIEW_RT,
-                VIEW_CASOS_ATUAL,
-                VIEW_CASOS_ANTERIOR, VIEW_LEITOS,
-                VIEW_LEITOS_MAX,
-                VIEW_INCIDENCIA,
-                view_vacinacao,
-                VIEW_VACINACAO_MS_POR_REGIAO,
-                (SELECT VIEW_INCIDENCIA.LETALIDADE, VIEW_INCIDENCIA.INCIDENCIA
-                    FROM VIEW_INCIDENCIA
-                    WHERE VIEW_INCIDENCIA.ID  = 1) as TABELA_ESTADO
-            WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
-                AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
-                AND VIEW_RT.ID = VIEW_LEITOS_MAX.ID
-                AND VIEW_RT.ID = VIEW_LEITOS.ID
-                AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
-                AND VIEW_RT.ID = VIEW_VACINACAO_MS_POR_REGIAO.ID
-                AND VIEW_RT.ID = view_vacinacao.ID	
-                AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
-                AND VIEW_VACINACAO_MS_POR_REGIAO.DATA = (SELECT MAX(DATA) FROM VIEW_VACINACAO_MS_POR_REGIAO)
+        SELECT VIEW_RT.ID AS ID,
+            VIEW_RT.REGIONAL_SAUDE AS REGIONAL,
+            VIEW_RT.DATA,
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VAR_MEDIA_MOVEL,
+            VIEW_RT.RT AS RT,
+            VIEW_INCIDENCIA.LETALIDADE,
+            VIEW_INCIDENCIA.INCIDENCIA,
+            (VIEW_LEITOS.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS.LEITOS_ATIVOS:: NUMERIC) LEITOS_OCUPADOS_ATIVOS,
+            (VIEW_LEITOS_MAX.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX:: NUMERIC) LEITOS_OCUPADOS_MAX,
+            TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
+            TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
+            VIEW_VACINACAO.VACINACAO_D2 / VIEW_VACINACAO.POPULACAO AS VACINACAO_D2_DIVE,
+            VIEW_VACINACAO_MS_RESUMO.DOSES_APLICADAS / VIEW_VACINACAO.POPULACAO AS VACINACAO_D2_MS
+        FROM VIEW_RT,
+            VIEW_CASOS_ATUAL,
+            VIEW_CASOS_ANTERIOR,
+            VIEW_LEITOS,
+            VIEW_LEITOS_MAX,
+            VIEW_INCIDENCIA,
+            VIEW_VACINACAO,
+            VIEW_VACINACAO_MS_RESUMO,
+            (SELECT VIEW_INCIDENCIA.LETALIDADE,
+                    VIEW_INCIDENCIA.INCIDENCIA
+                FROM VIEW_INCIDENCIA
+                WHERE VIEW_INCIDENCIA.ID = 1) AS TABELA_ESTADO
+        WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
+            AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+            AND VIEW_RT.ID = VIEW_LEITOS_MAX.ID
+            AND VIEW_RT.ID = VIEW_LEITOS.ID
+            AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+            AND VIEW_RT.ID = VIEW_VACINACAO.ID
+            AND VIEW_RT.ID = VIEW_VACINACAO_MS_RESUMO.ID
+            AND VIEW_LEITOS_MAX.DATA =
+                (SELECT MAX(DATA)
+                    FROM VIEW_LEITOS_MAX)
         '''
-        return self.__consultar(sql)
+        return self.__consultar(sql, ['id'])
 
     def buscar_dados_por_data(self,data):
         sql = """SELECT 
@@ -128,8 +132,10 @@ class daoIndicadores:
         return self.__consultar(sql)
 
     def busca_ultima_avaliacao(self):
-        sql = '''SELECT ID, FASE_CALCULADA AS FASE_ANTERIOR
-            FROM "avaliacaoRegionais"
-            WHERE DATA = (SELECT MAX(DATA) FROM "avaliacaoRegionais")
+        sql = '''SELECT ID,
+            FASE_CALCULADA AS FASE_ANTERIOR,
+            DATA_MUDANCA_FASE
+        FROM "avaliacaoRegionais"
+        WHERE DATA = (SELECT MAX(DATA) FROM "avaliacaoRegionais")
         '''
         return self.__consultar(sql, ['id'])

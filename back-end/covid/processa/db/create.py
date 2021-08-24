@@ -450,6 +450,22 @@ class Create:
         """
         self.db.execute_query(sql)
 
+        sql = """CREATE OR REPLACE VIEW PUBLIC.VIEW_VACINACAO_MS_RESUMO AS
+                    SELECT VACINACAO_MS.REGIONAL as ID,
+                        SUM(VACINACAO_MS.DOSES_APLICADAS) AS DOSES_APLICADAS,
+                        VACINACAO_MS.DATA
+                    FROM VACINACAO_MS
+                    WHERE VACINACAO_MS.DATA =
+                            (SELECT MAX(VACINACAO_MS.DATA) AS MAX_DATA
+                                FROM VACINACAO_MS)
+                        AND VACINACAO_MS.VACINA_DESCRICAO_DOSE = 'Dose'
+                        OR VACINACAO_MS.VACINA_DESCRICAO_DOSE = '2ª Dose'
+                    GROUP BY VACINACAO_MS.REGIONAL,
+                        VACINACAO_MS.DATA
+                    ORDER BY VACINACAO_MS.REGIONAL
+        """
+        self.db.execute_query(sql)
+
     def create_table(self):
         print("Limpando e criando as tabelas...")
         # Limpa as tabelas

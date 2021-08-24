@@ -10,6 +10,7 @@ from covid.processa.calculaRT import calculaRT
 from covid.processa.download_vacinados import download_vacinados
 from covid.processa.download_vacinados_MS import download_vacinados_MS
 from covid.processa.rt_predictor.predict_store import predict_store
+from covid.processa.indicadores.processaIndicadores import processaIndicadores
 
 with open('covid.log', 'w') as f:
     # sys.stdout = f  # Change the standard output to the file we created.from covid.processa.download_leitos import download_leitos
@@ -90,6 +91,10 @@ with open('covid.log', 'w') as f:
             predict_store()
         except Exception as mensagem:
             print("Erro: ", mensagem)
+
+        # Script para calculo dos indicadores da região. 
+        processaIndicadores = processaIndicadores()
+        processaIndicadores.processaIndicadoresBD()
 
         print("\n\nConcluido\n")
         print("\n--- %s seconds ---\n" % (time.time() - start_time))

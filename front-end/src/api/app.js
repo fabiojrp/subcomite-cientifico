@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -1564,99 +1564,126 @@ app.get("/api/dados-extrato/", (req, res) => {
 // Casos confirmados por 100 mil hab.
 // Fila de espera - Leitos UTI
 
+// app.get("/api/dados-boletim/", (req, res) => {
+//     pool.query(
+//         `SELECT VIEW_RT.ID AS ID,
+//             VIEW_RT.REGIONAL_SAUDE AS REGIONAL,
+//             VIEW_RT.DATA AS DATA,
+//             (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VAR_MEDIA_MOVEL,
+//             VIEW_RT.RT AS RT,
+//             VIEW_INCIDENCIA.LETALIDADE,
+//             VIEW_INCIDENCIA.INCIDENCIA
+//         FROM VIEW_RT,
+//             VIEW_CASOS_ATUAL,
+//             VIEW_CASOS_ANTERIOR,
+//             VIEW_INCIDENCIA
+//         WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
+//             AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+//             AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+//         ORDER BY VIEW_RT.ID`,
+//         (err, rows) => {
+//             if (err) {
+//                 console.log("Erro ao buscar os dados de extrato das regiões: " + err);
+//                 return;
+//             }
+
+//             pool.query(
+//                 `SELECT VIEW_LEITOS_MAX.ID AS ID,
+//                         VIEW_LEITOS_MAX.DATA AS DATA,
+//                         VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX LEITOS_ATIVOS,
+//                         VIEW_LEITOS_MAX.LEITOS_OCUPADOS AS LEITOS_OCUPADOS,
+//                         VIEW_VACINACAO.VACINACAO_D1,
+//                         VIEW_VACINACAO.VACINACAO_D2,
+//                         VIEW_VACINACAO.POPULACAO
+//                     FROM VIEW_RT,
+//                         VIEW_LEITOS_MAX,
+//                         VIEW_VACINACAO
+//                     WHERE VIEW_RT.ID = VIEW_LEITOS_MAX.ID
+//                         AND VIEW_RT.ID = VIEW_VACINACAO.ID
+//                         AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
+//                     ORDER BY ID`,
+//                 (err2, rows2) => {
+//                     if (err2) {
+//                         console.log("Erro ao buscar os dados de leitos das regiões: " + err);
+//                         return;
+//                     }
+
+//                     totalEstado = {
+//                         leitos_ocupados: 0,
+//                         leitos_ativos: 0,
+//                         populacao: 0,
+//                         vacinacao_d1: 0,
+//                         vacinacao_d2: 0,
+//                     }
+//                     result = rows.rows;
+//                     result_Leitos = rows2.rows;
+//                     regionais = [];
+//                     result.forEach((item) => {
+//                         item.var_media_movel = (item.var_media_movel * 100).toFixed(2).replace(".", ",");
+//                         // item.leitos_ocupados = (item.leitos_ocupados * 100).toFixed(2).replace(".", ",");
+//                         item.rt = (item.rt).replace(".", ",");
+//                         item.letalidade = (item.letalidade).toFixed(2).replace(".", ",");
+//                         item.incidencia = (item.incidencia).toFixed(2).replace(".", ",");
+//                         regionais[item.id] = item;
+
+//                     });
+
+//                     result_Leitos.forEach((item) => {
+//                         regionais[item.id].ocupacao_leitos = ((item.leitos_ocupados / item.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+//                         regionais[item.id].vacinacao_d1 = ((item.vacinacao_d1 / item.populacao) * 100).toFixed(4).replace(".", ",");
+//                         regionais[item.id].vacinacao_d2 = ((item.vacinacao_d2 / item.populacao) * 100).toFixed(4).replace(".", ",");
+
+//                         //totalEstado.leitos_ocupados += parseInt(item.leitos_ocupados);
+//                         //totalEstado.leitos_ativos += parseInt(item.leitos_ativos);
+
+//                         totalEstado.populacao += parseInt(item.populacao);
+//                         totalEstado.vacinacao_d1 += parseInt(item.vacinacao_d1);
+//                         totalEstado.vacinacao_d2 += parseInt(item.vacinacao_d2);
+//                     });
+//                     //regionais[1].ocupacao_leitos = ((totalEstado.leitos_ocupados / totalEstado.leitos_ativos) * 100).toFixed(2).replace(".", ",");
+//                     regionais[1].ocupacao_leitos = "-";
+//                     regionais[1].vacinacao_d1 = ((totalEstado.vacinacao_d1 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
+//                     regionais[1].vacinacao_d2 = ((totalEstado.vacinacao_d2 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
+//                     regionais[1].regional = "Estado de SC";
+//                     regionais = regionais.filter(function (el) {
+//                         return el != null;
+//                     });
+//                     var json2csv = require('json2csv').parse;
+//                     var data = json2csv(regionais);
+
+//                     res.attachment('boletim.csv');
+//                     res.status(200).send(data);
+//                 },
+//             );
+//         });
+// });
+
+
 app.get("/api/dados-boletim/", (req, res) => {
-    pool.query(
-        `SELECT VIEW_RT.ID AS ID,
-            VIEW_RT.REGIONAL_SAUDE AS REGIONAL,
-            VIEW_RT.DATA AS DATA,
-            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VAR_MEDIA_MOVEL,
-            VIEW_RT.RT AS RT,
-            VIEW_INCIDENCIA.LETALIDADE,
-            VIEW_INCIDENCIA.INCIDENCIA
-        FROM VIEW_RT,
-            VIEW_CASOS_ATUAL,
-            VIEW_CASOS_ANTERIOR,
-            VIEW_INCIDENCIA
-        WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
-            AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
-            AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
-        ORDER BY VIEW_RT.ID`,
-        (err, rows) => {
-            if (err) {
-                console.log("Erro ao buscar os dados de extrato das regiões: " + err);
-                return;
-            }
+        pool.query(
+            `SELECT ID, REGIONAL, DATA,
+                    VAR_MEDIA_MOVEL, RT,
+                    LEITOS_OCUPADOS_MAX, LEITOS_OCUPADOS_ATIVOS,
+                    INCIDENCIA, INCIDENCIA_SC,
+                    LETALIDADE, LETALIDADE_SC,
+                    VACINACAO_D2_DIVE, VACINACAO_D2_MS,
+                    FASE_ANTERIOR, DATA_MUDANCA_FASE,
+                    PONTUACAO, FASE_CALCULADA
+            FROM "avaliacaoRegionais" 
+            WHERE DATA = (SELECT MAX(DATA) FROM "avaliacaoRegionais" )`,
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar os dados de extrato das regiões: " + err);
+                    return;
+                }
+    
+                var json2csv = require('json2csv').parse;
+                var data = json2csv(rows.rows);
 
-            pool.query(
-                `SELECT VIEW_LEITOS_MAX.ID AS ID,
-                        VIEW_LEITOS_MAX.DATA AS DATA,
-                        VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX LEITOS_ATIVOS,
-                        VIEW_LEITOS_MAX.LEITOS_OCUPADOS AS LEITOS_OCUPADOS,
-                        VIEW_VACINACAO.VACINACAO_D1,
-                        VIEW_VACINACAO.VACINACAO_D2,
-                        VIEW_VACINACAO.POPULACAO
-                    FROM VIEW_RT,
-                        VIEW_LEITOS_MAX,
-                        VIEW_VACINACAO
-                    WHERE VIEW_RT.ID = VIEW_LEITOS_MAX.ID
-                        AND VIEW_RT.ID = VIEW_VACINACAO.ID
-                        AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
-                    ORDER BY ID`,
-                (err2, rows2) => {
-                    if (err2) {
-                        console.log("Erro ao buscar os dados de leitos das regiões: " + err);
-                        return;
-                    }
-
-                    totalEstado = {
-                        leitos_ocupados: 0,
-                        leitos_ativos: 0,
-                        populacao: 0,
-                        vacinacao_d1: 0,
-                        vacinacao_d2: 0,
-                    }
-                    result = rows.rows;
-                    result_Leitos = rows2.rows;
-                    regionais = [];
-                    result.forEach((item) => {
-                        item.var_media_movel = (item.var_media_movel * 100).toFixed(2).replace(".", ",");
-                        // item.leitos_ocupados = (item.leitos_ocupados * 100).toFixed(2).replace(".", ",");
-                        item.rt = (item.rt).replace(".", ",");
-                        item.letalidade = (item.letalidade).toFixed(2).replace(".", ",");
-                        item.incidencia = (item.incidencia).toFixed(2).replace(".", ",");
-                        regionais[item.id] = item;
-
-                    });
-
-                    result_Leitos.forEach((item) => {
-                        regionais[item.id].ocupacao_leitos = ((item.leitos_ocupados / item.leitos_ativos) * 100).toFixed(2).replace(".", ",");
-                        regionais[item.id].vacinacao_d1 = ((item.vacinacao_d1 / item.populacao) * 100).toFixed(4).replace(".", ",");
-                        regionais[item.id].vacinacao_d2 = ((item.vacinacao_d2 / item.populacao) * 100).toFixed(4).replace(".", ",");
-
-                        //totalEstado.leitos_ocupados += parseInt(item.leitos_ocupados);
-                        //totalEstado.leitos_ativos += parseInt(item.leitos_ativos);
-
-                        totalEstado.populacao += parseInt(item.populacao);
-                        totalEstado.vacinacao_d1 += parseInt(item.vacinacao_d1);
-                        totalEstado.vacinacao_d2 += parseInt(item.vacinacao_d2);
-                    });
-                    //regionais[1].ocupacao_leitos = ((totalEstado.leitos_ocupados / totalEstado.leitos_ativos) * 100).toFixed(2).replace(".", ",");
-                    regionais[1].ocupacao_leitos = "-";
-                    regionais[1].vacinacao_d1 = ((totalEstado.vacinacao_d1 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
-                    regionais[1].vacinacao_d2 = ((totalEstado.vacinacao_d2 / totalEstado.populacao) * 100).toFixed(4).replace(".", ",");
-                    regionais[1].regional = "Estado de SC";
-                    regionais = regionais.filter(function (el) {
-                        return el != null;
-                    });
-                    var json2csv = require('json2csv').parse;
-                    var data = json2csv(regionais);
-
-                    res.attachment('boletim.csv');
-                    res.status(200).send(data);
-                },
-            );
-        });
-});
+                res.attachment('boletim.csv');
+                res.status(200).send(data);
+                });
+    });
 
 app.get("/api/dados-rt/", (req, res) => {
     pool.query(
@@ -1745,14 +1772,12 @@ app.get("/api/vacinacao-dive/", (req, res) => {
 app.get("/api/vacinacao-ms/", (req, res) => {
     pool.query(
         `SELECT 
-            
             ID,
             REGIONAL_SAUDE,
             POPULACAO,
             D1,
             D2 AS D2_UNICA,
             DATA AS DATA_ATUALIZACAO
-
         FROM VIEW_VACINACAO_MS_POR_REGIAO
             WHERE DATA = (SELECT MAX(DATA)::DATE FROM VIEW_VACINACAO_MS_POR_REGIAO);
         `,
