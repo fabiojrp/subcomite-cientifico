@@ -1663,7 +1663,7 @@ app.get("/api/dados-boletim/", (req, res) => {
         pool.query(
             `SELECT ID, REGIONAL, DATA,
                     VAR_MEDIA_MOVEL, RT,
-                    LEITOS_OCUPADOS_MAX, LEITOS_OCUPADOS_ATIVOS,
+                    LEITOS_COVID_MAX, LEITOS_GERAL_MAX,
                     INCIDENCIA, INCIDENCIA_SC,
                     LETALIDADE, LETALIDADE_SC,
                     VACINACAO_D2_DIVE, VACINACAO_D2_MS,

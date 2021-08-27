@@ -78,6 +78,7 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_DADOS_BOLETIM")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS_BOLETIM")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS_MAX")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_LEITOS_COVID_MAX")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_RT_BOLETIM")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO_BOLETIM")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA_LETALIDADE_REG_BOLETIM")
@@ -246,6 +247,30 @@ class Create:
                     AND TBL.DATA > '2021-06-11'
                 ORDER BY TBL.ID,
                     TBL.DATA
+        """
+        self.db.execute_query(sql)
+
+        sql = """CREATE OR REPLACE VIEW VIEW_LEITOS_COVID_MAX AS
+                    SELECT REGIONAIS.REGIONAL_SAUDE,
+                        TBL.ID,
+                        TBL.LEITOS_OCUPADOS,
+                        TBL.LEITOS_ATIVOS,
+                        MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID ORDER BY TBL.DATA) AS LEITOS_ATIVOS_MAX,
+                        TBL.DATA
+                    FROM
+                        (SELECT LEITOSCOVID.INDEX_REGIONAL AS ID,
+                                SUM(LEITOSCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
+                                SUM(LEITOSCOVID.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
+                                LEITOSCOVID.ATUALIZACAO AS DATA
+                            FROM LEITOSCOVID
+                            GROUP BY LEITOSCOVID.INDEX_REGIONAL,
+                                LEITOSCOVID.ATUALIZACAO
+                            ORDER BY LEITOSCOVID.INDEX_REGIONAL,
+                                LEITOSCOVID.ATUALIZACAO) TBL,
+                        REGIONAIS
+                    WHERE TBL.ID = REGIONAIS.ID
+                    ORDER BY TBL.ID,
+                        TBL.DATA;
         """
         self.db.execute_query(sql)
         
