@@ -1,8 +1,8 @@
 import pandas as pd
 import os
 from datetime import datetime
-from covid.processa.indicadores.daoIndicadores import daoIndicadores
-# from daoIndicadores import daoIndicadores
+# from covid.processa.indicadores.daoIndicadores import daoIndicadores
+from daoIndicadores import daoIndicadores
 
 class processaIndicadores:
 
@@ -185,9 +185,25 @@ class processaIndicadores:
         
         self.dao.salvaBD(df)
 
+    def processaIndicadoresDiario(self):     
+        df = self.dao.buscar_dados_atuais_diario()
 
-# if __name__ == "__main__":
-#     processaIndicadores = processaIndicadores()
+        # busca os dados da semana anterior e junta com os dados atuais
+        df = pd.concat([df, self.dao.busca_ultima_avaliacao()], axis=1)
+        
+        #ajusta a data e os valores do poligono
+        df['data'] = pd.to_datetime(df['data'], errors='coerce').dt.date
+        # df['poligono'] = df['poligono']
+
+        # Calcula a pontuação
+        df['pontuacao'] = df.apply(self.__pontuacaoRegiaoBD, axis=1)
+
+        self.dao.salvaBDDiario(df)
+
+
+if __name__ == "__main__":
+    processaIndicadores = processaIndicadores()
+    processaIndicadores.processaIndicadoresDiario()
 #     processaIndicadores.processaIndicadoresPrimeiroArquivo('boletim (08-07).csv');
 #     processaIndicadores.processaIndicadoresArquivos('boletim (15-07).csv')  
 #     processaIndicadores.processaIndicadoresArquivos('boletim (22-07).csv')

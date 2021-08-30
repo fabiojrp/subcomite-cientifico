@@ -56,6 +56,23 @@ class daoIndicadores:
         )
         print(" Ok!")
 
+    def salvaBDDiario(self, df, table='avaliacaoRegionaisDiario'):
+        from sqlalchemy import dialects
+
+        df['data_calculo'] = pd.to_datetime(
+            datetime.now().strftime("%m/%d/%Y %H:%M:%S"))
+
+        print("Salvando os dados... ", end='', flush=True)
+        engine = self.__get_engine()
+        df.to_sql(
+            table,
+            con=engine,
+            index=True,
+            if_exists='replace',
+            dtype={"poligono":dialects.postgresql.JSONB}
+        )
+        print(" Ok!")
+
     def buscar_dados_atuais(self):
         sql = '''
         SELECT VIEW_RT.ID AS ID,
@@ -94,6 +111,47 @@ class daoIndicadores:
 			AND VIEW_LEITOS_COVID_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_COVID_MAX)
         '''
         return self.__consultar(sql, ['id'])
+
+    def buscar_dados_atuais_diario(self):
+        sql = '''
+        SELECT VIEW_RT.ID AS ID,
+            VIEW_RT.REGIONAL_SAUDE AS REGIONAL,
+			VIEW_RT.DATA AS DATA,
+            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VAR_MEDIA_MOVEL,
+            VIEW_RT.RT,
+            VIEW_RT.poligono AS POLIGONO,
+            VIEW_RT.url AS url,
+         	(VIEW_LEITOS_COVID_MAX.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS_COVID_MAX.LEITOS_ATIVOS_MAX:: NUMERIC) LEITOS_COVID_MAX, 
+		 	(VIEW_LEITOS_MAX.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX:: NUMERIC) LEITOS_GERAL_MAX,
+            VIEW_INCIDENCIA.INCIDENCIA,
+            TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
+            VIEW_INCIDENCIA.LETALIDADE,
+            TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
+            VIEW_VACINACAO.VACINACAO_D2 / VIEW_VACINACAO.POPULACAO AS VACINACAO_D2_DIVE,
+            VIEW_VACINACAO_MS_RESUMO.DOSES_APLICADAS / VIEW_VACINACAO.POPULACAO AS VACINACAO_D2_MS
+        FROM VIEW_RT,
+            VIEW_CASOS_ATUAL,
+            VIEW_CASOS_ANTERIOR,
+            VIEW_LEITOS_MAX,
+			VIEW_LEITOS_COVID_MAX,
+            VIEW_INCIDENCIA,
+            view_vacinacao,
+            VIEW_VACINACAO_MS_RESUMO,
+            (SELECT VIEW_INCIDENCIA.LETALIDADE, VIEW_INCIDENCIA.INCIDENCIA
+                FROM VIEW_INCIDENCIA
+                WHERE VIEW_INCIDENCIA.ID  = 1) as TABELA_ESTADO
+        WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
+            AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
+            AND VIEW_RT.ID = VIEW_LEITOS_MAX.ID
+            AND VIEW_RT.ID = VIEW_LEITOS_COVID_MAX.ID
+            AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
+            AND VIEW_RT.ID = VIEW_VACINACAO.ID
+            AND VIEW_RT.ID = VIEW_VACINACAO_MS_RESUMO.ID
+            AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
+			AND VIEW_LEITOS_COVID_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_COVID_MAX)
+        '''
+        return self.__consultar(sql, ['id'])
+
 
     def buscar_dados_por_data(self,data):
         sql = """SELECT 
