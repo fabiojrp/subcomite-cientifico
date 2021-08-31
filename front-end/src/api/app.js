@@ -1389,31 +1389,15 @@ app.get("/api/dados-estado/", (req, res) => {
 app.get("/api/dados-regiao/:id", (req, res) => {
     id = req.params.id;
     pool.query(
-        `SELECT VIEW_RT.REGIONAL_SAUDE AS REGIONAIS,
-                VIEW_RT.RT AS RT_VALOR,
-            (VIEW_LEITOS_MAX.LEITOS_OCUPADOS:: NUMERIC / VIEW_LEITOS_MAX.LEITOS_ATIVOS_MAX:: NUMERIC) LEITOS_OCUPADOS,
-            (VIEW_CASOS_ATUAL.CASOS_MEDIAMOVEL - VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL) / VIEW_CASOS_ANTERIOR.CASOS_MEDIAMOVEL AS VARIACAO,         
-            VIEW_INCIDENCIA.INCIDENCIA,
-            TABELA_ESTADO.INCIDENCIA AS INCIDENCIA_SC,
-            VIEW_INCIDENCIA.LETALIDADE,
-            TABELA_ESTADO.LETALIDADE AS LETALIDADE_SC,
-            view_vacinacao.vacinacao_d2 / view_vacinacao.populacao AS D2_DIVE
-        FROM VIEW_RT,
-            VIEW_CASOS_ATUAL,
-            VIEW_CASOS_ANTERIOR,
-            VIEW_LEITOS_MAX,
-            VIEW_INCIDENCIA,
-            VIEW_VACINACAO,
-            (SELECT VIEW_INCIDENCIA.LETALIDADE, VIEW_INCIDENCIA.INCIDENCIA
-                FROM VIEW_INCIDENCIA
-                WHERE VIEW_INCIDENCIA.ID  = 1) as TABELA_ESTADO
-        WHERE VIEW_RT.ID = VIEW_CASOS_ATUAL.ID
-            AND VIEW_RT.ID = VIEW_CASOS_ANTERIOR.ID
-            AND VIEW_RT.ID = VIEW_LEITOS_MAX.ID
-            AND VIEW_RT.ID = VIEW_INCIDENCIA.ID
-            AND VIEW_RT.ID = view_vacinacao.ID	
-            AND VIEW_LEITOS_MAX.DATA = (SELECT MAX(DATA) FROM VIEW_LEITOS_MAX)
-            AND VIEW_RT.ID =  $1
+        `SELECT ID, REGIONAL, DATA,
+            VAR_MEDIA_MOVEL, RT,
+            LETALIDADE, INCIDENCIA,
+            LEITOS_COVID_MAX, LEITOS_GERAL_MAX,
+            LETALIDADE_SC, INCIDENCIA_SC,
+            VACINACAO_D2_DIVE, VACINACAO_D2_MS,
+            FASE_ANTERIOR AS FASE, DATA_MUDANCA_FASE, PONTUACAO
+        FROM "avaliacaoRegionaisDiario" 
+        WHERE ID = $1
             `, [id],
 
         (err, rows) => {
@@ -1426,13 +1410,13 @@ app.get("/api/dados-regiao/:id", (req, res) => {
 
             if (rows.rows.length > 0) {
                 result = rows.rows;
-                mediamovel = result[0].variacao * 100;
-                ocupacao_leitos = result[0].leitos_ocupados * 100;
+                mediamovel = result[0].var_media_movel * 100;
+                ocupacao_leitos = result[0].leitos_geral_max * 100;
 
                 dados = {
                     rt: (result[0].rt_valor * 1).toFixed(2),
                     media_movel: mediamovel.toFixed(2),
-                    vacinacao: result[0].d2_dive * 100,
+                    vacinacao: result[0].vacinacao_d2_dive * 100,
                     ocupacao_leitos: ocupacao_leitos,
                     incidencia: result[0].incidencia.toFixed(2),
                     incidencia_sc: result[0].incidencia_sc.toFixed(2),
@@ -1643,10 +1627,39 @@ app.get("/api/dados-boletim/", (req, res) => {
                 var json2csv = require('json2csv').parse;
                 var data = json2csv(rows.rows);
 
-                res.attachment('boletim.csv');
+                var d = rows.rows[0]['data']
+                var dataBoletim = ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear();
+                res.attachment('boletim_'+ dataBoletim + '.csv');
                 res.status(200).send(data);
                 });
     });
+
+app.get("/api/dados-boletim-diario/", (req, res) => {
+        pool.query(
+            `SELECT ID, REGIONAL, DATA,
+                    VAR_MEDIA_MOVEL, RT,
+                    LETALIDADE, INCIDENCIA,
+                    LEITOS_COVID_MAX, LEITOS_GERAL_MAX,
+                    LETALIDADE_SC, INCIDENCIA_SC,
+                    VACINACAO_D2_DIVE, VACINACAO_D2_MS,
+                    FASE_ANTERIOR AS FASE, DATA_MUDANCA_FASE, PONTUACAO
+                FROM "avaliacaoRegionaisDiario" `,
+            (err, rows) => {
+                if (err) {
+                    console.log("Erro ao buscar os dados de extrato das regiões: " + err);
+                    return;
+                }
+    
+                var json2csv = require('json2csv').parse;
+                var data = json2csv(rows.rows);
+
+                var d = rows.rows[0]['data']
+                var dataBoletim = ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear();
+                res.attachment('boletim_'+ dataBoletim + '.csv');
+                res.status(200).send(data);
+                });
+    });
+
 
 app.get("/api/dados-rt/", (req, res) => {
     pool.query(
