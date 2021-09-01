@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -1367,9 +1367,9 @@ app.get("/api/dados-estado/", (req, res) => {
                             rt: Number(result[i].rt),
                             media_movel: mediamovel,
                             ocupacao_leitos: ocupacao_leitos,
-                            incidencia:incidencia,
+                            incidencia: incidencia,
                             incidencia_sc: result[i].incidencia_sc,
-                            letalidade:letalidade,
+                            letalidade: letalidade,
                             letalidade_sc: result[i].letalidade_sc,
                             vacinacao: vacinacao,
                             path: result[i].url,
@@ -1379,6 +1379,7 @@ app.get("/api/dados-estado/", (req, res) => {
                         geometry: result[i].poligono,
                     });
                 }
+                
             }
 
             res.send({ stateData });

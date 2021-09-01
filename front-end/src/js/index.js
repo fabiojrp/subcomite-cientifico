@@ -35,7 +35,7 @@ $(document).ready(() => {
   } else {
     $.ajax({
       type: "GET",
-      url: base_url + '/api/dados-regiao/' + id,
+      url: base_url + '/api/dados-estado/' + id,
       async: false,
       success: function (dados) {
         regionData.features[0].properties.media_movel = dados.media_movel;
@@ -46,6 +46,7 @@ $(document).ready(() => {
         regionData.features[0].properties.vacinacao = dados.vacinacao;
         regionData.features[0].properties.incidencia_sc = dados.incidencia_sc;
         regionData.features[0].properties.letalidade_sc = dados.letalidade_sc;
+        regionData.features[0].properties.pontuacao = dados.pontuacao;
       },
       error: function (result) {
         console.log("Erro");
@@ -212,15 +213,27 @@ $(document).ready(() => {
 
         "</p><p> Casos acumulados por 100 mil hab: " +
 
-        props.incidencia.toFixed(0) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span>"+
+        props.incidencia + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span>"+
+
+        "</p><p> Casos acumulados por 100 mil hab 2: " +
+
+        props.incidencia_sc + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span>"+
         
         "</p><p> Taxa de letalidade: " +
 
-        props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span>"+
+        props.letalidade + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span>"+
+         
+        "</p><p> Taxa de letalidade 2: " +
+
+        props.letalidade_sc + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span>"+
 
         "</p><p> Percentual de vacinação: " +
         
         props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3 Pontos)</span>"+
+
+        "</p><p> Pontuacao: " +
+        
+        props.pontuacao +
 
         '</p><p><a href="' +
         props.path +
