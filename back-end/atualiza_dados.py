@@ -13,83 +13,82 @@ from covid.processa.rt_predictor.predict_store import predict_store
 from covid.processa.indicadores.processaIndicadores import processaIndicadores
 
 with open('covid.log', 'w') as f:
-    # sys.stdout = f  # Change the standard output to the file we created.from covid.processa.download_leitos import download_leitos
-
-    # processaCSV = processaCSV() 
-    # processaMunicipios = processaMunicipios()
-    # calculaRT = calculaRT()
+    sys.stdout = f  # Change the standard output to the file we created.from covid.processa.download_leitos import download_leitos
 
     try:
         start_time = time.time()
 
         # # # Faz o download dos casos do site do Ministério da Saúde
-        # download_databases()
+        download_databases()
 
-        # # # # # # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
-        # casos_municipios = processaCSV.readStoreCSVFile()
+        # # # # # Lê o arquivo baixado na função anterior e retorna a tabela com o número de casos e óbitos
+        processaCSV = processaCSV() 
+        casos_municipios = processaCSV.readStoreCSVFile()
 
-        # # # # # # # # # # Faz o processado dos dados
-        # processaMunicipios.processamento(casos_municipios)
+        # # # # # # # # # Faz o processado dos dados
+        processaMunicipios = processaMunicipios()
+        processaMunicipios.processamento(casos_municipios)
 
-        # # # # # # # # Faz o calculo da RT para as regionais
-        # calculaRT.gerarRTRegionais()
+        # # # # # # # Faz o calculo da RT para as regionais
+        calculaRT = calculaRT()
+        calculaRT.gerarRTRegionais()
 
-        # # Atualiza a vacinação da DIVE
-        # try:
-        #     dv = download_vacinados()
-        #     dataDB = dv.getFile()
-        #     if dataDB:
-        #         df = dv.processData(dataDB)
-        #         dv.storeBD(df)
-        # except Exception as mensagem:
-        #     print("Erro: ", mensagem)
-
-
-        # # # # Baixa e processa os dados de vacinados do MS
-        # try:
-        #     dowVacMS = download_vacinados_MS()
-        #     if dowVacMS.getFile(): 
-        #         dowVacMS.processaVacinacaoMS()
-        # except Exception as mensagem:
-        #     print("Erro: ", mensagem)
-
-        # # Ainda em fase de teste - Faz o download dos leitos - Método 2
-        # importLeitos = importLeitos()
-
-        # print("Leitos Gerais ...")
-        # for i in range(1,6):
-        #     try:
-        #         print("Tentativa {0}".format(i))
-        #         soupData = importLeitos.getData("Geral", i*100)
-        #         df = importLeitos.processData(soupData, "Geral")
-        #         importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
-
-        #     except Exception as mensagem:
-        #         print("Erro processando dados:", mensagem)
-        #         continue
-        #     break
+        # Atualiza a vacinação da DIVE
+        try:
+            dv = download_vacinados()
+            dataDB = dv.getFile()
+            if dataDB:
+                df = dv.processData(dataDB)
+                dv.storeBD(df)
+        except Exception as mensagem:
+            print("Erro: ", mensagem)
 
 
-        # print("\nApenas Leitos Covid...")
-        # for i in range(1,6):
-        #     try:
-        #         print("Tentativa {0}....".format(i))
-        #         soupData = importLeitos.getData("Covid", i*100)
-        #         df = importLeitos.processData(soupData, "Covid")
-        #         importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
-        #         # importLeitos.salvaExcel(df)
-        #     except Exception as mensagem:
-        #         print("Erro processando dados:", mensagem)
-        #         continue
-        #     break
+        # # # Baixa e processa os dados de vacinados do MS
+        try:
+            dowVacMS = download_vacinados_MS()
+            if dowVacMS.getFile(): 
+                dowVacMS.processaVacinacaoMS()
+        except Exception as mensagem:
+            print("Erro: ", mensagem)
 
-        # # # # Executa o script para prever o RT
-        # try:
-        #     predict_store()
-        # except Exception as mensagem:
-        #     print("Erro: ", mensagem)
+        # Ainda em fase de teste - Faz o download dos leitos - Método 2
+        importLeitos = importLeitos()
 
-        # Script para calculo dos indicadores da região. 
+        print("Leitos Gerais ...")
+        for i in range(1,6):
+            try:
+                print("Tentativa {0}".format(i))
+                soupData = importLeitos.getData("Geral", i*100)
+                df = importLeitos.processData(soupData, "Geral")
+                importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
+
+            except Exception as mensagem:
+                print("Erro processando dados:", mensagem)
+                continue
+            break
+
+
+        print("\nApenas Leitos Covid...")
+        for i in range(1,6):
+            try:
+                print("Tentativa {0}....".format(i))
+                soupData = importLeitos.getData("Covid", i*100)
+                df = importLeitos.processData(soupData, "Covid")
+                importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
+                # importLeitos.salvaExcel(df)
+            except Exception as mensagem:
+                print("Erro processando dados:", mensagem)
+                continue
+            break
+
+        # # # # # Executa o script para prever o RT
+        # # try:
+        # #     predict_store()
+        # # except Exception as mensagem:
+        # #     print("Erro: ", mensagem)
+
+        # # Script para calculo dos indicadores da região. 
         processaIndicadores = processaIndicadores()
         processaIndicadores.processaIndicadoresDiario()
 
@@ -107,4 +106,4 @@ with open('covid.log', 'w') as f:
         print("Erro: ", mensagem)
 
 
-sys.stdout = sys.stdout  # Reset the standard output to i   ts original value
+sys.stdout = sys.stdout  # Reset the standard output to its original value

@@ -143,10 +143,10 @@ class download_vacinados_MS:
         # DOWNLOAD DO ARQUIVO DE VACINAÇÃO DO MS
 
         try:
-            if platform == "linux" or platform == "linux2":
-                path_chromedriver = os.getcwd() + '/covid/chromedriver/chromedriver'
-            elif platform == "darwin":
-                path_chromedriver = '/Users/marcelocendron/Documents/web/chromedriver'
+            #  if platform == "linux" or platform == "linux2":
+            path_chromedriver = os.getcwd() + '/covid/chromedriver/chromedriver'
+            # elif platform == "darwin":
+            #     path_chromedriver = '/Users/marcelocendron/Documents/web/chromedriver'
   
             
             if not isfile(path_chromedriver):
@@ -180,18 +180,20 @@ class download_vacinados_MS:
             driver.quit()
 
             print("Fazendo download dos dados de Vacinação do MS...\n")
-            # os.system("wget -O Dados_Vacinas/dados_vacinacao.csv " + href)
-            os.system("curl " + href + " -o Dados_Vacinas/dados_vacinacao.csv")
+            if platform == "darwin":
+                os.system("curl " + href + " -o Dados_Vacinas/dados_vacinacao.csv")
+            else:
+                os.system("wget -O Dados_Vacinas/dados_vacinacao.csv " + href)
 
             print("\n Ok!")
-
-        except  TimeoutException as ex:
+        except TimeoutException as ex:
             print("Erro aguardando componente: " + str(ex))
-            return None
+            return False
         except Exception as error:
             print("Error: ", error)
-            return None
-
+            return False
+        
+        return True
 
     def getFileLocal(self):
 
@@ -265,13 +267,12 @@ class download_vacinados_MS:
 
             print(" Ok!")
 
+            self.salvaBD(municipio_grupos_doses_dia, self.param_dic)
+ 
         except Exception as error:
             print("Error: %s" % error)
-
-        # print("\n", municipio_grupos_doses_dia)
-
-        self.salvaBD(municipio_grupos_doses_dia, self.param_dic)
-        self.create.create_view_vacinacao()
+        finally:
+            self.create.create_view_vacinacao()
 
     def connect(self):
         try:

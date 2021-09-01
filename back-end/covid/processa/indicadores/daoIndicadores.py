@@ -152,6 +152,42 @@ class daoIndicadores:
         '''
         return self.__consultar(sql, ['id'])
 
+    def buscar_dados_atuais_sc_diario(self):
+        sql = '''
+        SELECT
+            RT_REGIONAL.REGIONAL as ID,
+            'Estado de Santa Catarina' as REGIONAL,
+            RT_REGIONAL.DATA AS DATA, 
+            RT_REGIONAL.VALOR_R AS RT,
+            (CASOS_ATUAL.CASOS_MEDIAMOVEL / CASOS_ANTERIOR.CASOS_MEDIAMOVEL - 1) AS VAR_MEDIA_MOVEL,
+            VIEW_INCIDENCIA.INCIDENCIA AS INCIDENCIA,
+            VIEW_INCIDENCIA.LETALIDADE AS LETALIDADE,
+            VIEW_INCIDENCIA.INCIDENCIA AS INCIDENCIA_SC,
+            VIEW_INCIDENCIA.LETALIDADE AS LETALIDADE_SC,
+            (VACINACAO_MS.D2_APLICADAS / CASOS.POPULACAO) AS VACINACAO_D2_MS,
+            (VACINACAO_DIVE.D2_APLICADAS / CASOS.POPULACAO) AS VACINACAO_D2_DIVE,
+            (LEITOS_COVID.LEITOS_OCUPADOS::NUMERIC / LEITOS_COVID.LEITOS_ATIVOS::NUMERIC) AS LEITOS_COVID_MAX,
+            (LEITOS_GERAL.LEITOS_OCUPADOS::NUMERIC / LEITOS_GERAL.LEITOS_ATIVOS::NUMERIC) AS LEITOS_GERAL_MAX
+        FROM RT_REGIONAL,
+            VIEW_INCIDENCIA, CASOS,
+            VIEW_CASOS_ANTERIOR AS CASOS_ANTERIOR,
+            VIEW_CASOS_ATUAL AS CASOS_ATUAL,
+            (SELECT SUM(DOSES_APLICADAS) AS D2_APLICADAS FROM view_vacinacao_ms  WHERE VACINA_DESCRICAO_DOSE <> '1ª Dose'
+            GROUP BY DATA) AS VACINACAO_MS,
+            (SELECT SUM(VACINACAO_D2) AS D2_APLICADAS FROM VIEW_VACINACAO GROUP BY DATA) AS VACINACAO_DIVE,
+            (SELECT SUM(LEITOS_ATIVOS) AS LEITOS_ATIVOS, SUM(LEITOS_OCUPADOS) AS LEITOS_OCUPADOS FROM leitoscovid 
+            WHERE ATUALIZACAO = (SELECT MAX(ATUALIZACAO) FROM leitoscovid) GROUP BY ATUALIZACAO) AS LEITOS_COVID, 
+            (SELECT SUM(LEITOS_ATIVOS) AS LEITOS_ATIVOS, SUM(LEITOS_OCUPADOS) AS LEITOS_OCUPADOS FROM leitosgeraiscovid 
+            WHERE ATUALIZACAO = (SELECT MAX(ATUALIZACAO) FROM leitosgeraiscovid) GROUP BY ATUALIZACAO) AS LEITOS_GERAL
+        WHERE RT_REGIONAL.REGIONAL = CASOS.REGIONAL
+            AND RT_REGIONAL.DATA = CASOS.DATA
+            AND CASOS_ATUAL.ID = RT_REGIONAL.REGIONAL
+            AND CASOS_ANTERIOR.ID = RT_REGIONAL.REGIONAL
+            AND VIEW_INCIDENCIA.ID  = RT_REGIONAL.REGIONAL
+            AND RT_REGIONAL.REGIONAL = 1
+            AND RT_REGIONAL.DATA = (SELECT MAX(DATA) FROM RT_REGIONAL)
+        '''
+        return self.__consultar(sql, ['id'])
 
     def buscar_dados_por_data(self,data):
         sql = """SELECT 
@@ -190,9 +226,9 @@ class daoIndicadores:
 
     def busca_ultima_avaliacao(self):
         sql = '''SELECT ID,
-            FASE_CALCULADA AS FASE_ANTERIOR,
-            DATA_MUDANCA_FASE
-        FROM "avaliacaoRegionais"
-        WHERE DATA = (SELECT MAX(DATA) FROM "avaliacaoRegionais")
+                FASE_CALCULADA AS FASE_ANTERIOR,
+                DATA_MUDANCA_FASE
+            FROM "avaliacaoRegionais"
+            WHERE DATA_CALCULO = (SELECT MAX(DATA_CALCULO) FROM "avaliacaoRegionais")
         '''
         return self.__consultar(sql, ['id'])

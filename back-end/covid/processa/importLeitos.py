@@ -55,13 +55,13 @@ class importLeitos:
 
             # Inicia o driver baseado nas opções e no path do webdriver
             
-            if platform == "linux" or platform == "linux2":
-                    path_chromedriver = os.getcwd() + '/covid/chromedriver/chromedriver'
-                    self.driver = webdriver.Chrome(
-                        options=self.options, executable_path=r"{}".format(path_chromedriver))
-            elif platform == "darwin":
-                self.driver = webdriver.Chrome(
-                    options=self.options, executable_path=r'/Users/marcelocendron/Documents/web/chromedriver')        
+            # if platform == "linux" or platform == "linux2":
+            path_chromedriver = os.getcwd() + '/covid/chromedriver/chromedriver'
+            self.driver = webdriver.Chrome(
+                options=self.options, executable_path=r"{}".format(path_chromedriver))
+            # elif platform == "darwin":
+            #     self.driver = webdriver.Chrome(
+            #         options=self.options, executable_path=r'/Volumes/GoogleDrive/Other computers/My Mac mini/web/subcomite/back-end/covid/chromedriver/')        
 
 
             # self.driver = webdriver.Chrome(

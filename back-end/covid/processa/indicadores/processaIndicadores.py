@@ -1,8 +1,8 @@
 import pandas as pd
 import os
 from datetime import datetime
-# from covid.processa.indicadores.daoIndicadores import daoIndicadores
-from daoIndicadores import daoIndicadores
+from covid.processa.indicadores.daoIndicadores import daoIndicadores
+# from daoIndicadores import daoIndicadores
 
 class processaIndicadores:
 
@@ -48,6 +48,8 @@ class processaIndicadores:
 
     def __pontuacaoRegiaoBD(self, row):
         pontos = 0
+        if row['regional'] == 'Estado de Santa Catarina':
+            return pontos
         if row['rt'] <= 1: # RT menor ou igual a 1
             pontos += 5
         if row['leitos_covid_max'] <= 0.60 or row['leitos_geral_max'] <= 0.60: # Ocupação de leitos menor do que 60%
@@ -168,11 +170,12 @@ class processaIndicadores:
 
             self.dao.salvaBD(df)
 
-    def processaIndicadoresBD(self):     
+    def processaIndicadoresBD(self):   
+        print('Processando dados de boletim semanal: ', end='', flush=True);      
         df = self.dao.buscar_dados_atuais()
 
         # busca os dados da semana anterior e junta com os dados atuais
-        df = pd.concat([df, self.dao.busca_ultima_avaliacao()], axis=1)
+        df = pd.concat([df, self.dao.busca_ultima_avaliacao().drop(index=1)], axis=1)
         
         #ajusta a data
         df['data'] = pd.to_datetime(df['data'], errors='coerce').dt.date
@@ -183,13 +186,20 @@ class processaIndicadores:
         # Aplica a fase calculada
         df[['fase_calculada', 'data_mudanca_fase']] = df.apply(self.__mudancaFaseBD, axis=1)
         
+        # Junta com os dados do estado
+        df = pd.concat([self.dao.buscar_dados_atuais_sc_diario(), df])
+        
         self.dao.salvaBD(df)
 
-    def processaIndicadoresDiario(self):     
+    def processaIndicadoresDiario(self): 
+        print('Processando dados de resumo diários: ', end='', flush=True);    
         df = self.dao.buscar_dados_atuais_diario()
 
         # busca os dados da semana anterior e junta com os dados atuais
-        df = pd.concat([df, self.dao.busca_ultima_avaliacao()], axis=1)
+        df = pd.concat([df, self.dao.busca_ultima_avaliacao().drop(index=1)], axis=1)
+
+        # Junta com os dados do estado
+        df = pd.concat([self.dao.buscar_dados_atuais_sc_diario(), df])
         
         #ajusta a data e os valores do poligono
         df['data'] = pd.to_datetime(df['data'], errors='coerce').dt.date
@@ -201,14 +211,14 @@ class processaIndicadores:
         self.dao.salvaBDDiario(df)
 
 
-if __name__ == "__main__":
-    processaIndicadores = processaIndicadores()
-    processaIndicadores.processaIndicadoresDiario()
-#     processaIndicadores.processaIndicadoresPrimeiroArquivo('boletim (08-07).csv');
-#     processaIndicadores.processaIndicadoresArquivos('boletim (15-07).csv')  
-#     processaIndicadores.processaIndicadoresArquivos('boletim (22-07).csv')
-#     processaIndicadores.processaIndicadoresArquivos('boletim (29-07).csv')  
-#     processaIndicadores.processaIndicadoresArquivos('boletim (05-08).csv')  
-#     processaIndicadores.processaIndicadoresArquivos('boletim (12-08).csv')
-#     processaIndicadores.processaIndicadoresArquivos('boletim (19-08).csv')
-#     # processaIndicadores.processaIndicadoresBD()
+# if __name__ == "__main__":
+#     processaIndicadores = processaIndicadores()
+#     processaIndicadores.processaIndicadoresDiario()
+# # #     processaIndicadores.processaIndicadoresPrimeiroArquivo('boletim (08-07).csv');
+# # #     processaIndicadores.processaIndicadoresArquivos('boletim (15-07).csv')  
+# # #     processaIndicadores.processaIndicadoresArquivos('boletim (22-07).csv')
+# # #     processaIndicadores.processaIndicadoresArquivos('boletim (29-07).csv')  
+# # #     processaIndicadores.processaIndicadoresArquivos('boletim (05-08).csv')  
+# # #     processaIndicadores.processaIndicadoresArquivos('boletim (12-08).csv')
+# # #     processaIndicadores.processaIndicadoresArquivos('boletim (19-08).csv')
+#     processaIndicadores.processaIndicadoresBD()

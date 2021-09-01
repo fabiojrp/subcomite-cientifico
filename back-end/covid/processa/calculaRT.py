@@ -9,61 +9,62 @@ import time
 
 class calculaRT:
 
-    # CLASSE COM MÉTODOS PARA CRIAÇÃO, INSERÇÃO E SELEÇÃO DE VALORES
-    bd = TestadorBD()
-    create = Create()
-    create.create_rt()
+    def __init__(self):
+        # CLASSE COM MÉTODOS PARA CRIAÇÃO, INSERÇÃO E SELEÇÃO DE VALORES
+        self.bd = TestadorBD()
+        create = Create()
+        create.create_rt()
 
-    # CODIGO REGIONAL, MUNICIPIO
-    regional_saude = 0
-    codigo_ibge_municipio = 0
+        # CODIGO REGIONAL, MUNICIPIO
+        self.regional_saude = 0
+        self.codigo_ibge_municipio = 0
 
-    # DEMAIS VARIAVEIS
-    StartEstimateDate = 0
-    MeanSI = 0
-    sdSI = 0
-    aPrior = 0
-    bPrior = 0
-    TimeMax = 0
-    TimePeriodNb = 0
-    MeanPrior = 0
-    StdPrior = 0
-    CVThreshold = 0
-    CumulIncThreshold = 0
-    NbTimePeriods = 0
-    MeanSIFinal = 0.0
-    sdSIFinal = 0.0
-    SampleSizeSI = 0
-    SampleSizeR = 0
+        # DEMAIS VARIAVEIS
+        self.StartEstimateDate = 0
+        self.MeanSI = 0
+        self.sdSI = 0
+        self.aPrior = 0
+        self.bPrior = 0
+        self.TimeMax = 0
+        self.TimePeriodNb = 0
+        self.MeanPrior = 0
+        self.StdPrior = 0
+        self.CVThreshold = 0
+        self.CumulIncThreshold = 0
+        self.NbTimePeriods = 0
+        self.MeanSIFinal = 0.0
+        self.sdSIFinal = 0.0
+        self.SampleSizeSI = 0
+        self.SampleSizeR = 0
 
-    TimeMin = 1
+        self.TimeMin = 1
 
-    CustomTimeSteps = ''
+        self.CustomTimeSteps = ''
 
-    StopNow = False
-    isCompletlyRT = True
+        self.StopNow = False
+        self.isCompletlyRT = True
 
-    # CONFIGURAÇÕES
-    SIuncertainty = "N"
-    parametricSI = "Y"
+        # CONFIGURAÇÕES
+        self.SIuncertainty = "N"
+        self.parametricSI = "Y"
 
-    # CONSTANTES
-    sdtandard_deviation_SI = 2.9
-    mean_SI = 4.7
+        # CONSTANTES
+        self.sdtandard_deviation_SI = 2.9
+        self.mean_SI = 4.7
 
-    # LISTAS
-    startTime = []
-    endTime = []
-    SIDistr = []
-    Res = []
-    aPosterior = []
-    bPosterior = []
-    Incidence = []
-    RMedian = []
+        # LISTAS
+        self.startTime = []
+        self.endTime = []
+        self.SIDistr = []
+        self.Res = []
+        self.aPosterior = []
+        self.bPosterior = []
+        self.Incidence = []
+        self.RMedian = []
 
-    # OBJETOS COM DADOS DO BANCO
-    municipio = 0
-    regional = 0
+        # OBJETOS COM DADOS DO BANCO
+        self.municipio = 0
+        self.regional = 0
 
     # CHAMADA DE MÉTODO PARA MUNICIPIO
     def estimar_R_Municipio(self, cod):
