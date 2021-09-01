@@ -199,10 +199,10 @@ $(document).ready(() => {
         "<p>Taxa de Transmissibilidade: " + props.rt + "<span>("+ props.pontos_rt +" / 5 Pontos)</span></p>"+
         "<p>Média Móvel: " + props.media_movel.toFixed(2) + "%" + "<span>("+ props.pontos_media_movel +" / 5 Pontos)</span></p>"+
         "<p>Ocupação de Leitos Covid Adulto: " + props.ocupacao_leitos.toFixed(2) + "%" + "<span>("+ props.pontos_ocupacao_leitos +" / 5 Pontos)</span></p>"+
-        "<p> Casos acumulados por 100 mil hab: " + props.incidencia + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
-        "<p> Casos acumulados por 100 mil hab 2: " + props.incidencia_sc + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
-        "<p> Taxa de letalidade: " +  props.letalidade + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
-        "<p> Taxa de letalidade 2: " + props.letalidade_sc + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
+        "<p> Casos acumulados por 100 mil hab: " + props.incidencia.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
+        "<p> Casos acumulados por 100 mil hab 2: " + props.incidencia_sc.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
+        "<p> Taxa de letalidade: " +  props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
+        "<p> Taxa de letalidade 2: " + props.letalidade_sc.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
         "<p> Percentual de vacinação: " + props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3 Pontos)</span></p>"+
         "<p> Pontuacao: " + props.pontuacao + '</p>'+
         '<p><a href="' + props.path + '?region=1">Saiba mais sobre essa região</a></p>'
