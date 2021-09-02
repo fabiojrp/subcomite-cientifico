@@ -175,7 +175,7 @@ class processaIndicadores:
         df = self.dao.buscar_dados_atuais()
 
         # busca os dados da semana anterior e junta com os dados atuais
-        df = pd.concat([df, self.dao.busca_ultima_avaliacao().drop(index=1)], axis=1)
+        df = pd.concat([df, self.dao.busca_ultima_avaliacao().drop(index=1, errors='ignore')], axis=1)
         
         #ajusta a data
         df['data'] = pd.to_datetime(df['data'], errors='coerce').dt.date
@@ -196,7 +196,7 @@ class processaIndicadores:
         df = self.dao.buscar_dados_atuais_diario()
 
         # busca os dados da semana anterior e junta com os dados atuais
-        df = pd.concat([df, self.dao.busca_ultima_avaliacao().drop(index=1)], axis=1)
+        df = pd.concat([df, self.dao.busca_ultima_avaliacao().drop(index=1, errors='ignore')], axis=1)
 
         # Junta com os dados do estado
         df = pd.concat([self.dao.buscar_dados_atuais_sc_diario(), df])

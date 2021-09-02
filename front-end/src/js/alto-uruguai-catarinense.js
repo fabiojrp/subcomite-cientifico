@@ -245,4 +245,21 @@ $(document).ready(() => {
         })
         .catch((err) => console.error(err));
 
+        fetch(base_url + "/api/fases-regiao/" + id)
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            var layout = {
+                showlegend: false,
+                hovermode: "closest",
+                yaxis: {rangemode: 'tozero',
+                        showline: true,
+                        zeroline: false,
+                       }
+              };
+            Plotly.newPlot('fases-graph', dados, layout);
+        })
+        .catch((err) => console.error(err));
+        
 });

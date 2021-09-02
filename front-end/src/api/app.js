@@ -1336,7 +1336,8 @@ app.get("/api/dados-estado/", (req, res) => {
             LETALIDADE_SC, INCIDENCIA_SC,
             VACINACAO_D2_DIVE, VACINACAO_D2_MS,
             FASE_ANTERIOR AS FASE, DATA_MUDANCA_FASE, PONTUACAO
-        FROM "avaliacaoRegionaisDiario";
+        FROM "avaliacaoRegionaisDiario"
+        WHERE ID <> 1
             `,
         (err, rows) => {
             if (err) {
@@ -1428,6 +1429,66 @@ app.get("/api/dados-regiao/:id", (req, res) => {
                 res.send(dados);
             }
         },
+    );
+});
+
+
+app.get("/api/fases-regiao/:id", (req, res) => {
+    id = req.params.id;
+    pool.query(
+        `SELECT DATA_MUDANCA_FASE,
+            FASE_ANTERIOR,
+            FASE_CALCULADA
+        FROM PUBLIC."avaliacaoRegionais"
+        WHERE ID = $1
+            AND FASE_ANTERIOR <> FASE_CALCULADA
+            order by DATA
+            `, [id],
+
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar as fases da região: " + err);
+                return;
+            }
+            result = rows.rows;
+            var count = 0;
+            var fases = [];
+            fases[count] = {
+                x: [result[0].data_mudanca_fase], 
+                y: ["Fase " + result[0].fase_calculada], 
+                name: "Fase " + result[0].fase_calculada,
+                type: 'scatter',
+                mode: "lines",
+                opacity: 0.4,
+                line: {
+                  width: 30,
+                }
+            };
+
+            for (count++; count < result.length; count++) {
+                fases[count-1].x.push(result[count].data_mudanca_fase)
+                fases[count-1].y.push("Fase " + result[count].fase_anterior)
+
+                fases[count] = {
+                    x: [result[count].data_mudanca_fase], 
+                    y: ["Fase " + result[count].fase_calculada], 
+                    name: "Fase " + result[count].fase_calculada,
+                    type: 'scatter',
+                    mode: "lines",
+                    opacity: 0.4,
+                    line: {
+                      width: 30
+                    }
+                };
+            }
+
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            fases[count-1].x.push(localISOTime)
+            fases[count-1].y.push("Fase " + result[count-1].fase_calculada)
+
+            res.send(fases);
+        }
     );
 });
 
@@ -1828,8 +1889,7 @@ app.get("/api/leitos_max", (req, res) => {
         TO_CHAR(TBL.DATA, 'YYYY-MM-DD HH:MI:SS') AS DATA,			
         TBL.LEITOS_OCUPADOS,			
         TBL.LEITOS_ATIVOS,			
-        MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX,
-        MIN(MAX_DATA.DATA) OVER (PARTITION BY MAX_DATA.ID ORDER BY DATA) AS MAX_DATA_REGION			
+        MAX(TBL.LEITOS_ATIVOS) OVER (PARTITION BY TBL.ID  ORDER BY DATA) AS LEITOS_ATIVOS_MAX			
     FROM				
         (SELECT LEITOSGERAISCOVID.INDEX_REGIONAL AS ID,			
                 SUM(LEITOSGERAISCOVID.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,	
@@ -1840,13 +1900,7 @@ app.get("/api/leitos_max", (req, res) => {
                 LEITOSGERAISCOVID.ATUALIZACAO	
             ORDER BY LEITOSGERAISCOVID.INDEX_REGIONAL,		
                 LEITOSGERAISCOVID.ATUALIZACAO) AS TBL,	
-        REGIONAIS,
-        (SELECT ID,
-                MIN(DATA) 
-            FROM VIEW_LEITOS_MAX
-                WHERE MAX(LEITOS_ATIVOS_MAX) 
-            GROUP BY ID
-            ORDER BY ID)
+        REGIONAIS			
     WHERE TBL.ID = REGIONAIS.ID				
         AND TBL.DATA > '2021-06-11'			
     ORDER BY TBL.ID,				
