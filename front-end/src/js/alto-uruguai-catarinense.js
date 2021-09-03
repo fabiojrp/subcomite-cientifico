@@ -107,17 +107,17 @@ $(document).ready(() => {
         Plotly.newPlot('rt-graph', rt, rt_layout, config);
     }).catch(err => console.error(err));
 
-    fetch(base_url + '/api/rt-predict-por-regiao/' + id).then(response => {
-        return response.json()
-    }).then(dados => {
-        /* R(t) */
-        var rt = [dados.regional, dados.regional_inferior, dados.regional_superior];
-        var rt_layout = {
-            title: 'Taxa de Transmissibilidade R(t) últimos 30 dias + Predição 5 dias',
-        };
-        var config = { responsive: true }
-        Plotly.newPlot('rt-predict-graph', rt, rt_layout, config);
-    }).catch(err => console.error(err));
+    // fetch(base_url + '/api/rt-predict-por-regiao/' + id).then(response => {
+    //     return response.json()
+    // }).then(dados => {
+    //     /* R(t) */
+    //     var rt = [dados.regional, dados.regional_inferior, dados.regional_superior];
+    //     var rt_layout = {
+    //         title: 'Taxa de Transmissibilidade R(t) últimos 30 dias + Predição 5 dias',
+    //     };
+    //     var config = { responsive: true }
+    //     Plotly.newPlot('rt-predict-graph', rt, rt_layout, config);
+    // }).catch(err => console.error(err));
 
     fetch(base_url + '/api/casos-por-regiao/' + id).then(response => {
         return response.json()
@@ -262,4 +262,27 @@ $(document).ready(() => {
         })
         .catch((err) => console.error(err));
         
+        fetch(base_url + "/api/fases-regiao-detalhado/" + id)
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            $.each(dados.linhas, function(i, linha) {
+                var linha_html = "";
+                $.each(linha, function(i, item) {
+                    linha_html+="<div class='col-xl-4 col-sm-6 col-12'> "+
+                    "<div class= 'card'>"+
+                    "<div class='card-header "+ item.cor +"'> " + item.campo +" </div>" +
+                    "  <div class='card-body'>" +
+                    "    <h5 class='card-title'>" +item.valor + "</h5>" +
+                    "    <p class='card-text'>" +item.texto + "</p>" +
+                    "  </div>" + 
+                    " </div>" + 
+                    "</div>";
+                });
+                $("#indicadores").append("<div class='row'>" +linha_html+ "</div>");
+            });
+        })
+        .catch((err) => console.error(err));
+
 });

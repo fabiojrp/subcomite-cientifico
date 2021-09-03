@@ -1442,8 +1442,7 @@ app.get("/api/fases-regiao/:id", (req, res) => {
         FROM PUBLIC."avaliacaoRegionais"
         WHERE ID = $1
             AND FASE_ANTERIOR <> FASE_CALCULADA
-            order by DATA
-            `, [id],
+            order by DATA`, [id],
 
         (err, rows) => {
             if (err) {
@@ -1488,6 +1487,101 @@ app.get("/api/fases-regiao/:id", (req, res) => {
             fases[count-1].y.push("Fase " + result[count-1].fase_calculada)
 
             res.send(fases);
+        }
+    );
+});
+
+
+app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
+    id = req.params.id;
+    pool.query(
+        `SELECT REGIONAL, DATA,
+            VAR_MEDIA_MOVEL, RT,
+            LEITOS_COVID_MAX, LEITOS_GERAL_MAX,
+            INCIDENCIA, INCIDENCIA_SC,
+            LETALIDADE, LETALIDADE_SC,
+            VACINACAO_D2_DIVE, VACINACAO_D2_MS,
+            FASE_ANTERIOR, DATA_MUDANCA_FASE,
+            PONTUACAO, FASE_CALCULADA
+        FROM "avaliacaoRegionais" 
+        WHERE DATA = (SELECT MAX(DATA) FROM "avaliacaoRegionais" )
+        AND ID = $1`, [id],
+
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar as fases da região: " + err);
+                return;
+            }
+            vacinacao_fase = { "1": {descricao: "1", f: function(x) {return x > 0.2;}},
+                                "2": {descricao: "2", f: function(x) {return x >= 0.3;}},
+                                "3.1": {descricao: "3.1", f: function(x) {return x >= 0.4;}},
+                                "3.2": {descricao: "3.2", f: function(x) {return x >= 0.5;}},
+                                "3.3": {descricao: "3.3", f: function(x) {return x >= 0.75;}},
+                                "4": {descricao: "4",  f: function(x) {return x >= 1;}}
+            }
+
+            result = rows.rows;
+            indicadores = { cabecalho: 
+                            {   Regional: result[0].regional,
+                                Data: result[0].data,
+                                Fase_anterior: result[0].fase_anterior,
+                                Data_mudanca_fase: result[0].data_mudanca_fase,
+                                Pontuacao: result[0].pontuacao,
+                                Fase_calculada: result[0].fase_calculada
+                            },
+                            linhas:
+                            [
+                                [{
+                                    campo: "Variação da média móvel",
+                                    texto: "5 pontos se for menor ou igual a 15%",
+                                    valor: (result[0].var_media_movel*100).toFixed(2) +'%',
+                                    cor: result[0].var_media_movel <= 0.15? "bg-success" : "bg-danger"
+                                },
+                                {
+                                    campo: "Taxa de transmissibilidade",
+                                    texto: "5 pontos se o valor for menor 1.0",
+                                    valor: result[0].rt.toFixed(2),
+                                    cor: result[0].rt < 1.00? "bg-success" : "bg-danger"
+                                    
+                                },
+                                {
+                                    campo: "Leitos",
+                                    texto: "5 pontos se ocupação de Leitos COVID ou Leitos GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
+                                    valor: "<p>Leitos COVID/Máximo = " + (result[0].leitos_covid_max*100).toFixed(2) +'%'+ "</p>" + 
+                                        "<p>Leitos GERAL/Máximo = " + (result[0].leitos_geral_max*100).toFixed(2) +'%' + "</p>",
+                                    cor: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "bg-success" : "bg-danger"
+                                }],
+                                [{
+                                    campo: "Incidencia",
+                                    texto: "2 pontos se Incidência da região for menor ou igual a média do estado",
+                                    valor: "<p>Incidência da Região = " + (result[0].incidencia).toFixed(2) + "</p>" + 
+                                    "<p>Incidência do Estado = " + (result[0].incidencia_sc).toFixed(2)  + "</p>",
+                                    cor: result[0].incidencia <= result[0].incidencia_sc ? "bg-success" : "bg-danger"
+                                },
+                                {
+                                    campo: "Letalidade",
+                                    texto: "2 pontos se Letalidade da região for menor ou igual a média do estado",
+                                    valor: "<p>Letalidade da Região = " + (result[0].letalidade).toFixed(2) + "</p>" + 
+                                    "<p>Letalidade do Estado = " + (result[0].letalidade_sc).toFixed(2)  + "</p>",
+                                    cor: result[0].letalidade <= result[0].letalidade_sc ? "bg-success" : "bg-danger"
+                                },
+                                {
+                                    campo: "Vacinação",
+                                    texto: "3 pontos conforme o fase da região ",
+                                    valor: "<p>Vacinação - DIVE = " + (result[0].vacinacao_d2_dive*100).toFixed(2) + "</p>" + 
+                                    "<p>Vacinação - OpenDataSus  = " + (result[0].vacinacao_d2_ms*100).toFixed(2)  + "</p>",
+                                    cor: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "bg-success" : "bg-danger"
+                                }],
+                            ]
+
+
+            }
+
+            // result.forEach((item) => {
+
+            // });
+
+            res.send(indicadores);
         }
     );
 });
