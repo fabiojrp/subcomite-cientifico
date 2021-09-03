@@ -1474,7 +1474,7 @@ app.get("/api/fases-regiao/:id", (req, res) => {
                     name: "Fase " + result[count].fase_calculada,
                     type: 'scatter',
                     mode: "lines",
-                    opacity: 0.4,
+                    opacity: 0.6,
                     line: {
                       width: 30
                     }
@@ -1539,28 +1539,28 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                 },
                                 {
                                     campo: "Taxa de transmissibilidade",
-                                    texto: "5 pontos se o valor for menor 1.0",
+                                    texto: "5 pontos se o valor for menor ou igual 1.0",
                                     valor: result[0].rt.toFixed(2),
                                     cor: result[0].rt < 1.00? "bg-success" : "bg-danger"
                                     
                                 },
                                 {
                                     campo: "Leitos",
-                                    texto: "5 pontos se ocupação de Leitos COVID ou Leitos GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
+                                    texto: "5 pontos se ocupação de Leitos UTI Adulto COVID ou Leitos UTI Adulto GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
                                     valor: "<p>Leitos COVID/Máximo = " + (result[0].leitos_covid_max*100).toFixed(2) +'%'+ "</p>" + 
                                         "<p>Leitos GERAL/Máximo = " + (result[0].leitos_geral_max*100).toFixed(2) +'%' + "</p>",
                                     cor: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "bg-success" : "bg-danger"
                                 }],
                                 [{
                                     campo: "Incidencia",
-                                    texto: "2 pontos se Incidência da região for menor ou igual a média do estado",
+                                    texto: "2 pontos se incidência da região for menor ou igual que a referência do Estado",
                                     valor: "<p>Incidência da Região = " + (result[0].incidencia).toFixed(2) + "</p>" + 
                                     "<p>Incidência do Estado = " + (result[0].incidencia_sc).toFixed(2)  + "</p>",
                                     cor: result[0].incidencia <= result[0].incidencia_sc ? "bg-success" : "bg-danger"
                                 },
                                 {
                                     campo: "Letalidade",
-                                    texto: "2 pontos se Letalidade da região for menor ou igual a média do estado",
+                                    texto: "2 pontos se letalidade da região for menor ou igual que a referência do Estado",
                                     valor: "<p>Letalidade da Região = " + (result[0].letalidade).toFixed(2) + "</p>" + 
                                     "<p>Letalidade do Estado = " + (result[0].letalidade_sc).toFixed(2)  + "</p>",
                                     cor: result[0].letalidade <= result[0].letalidade_sc ? "bg-success" : "bg-danger"
@@ -1568,8 +1568,8 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                 {
                                     campo: "Vacinação",
                                     texto: "3 pontos conforme o fase da região ",
-                                    valor: "<p>Vacinação - DIVE = " + (result[0].vacinacao_d2_dive*100).toFixed(2) + "</p>" + 
-                                    "<p>Vacinação - OpenDataSus  = " + (result[0].vacinacao_d2_ms*100).toFixed(2)  + "</p>",
+                                    valor: "<p>Vacinação - DIVE = " + (result[0].vacinacao_d2_dive*100).toFixed(2)+'%' + "</p>" + 
+                                    "<p>Vacinação - OpenDataSus  = " + (result[0].vacinacao_d2_ms*100).toFixed(2)+'%'  + "</p>",
                                     cor: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "bg-success" : "bg-danger"
                                 }],
                             ]

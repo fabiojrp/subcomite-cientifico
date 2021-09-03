@@ -256,7 +256,8 @@ $(document).ready(() => {
                 yaxis: {rangemode: 'tozero',
                         showline: true,
                         zeroline: false,
-                       }
+                       },
+                colorway : ['#f01901', '#ef6d1a', '#faf90a', '#faf90a', '#faf90a', '#26994b']
               };
             Plotly.newPlot('fases-graph', dados, layout);
         })
