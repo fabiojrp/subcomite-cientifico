@@ -29,6 +29,21 @@ header .logo {
   text-decoration: none;
 }
 
+h4.fases{
+  font-family: "Roboto Mono", monospace;
+  font-size: 22px;
+  text-align: center;
+  color: #1d1f32;
+  padding: 20px 0px;
+  margin-bottom: 10px;
+  font-weight: 700;
+  margin-top: 30px;
+  margin-right: 20px;
+  letter-spacing: 0.1rem;
+  float: left;
+  width: 100%;
+}
+
 .header h3 {
   font-size: 20px;
   font-family: "Oswald", sans-serif;
@@ -152,7 +167,7 @@ div.leaflet-control-container div.leaflet-top.leaflet-left p {
   padding: 20px 0px;
   margin-bottom: 20px;
   font-weight: 700;
-  margin-top: 30px;
+  
   margin-right: 20px;
   letter-spacing: 0.3rem;
   float: left;
@@ -486,7 +501,7 @@ section .section-title {
 
 .card .card-title,
 .card .card-title {
-  color: #007b5e !important;
+  color: #007b5e;
 }
 
 .card .card-body img {
@@ -497,3 +512,18 @@ section .section-title {
 
 
 /* END EQUIPE */
+
+/* fases */
+
+.red-fase {
+  color: #c06767 !important;
+}
+.red-fase-fundo {
+  background-color: #ee9393 !important;
+}
+.green-fase{
+  color: #9ed8c6;
+}
+.green-fase-fundo{
+  background-color: #9ed8c6;
+}
