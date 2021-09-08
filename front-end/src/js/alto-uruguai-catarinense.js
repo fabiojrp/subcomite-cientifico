@@ -270,11 +270,11 @@ $(document).ready(() => {
             $.each(dados.linhas, function(i, linha) {
                 var linha_html = "";
                 $.each(linha, function(i, item) {
-                    linha_html+="<div class='col-xl-4 col-sm-6 col-12'> "+
-                    "<div class= 'card'>"+
-                    "<div class='card-header "+ item.cor +"'> " + item.campo +" </div>" +
-                    "  <div class='card-body'>" +
-                    "    <h5 class='card-title'>" +item.valor + "</h5>" +
+                    linha_html+="<div class='col-xl-4 col-sm-6 col-12 my-3'> "+
+                    "<div class= 'card text-center h-100'>"+
+                    "<div class='card-header p-2 "+ item.cor +"'> " + item.campo +" </div>" +
+                    "  <div class='card-body p-5'>" +
+                    "    <h5 class='card-title " + item.cor_text +"'>" +item.valor + "</h5>" +
                     "    <p class='card-text'>" +item.texto + "</p>" +
                     "  </div>" + 
                     " </div>" + 

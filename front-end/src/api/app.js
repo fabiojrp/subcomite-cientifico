@@ -1535,42 +1535,50 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                     campo: "Variação da média móvel",
                                     texto: "5 pontos se for menor ou igual a 15%",
                                     valor: (result[0].var_media_movel*100).toFixed(2) +'%',
-                                    cor: result[0].var_media_movel <= 0.15? "bg-success" : "bg-danger"
+                                    cor: result[0].var_media_movel <= 0.15? "green-fase-fundo" : "red-fase-fundo",
+                                    cor_text: result[0].var_media_movel <= 0.15? "" : "red-fase"
+                                   
                                 },
                                 {
                                     campo: "Taxa de transmissibilidade",
-                                    texto: "5 pontos se o valor for menor 1.0",
+                                    texto: "5 pontos se o valor for menor ou igual a 1.0",
                                     valor: result[0].rt.toFixed(2),
-                                    cor: result[0].rt < 1.00? "bg-success" : "bg-danger"
-                                    
+                                    cor: result[0].rt < 1.00? "green-fase-fundo" : "red-fase-fundo",
+                                    cor_text: result[0].rt < 1.00? "" : "red-text"                                   
                                 },
                                 {
-                                    campo: "Leitos",
-                                    texto: "5 pontos se ocupação de Leitos COVID ou Leitos GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
+                                    campo: "Leitos UTI Adulto",
+                                    texto: "5 pontos caso a ocupação de Leitos COVID ou Leitos GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
                                     valor: "<p>Leitos COVID/Máximo = " + (result[0].leitos_covid_max*100).toFixed(2) +'%'+ "</p>" + 
                                         "<p>Leitos GERAL/Máximo = " + (result[0].leitos_geral_max*100).toFixed(2) +'%' + "</p>",
-                                    cor: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "bg-success" : "bg-danger"
+                                    cor: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "green-fase-fundo" : "red-fase-fundo",
+                                    cor_text: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "" : "red-fase"
+
                                 }],
                                 [{
                                     campo: "Incidencia",
-                                    texto: "2 pontos se Incidência da região for menor ou igual a média do estado",
+                                    texto: "2 pontos se incidência da região for menor ou igual que a referência do Estado",
                                     valor: "<p>Incidência da Região = " + (result[0].incidencia).toFixed(2) + "</p>" + 
                                     "<p>Incidência do Estado = " + (result[0].incidencia_sc).toFixed(2)  + "</p>",
-                                    cor: result[0].incidencia <= result[0].incidencia_sc ? "bg-success" : "bg-danger"
+                                    cor: result[0].incidencia <= result[0].incidencia_sc ? "green-fase-fundo" : "red-fase-fundo",
+                                    cor_text: result[0].incidencia <= result[0].incidencia_sc ? "" : "red-fase"
+
                                 },
                                 {
                                     campo: "Letalidade",
-                                    texto: "2 pontos se Letalidade da região for menor ou igual a média do estado",
+                                    texto: "2 pontos se letalidade da região for menor ou igual que a referência do Estado",
                                     valor: "<p>Letalidade da Região = " + (result[0].letalidade).toFixed(2) + "</p>" + 
                                     "<p>Letalidade do Estado = " + (result[0].letalidade_sc).toFixed(2)  + "</p>",
-                                    cor: result[0].letalidade <= result[0].letalidade_sc ? "bg-success" : "bg-danger"
+                                    cor: result[0].letalidade <= result[0].letalidade_sc ? "green-fase-fundo" : "red-fase-fundo",
+                                    cor_text: result[0].letalidade <= result[0].letalidade_sc ? "" : "red-fase",
                                 },
                                 {
                                     campo: "Vacinação",
-                                    texto: "3 pontos conforme o fase da região ",
+                                    texto: "3 pontos conforme a fase da região ",
                                     valor: "<p>Vacinação - DIVE = " + (result[0].vacinacao_d2_dive*100).toFixed(2) + "</p>" + 
                                     "<p>Vacinação - OpenDataSus  = " + (result[0].vacinacao_d2_ms*100).toFixed(2)  + "</p>",
-                                    cor: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "bg-success" : "bg-danger"
+                                    cor: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "green-fase-fundo" : "red-fase-fundo",
+                                    cor_text: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "": "red-fase"  
                                 }],
                             ]
 
