@@ -232,7 +232,7 @@ $(document).ready(() => {
     var yellow = "#FAD700";
 
     if (typeof d == "object") {
-      if (!(d.rt)) return "transparent";
+      // if (!(d.rt)) return "transparent";
 
       var levelRegion = 0;
       levelRegion += d.rt <= 1 ? 5 : 0;
