@@ -471,7 +471,7 @@ app.get('/api/rt-por-regiao/', (req, res) => {
 //             rt.forEach((item) => {
 //                 if (!regionais[item.id]) {
 //                     regionais[item.id] = [];
-
+                    
 //                     regionais[item.id].push({
 //                         name: item.regional_saude,
 //                         mode: "lines",
@@ -554,7 +554,7 @@ app.get('/api/rt-por-regiao/', (req, res) => {
 //                 console.log("Erro ao buscar o valor de R(t) por região: " + err);
 //                 return;
 //             }
-
+            
 //             regional = {
 //                 name: "RT + predição",
 //                 x: [],
@@ -1285,20 +1285,20 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
 
             pool.query(
                 `SELECT 
-                T.DATA,
-                SUM(REGIONAIS.POPULACAO) AS POPULACAO,
-                SUM(T.D2) OVER (ORDER BY DATA ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS DOSES_APLICADAS
-            FROM
-                (SELECT VACINA_DATAAPLICACAO AS DATA,
-                        SUM(DOSES_APLICADAS) AS D2
-                    FROM VACINACAO_MS
-                    WHERE VACINA_DESCRICAO_DOSE != '1ª Dose'
-                    GROUP BY VACINA_DATAAPLICACAO
-                    ORDER BY VACINA_DATAAPLICACAO) AS T,
-                REGIONAIS
-            WHERE REGIONAIS.ID = 1
-            GROUP BY T.DATA, T.D2
-            ORDER  BY DATA;
+                    T.DATA,
+                    SUM(REGIONAIS.POPULACAO) AS POPULACAO,
+                    SUM(T.D2) OVER (ORDER BY DATA ASC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS DOSES_APLICADAS
+                FROM
+                    (SELECT VACINA_DATAAPLICACAO AS DATA,
+                            SUM(DOSES_APLICADAS) AS D2
+                        FROM VACINACAO_MS
+                        WHERE VACINA_DESCRICAO_DOSE != '1ª Dose'
+                        GROUP BY VACINA_DATAAPLICACAO
+                        ORDER BY VACINA_DATAAPLICACAO) AS T,
+                    REGIONAIS
+                WHERE REGIONAIS.ID = 1
+                GROUP BY T.DATA, T.D2
+                ORDER  BY DATA;
                     `,
                 (err, rows) => {
                     if (err) {
@@ -1327,7 +1327,6 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
 });
 
 app.get("/api/dados-estado/", (req, res) => {
-    
     pool.query(
         `SELECT ID, REGIONAL, DATA,
             VAR_MEDIA_MOVEL, RT,
@@ -1381,7 +1380,7 @@ app.get("/api/dados-estado/", (req, res) => {
                         geometry: result[i].poligono,
                     });
                 }
-
+                
             }
 
             res.send({ stateData });
@@ -1417,7 +1416,7 @@ app.get("/api/dados-regiao/:id", (req, res) => {
                 ocupacao_leitos = result[0].leitos_geral_max * 100;
 
                 dados = {
-                    rt: (result[0].rt_valor * 1).toFixed(2),
+                    rt: (result[0].rt * 1).toFixed(2),
                     media_movel: mediamovel.toFixed(2),
                     vacinacao: result[0].vacinacao_d2_dive * 100,
                     ocupacao_leitos: ocupacao_leitos,
@@ -1425,6 +1424,7 @@ app.get("/api/dados-regiao/:id", (req, res) => {
                     incidencia_sc: result[0].incidencia_sc.toFixed(2),
                     letalidade: result[0].letalidade.toFixed(2),
                     letalidade_sc: result[0].letalidade_sc.toFixed(2),
+                    pontuacao: result[0].pontuacao,
                 };
 
                 res.send(dados);
@@ -1457,9 +1457,10 @@ app.get("/api/fases-regiao/:id", (req, res) => {
                 x: [result[0].data_mudanca_fase], 
                 y: ["Fase " + result[0].fase_calculada], 
                 name: "Fase " + result[0].fase_calculada,
+                title: "teste 1",
                 type: 'scatter',
                 mode: "lines",
-                opacity: 0.6,
+                opacity: 0.4,
                 line: {
                   width: 30,
                 }
@@ -1475,7 +1476,7 @@ app.get("/api/fases-regiao/:id", (req, res) => {
                     name: "Fase " + result[count].fase_calculada,
                     type: 'scatter',
                     mode: "lines",
-                    opacity: 0.6,
+                    opacity: 0.4,
                     line: {
                       width: 30
                     }
@@ -1538,6 +1539,7 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                     valor: (result[0].var_media_movel*100).toFixed(2) +'%',
                                     cor: result[0].var_media_movel <= 0.15? "green-fase-fundo" : "red-fase-fundo",
                                     cor_text: result[0].var_media_movel <= 0.15? "" : "red-fase"
+                                   
                                 },
                                 {
                                     campo: "Taxa de transmissibilidade",
@@ -1545,27 +1547,28 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                     valor: result[0].rt.toFixed(2),
                                     cor: result[0].rt < 1.00? "green-fase-fundo" : "red-fase-fundo",
                                     cor_text: result[0].rt < 1.00? "" : "red-text"                                   
-
                                 },
                                 {
                                     campo: "Leitos UTI Adulto",
                                     texto: "5 pontos caso a ocupação de Leitos COVID ou Leitos GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
                                     valor: "<p>Leitos COVID/Máximo = " + (result[0].leitos_covid_max*100).toFixed(2) +'%'+ "</p>" + 
-                                    "<p>Leitos GERAL/Máximo = " + (result[0].leitos_geral_max*100).toFixed(2) +'%' + "</p>",
+                                        "<p>Leitos GERAL/Máximo = " + (result[0].leitos_geral_max*100).toFixed(2) +'%' + "</p>",
                                     cor: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "green-fase-fundo" : "red-fase-fundo",
                                     cor_text: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "" : "red-fase"
-                                    }],
+
+                                }],
                                 [{
-                                    campo: "Incidência",
+                                    campo: "Incidencia",
                                     texto: "2 pontos se incidência da região for menor ou igual que a referência do Estado",
                                     valor: "<p>Incidência da Região = " + (result[0].incidencia).toFixed(2) + "</p>" + 
                                     "<p>Incidência do Estado = " + (result[0].incidencia_sc).toFixed(2)  + "</p>",
                                     cor: result[0].incidencia <= result[0].incidencia_sc ? "green-fase-fundo" : "red-fase-fundo",
                                     cor_text: result[0].incidencia <= result[0].incidencia_sc ? "" : "red-fase"
+
                                 },
                                 {
                                     campo: "Letalidade",
-                                    texto: "2 pontos se a letalidade da região for menor ou igual que a referência do Estado",
+                                    texto: "2 pontos se letalidade da região for menor ou igual que a referência do Estado",
                                     valor: "<p>Letalidade da Região = " + (result[0].letalidade).toFixed(2) + "</p>" + 
                                     "<p>Letalidade do Estado = " + (result[0].letalidade_sc).toFixed(2)  + "</p>",
                                     cor: result[0].letalidade <= result[0].letalidade_sc ? "green-fase-fundo" : "red-fase-fundo",
@@ -1574,8 +1577,8 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                 {
                                     campo: "Vacinação",
                                     texto: "3 pontos conforme a fase da região ",
-                                    valor: "<p>Vacinação - DIVE = " + (result[0].vacinacao_d2_dive*100).toFixed(2)+'%' + "</p>" + 
-                                    "<p>Vacinação - OpenDataSus  = " + (result[0].vacinacao_d2_ms*100).toFixed(2)+'%'  + "</p>",
+                                    valor: "<p>Vacinação - DIVE = " + (result[0].vacinacao_d2_dive*100).toFixed(2) + "</p>" + 
+                                    "<p>Vacinação - OpenDataSus  = " + (result[0].vacinacao_d2_ms*100).toFixed(2)  + "</p>",
                                     cor: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "green-fase-fundo" : "red-fase-fundo",
                                     cor_text: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "": "red-fase"  
                                 }],
@@ -1786,7 +1789,7 @@ app.get("/api/dados-boletim/", (req, res) => {
                     console.log("Erro ao buscar os dados de extrato das regiões: " + err);
                     return;
                 }
-
+    
                 var json2csv = require('json2csv').parse;
                 var data = json2csv(rows.rows);
 
@@ -1812,7 +1815,7 @@ app.get("/api/dados-boletim-diario/", (req, res) => {
                     console.log("Erro ao buscar os dados de extrato das regiões: " + err);
                     return;
                 }
-
+    
                 var json2csv = require('json2csv').parse;
                 var data = json2csv(rows.rows);
 
@@ -1930,7 +1933,7 @@ app.get("/api/vacinacao-ms/", (req, res) => {
             result.forEach((item) => {
                 item.percentual_d1 = (item.d1 / item.populacao * 100).toFixed(2).replace(".", ",");
                 item.percentual_d2 = (item.d2_unica / item.populacao * 100).toFixed(2).replace(".", ",");
-
+                
                 var data = new Date(item.data_atualizacao);
                 var formatedDate = ("0" + data.getDate()).slice(-2) + "-" + ("0" + (data.getMonth() + 1)).slice(-2) + "-" + data.getFullYear();
                 item.data_atualizacao = formatedDate;

@@ -35,7 +35,7 @@ $(document).ready(() => {
   } else {
     $.ajax({
       type: "GET",
-      url: base_url + '/api/dados-estado/' + id,
+      url: base_url + '/api/dados-regiao/' + id,
       async: false,
       success: function (dados) {
         regionData.features[0].properties.media_movel = dados.media_movel;
@@ -46,6 +46,7 @@ $(document).ready(() => {
         regionData.features[0].properties.vacinacao = dados.vacinacao;
         regionData.features[0].properties.incidencia_sc = dados.incidencia_sc;
         regionData.features[0].properties.letalidade_sc = dados.letalidade_sc;
+        regionData.features[0].properties.pontuacao = dados.pontuacao;
         regionData.features[0].properties.fase_atual = dados.fase_atual;
       },
       error: function (result) {
@@ -232,15 +233,15 @@ $(document).ready(() => {
     var yellow = "#FAD700";
 
     if (typeof d == "object") {
-      // if (!(d.rt)) return "transparent";
+      if (!(d.vacinacao)) return "transparent";
 
-      var levelRegion = 0;
-      levelRegion += d.rt <= 1 ? 5 : 0;
-      levelRegion += d.media_movel < 15 ? 5 : 0;
-      levelRegion += d.ocupacao_leitos <= 60 ? 5 : 0;
-      levelRegion += d.incidencia <= d.incidencia_sc ? 2 : 0;
-      levelRegion += d.letalidade <= d.letalidade_sc ? 2 : 0;
-      levelRegion += d.vacinacao >= 20 ? 3 : 0; 
+      var levelRegion = d.pontuacao;
+      // levelRegion += d.rt <= 1 ? 5 : 0;
+      // levelRegion += d.media_movel < 15 ? 5 : 0;
+      // levelRegion += d.ocupacao_leitos <= 60 ? 5 : 0;
+      // levelRegion += d.incidencia <= d.incidencia_sc ? 2 : 0;
+      // levelRegion += d.letalidade <= d.letalidade_sc ? 2 : 0;
+      // levelRegion += d.vacinacao >= 20 ? 3 : 0; 
 
       if (levelRegion < 0) return "transparent";
        
