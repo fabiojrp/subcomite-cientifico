@@ -1327,6 +1327,7 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
 });
 
 app.get("/api/dados-estado/", (req, res) => {
+    
     pool.query(
         `SELECT ID, REGIONAL, DATA,
             VAR_MEDIA_MOVEL, RT,
@@ -1458,7 +1459,7 @@ app.get("/api/fases-regiao/:id", (req, res) => {
                 name: "Fase " + result[0].fase_calculada,
                 type: 'scatter',
                 mode: "lines",
-                opacity: 0.4,
+                opacity: 0.6,
                 line: {
                   width: 30,
                 }
