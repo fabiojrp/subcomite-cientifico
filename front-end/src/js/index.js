@@ -46,7 +46,7 @@ $(document).ready(() => {
         regionData.features[0].properties.vacinacao = dados.vacinacao;
         regionData.features[0].properties.incidencia_sc = dados.incidencia_sc;
         regionData.features[0].properties.letalidade_sc = dados.letalidade_sc;
-        regionData.features[0].properties.pontuacao = dados.pontuacao;
+        regionData.features[0].properties.fase_atual = dados.fase_atual;
       },
       error: function (result) {
         console.log("Erro");
@@ -200,11 +200,11 @@ $(document).ready(() => {
         "<p>Média Móvel: " + props.media_movel.toFixed(2) + "%" + "<span>("+ props.pontos_media_movel +" / 5 Pontos)</span></p>"+
         "<p>Ocupação de Leitos Covid Adulto: " + props.ocupacao_leitos.toFixed(2) + "%" + "<span>("+ props.pontos_ocupacao_leitos +" / 5 Pontos)</span></p>"+
         "<p> Casos acumulados por 100 mil hab: " + props.incidencia.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
-        "<p> Casos acumulados por 100 mil hab 2: " + props.incidencia_sc.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
+        "<p> Casos acumulados por 100 mil hab - DIVE: " + props.incidencia_sc.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
         "<p> Taxa de letalidade: " +  props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
-        "<p> Taxa de letalidade 2: " + props.letalidade_sc.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
+        "<p> Taxa de letalidade - DIVE: " + props.letalidade_sc.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
         "<p> Percentual de vacinação: " + props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3 Pontos)</span></p>"+
-        "<p> Pontuacao: " + props.pontuacao + '</p>'+
+        "<p> Fase Atual: " + props.fase_atual + '</p>'+
         '<p><a href="' + props.path + '?region=1">Saiba mais sobre essa região</a></p>'
         : "<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>");
   };
