@@ -1,17 +1,10 @@
 import pandas as pd
 import numpy as np
-import os
 import json
+import os
 import psycopg2
-from datetime import datetime
-from pandas import ExcelWriter
-from io import StringIO
 from sqlalchemy import create_engine
-from urllib.parse import quote
-from os import listdir
-from os.path import isfile
-# from tabelas import Tabelas
-    
+from urllib.parse import quote    
 class carregaPopulacaoAlvo():
     
     def __init__(self):
@@ -124,8 +117,8 @@ class carregaPopulacaoAlvo():
             # preenche com 0 valores nulos
             df_mun.fillna(0, inplace=True)
             
-            df_mun.info()
-            print(df_mun)
+            # df_mun.info()
+            # print(df_mun)
             
             self.salvaBD(df_mun, self.param_dic)
 
