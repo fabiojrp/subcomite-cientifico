@@ -8,6 +8,7 @@ class processaIndicadores:
 
     def __init__(self):
         self.dao = daoIndicadores()
+        self.__fimPandemia = False
         self.pontuacaoVacinas = {
             1.0: {'proximo': 2.0, 'eval': lambda a: a >= 20},
             2.0: {'proximo': 3.1, 'eval': lambda a: a >= 30},
@@ -79,7 +80,8 @@ class processaIndicadores:
     def __mudancaFaseBD(self, row):
         if row['pontuacao'] >= 15 and \
                 self.__days_between(row['data_mudanca_fase'], row['data']) >= 14 and \
-                (row['leitos_covid_max'] < 80 or row['leitos_geral_max'] < 80):
+                (row['leitos_covid_max'] < 80 or row['leitos_geral_max'] < 80) and \
+                (row["vacinacao_d2_dive"] >= 0.75 or row["vacinacao_d2_ms"] >= 0.75) and self.__fimPandemia if (row["fase_anterior"] == 3.3) else True:   
             return pd.Series([self.pontuacaoVacinas[row['fase_anterior']]['proximo'], row['data']])
         else:
             return pd.Series([row['fase_anterior'], row['data_mudanca_fase']])
