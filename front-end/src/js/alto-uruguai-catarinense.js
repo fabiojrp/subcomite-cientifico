@@ -259,7 +259,8 @@ $(document).ready(() => {
                 },   
                 colorway : ['#f01901', '#ef6d1a', '#faf90a', '#faf90a', '#faf90a', '#26994b']
               };
-            Plotly.newPlot('fases-graph', dados, layout);
+            var config = { responsive: true };
+            Plotly.newPlot('fases-graph', dados, layout, config);
         })
         .catch((err) => console.error(err));
         
