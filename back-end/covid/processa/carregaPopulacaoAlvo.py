@@ -78,7 +78,7 @@ class carregaPopulacaoAlvo():
         
     def busca_dados(self):
         # 422000, 421265, 0
-        base_url = "https://censo2010.ibge.gov.br/sinopse/webservice/frm_piramide.php?codigo={}"
+        base_url = "https://censo2010.ibge.gov.br/sinopse/webservice/frm_piramide.php?ano=2010&wmaxbarra=140&cormulher=d8fe35&corhomem=41c300&codigo={}"
 
         for municipio, municipio_ in self.municipios.items():
             if municipio_ == 0:
@@ -104,6 +104,13 @@ class carregaPopulacaoAlvo():
             # tenta converter para inteiro
             df_mun['pop_feminino'] = pd.to_numeric(df_mun['pop_feminino'], errors='raise', downcast='integer')
             df_mun['pop_masculino'] = pd.to_numeric(df_mun['pop_masculino'], errors='raise', downcast='integer')
+            
+            # preenche com 0 valores nulos
+            df_mun.fillna(0, inplace=True)
+            
+            # tranforma colunas para tipo int
+            df_mun['pop_feminino'] = df_mun['pop_feminino'].astype(int)
+            df_mun['pop_masculino'] = df_mun['pop_masculino'].astype(int)
 
             # adiciona colunas do municipio, soma da população etária e id do grupo prioritario
             df_mun.insert(0, "municipio", municipio)
@@ -113,9 +120,6 @@ class carregaPopulacaoAlvo():
             
             # substitui pelo id
             df_mun['id_grupo_etario'] = df_mun['id_grupo_etario'].replace(self.grupos_etarios)
-
-            # preenche com 0 valores nulos
-            df_mun.fillna(0, inplace=True)
             
             # df_mun.info()
             # print(df_mun)
