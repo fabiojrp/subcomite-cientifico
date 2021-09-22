@@ -50,7 +50,7 @@ $(document).ready(() => {
             var vacinas = [dados.vacinados_D1, dados.vacinados_D2];
 
             var ol_layout = {
-                title: "Vacinados 1ª Dose / Vacinados 2ª Dose ",
+                title: "Vacinados 1ª Dose / Vacinados 2ª Dose - fonte: <a href='https://www.coronavirus.sc.gov.br'>Coronavírus SC</a>",
                 barmode: "stack",
                 bargap: 0.5,
                 bargroupgap: 0.2,
@@ -233,7 +233,7 @@ $(document).ready(() => {
             var ocupacao_leitos = [dados.leitos_ocupados, dados.leitos_disponiveis];
 
             var ol_layout = {
-                title: "Taxa de ocupação de leitos UTI Adulto em relação ao MÁXIMO de leitos ativos (em %)",
+                title: "Leitos UTI GERAL Adulto ocupados em relação ao MÁXIMO de leitos ativos",
                 barmode: "stack",
                 bargap: 0.5,
                 bargroupgap: 0.2,
@@ -244,8 +244,29 @@ $(document).ready(() => {
             Plotly.newPlot("leitos-graph", ocupacao_leitos, ol_layout, config);
         })
         .catch((err) => console.error(err));
+    
+    fetch(base_url + "/api/leitos-covid-por-regiao/" + id)
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            /* Ocupacao de Leitos */
+            var ocupacao_leitos = [dados.leitos_ocupados, dados.leitos_disponiveis];
 
-        fetch(base_url + "/api/fases-regiao/" + id)
+            var ol_layout = {
+                title: "Leitos UTI COVID Adulto ocupados em relação ao MÁXIMO de leitos ativos",
+                barmode: "stack",
+                bargap: 0.5,
+                bargroupgap: 0.2,
+            };
+
+            var config = { responsive: true };
+
+            Plotly.newPlot("leitos-covid-graph", ocupacao_leitos, ol_layout, config);
+        })
+        .catch((err) => console.error(err));
+
+    fetch(base_url + "/api/fases-regiao/" + id)
         .then((response) => {
             return response.json();
         })
@@ -269,6 +290,7 @@ $(document).ready(() => {
             return response.json();
         })
         .then((dados) => {
+            $("#indicadores_titulo").append("Detalhamento da pontuação da fase calculado no dia "+ dados.cabecalho.Data )
             $.each(dados.linhas, function(i, linha) {
                 var linha_html = "";
                 $.each(linha, function(i, item) {

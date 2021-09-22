@@ -40,7 +40,8 @@ $(document).ready(() => {
       success: function (dados) {
         regionData.features[0].properties.media_movel = dados.media_movel;
         regionData.features[0].properties.rt = dados.rt;    
-        regionData.features[0].properties.ocupacao_leitos = dados.ocupacao_leitos;
+        regionData.features[0].properties.leitos_geral_max = dados.leitos_geral_max;
+        regionData.features[0].properties.leitos_covid_max = dados.leitos_covid_max;
         regionData.features[0].properties.incidencia = dados.incidencia;
         regionData.features[0].properties.letalidade = dados.letalidade;
         regionData.features[0].properties.vacinacao = dados.vacinacao;
@@ -199,11 +200,10 @@ $(document).ready(() => {
         ? "<h4><b>Regional:</b> " + props.name + "</h4>" + 
         "<p>Taxa de Transmissibilidade: " + props.rt + "<span>("+ props.pontos_rt +" / 5 Pontos)</span></p>"+
         "<p>Média Móvel: " + props.media_movel.toFixed(2) + "%" + "<span>("+ props.pontos_media_movel +" / 5 Pontos)</span></p>"+
-        "<p>Ocupação de Leitos Covid Adulto: " + props.ocupacao_leitos.toFixed(2) + "%" + "<span>("+ props.pontos_ocupacao_leitos +" / 5 Pontos)</span></p>"+
+        "<p>Ocupação de Leitos UTI Adulto Geral: " + props.leitos_geral_max.toFixed(2) + "%" + "<span>("+ props.pontos_leitos_geral_max+" / 5 Pontos)</span></p>"+
+        "<p>Ocupação de Leitos UTI Adulto COVID: " + props.leitos_covid_max.toFixed(2) + "%" + "<span>("+ props.pontos_leitos_covid_max+" / 5 Pontos)</span></p>"+
         "<p> Casos acumulados por 100 mil hab: " + props.incidencia.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
-        "<p> Casos acumulados por 100 mil hab - DIVE: " + props.incidencia_sc.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
         "<p> Taxa de letalidade: " +  props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
-        "<p> Taxa de letalidade - DIVE: " + props.letalidade_sc.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
         "<p> Percentual de vacinação: " + props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3 Pontos)</span></p>"+
         "<p> Fase Atual: " + props.fase_atual + '</p>'+
         '<p><a href="' + props.path + '?region=1">Saiba mais sobre essa região</a></p>'
@@ -218,7 +218,8 @@ $(document).ready(() => {
     for (var i = 0; i < dados.features.length; i++) {
       dados.features[i].properties.pontos_rt = (dados.features[i].properties['rt'] <= 1 ? 5 : 0);
       dados.features[i].properties.pontos_media_movel = (dados.features[i].properties.media_movel < 15 ? 5 : 0);
-      dados.features[i].properties.pontos_ocupacao_leitos = (dados.features[i].properties.ocupacao_leitos <= 60 ? 5 : 0);
+      dados.features[i].properties.pontos_leitos_geral_max = (dados.features[i].properties.leitos_geral_max <= 60 ? 5 : 0);
+      dados.features[i].properties.pontos_leitos_covid_max = (dados.features[i].properties.leitos_covid_max <= 60 ? 5 : 0);
       dados.features[i].properties.pontos_incidencia = (dados.features[i].properties.incidencia <= dados.features[i].properties.incidencia_sc ? 2 : 0);
       dados.features[i].properties.pontos_letalidade = (dados.features[i].properties.letalidade <= dados.features[i].properties.letalidade_sc ? 2 : 0);
       dados.features[i].properties.pontos_vacinacao = (dados.features[i].properties['vacinacao'] >= 20 ? 3 : 0); 
@@ -247,7 +248,7 @@ $(document).ready(() => {
        
       if (levelRegion >= 15) {
         // ↓↓↓ teste ocupacao > 80 = amarelo ↓↓↓
-        if (d.ocupacao_leitos > 80) {
+        if (d.leitos_geral_max > 80 || d.leitos_covid_max > 80) {
           return yellow;  
         } else return fav;
       } 

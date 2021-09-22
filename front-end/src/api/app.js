@@ -903,8 +903,135 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
     );
 });
 
-// app.get("/api/leitos-por-regiao/:id", (req, res) => {
-//     id = req.params.id;
+app.get("/api/leitos-covid-por-regiao/:id", (req, res) => {
+    id = req.params.id;
+    pool.query(
+        `SELECT REGIONAL_SAUDE, ID,
+            LEITOS_OCUPADOS,
+            LEITOS_ATIVOS_MAX,
+            DATA
+        FROM PUBLIC.VIEW_LEITOS_COVID_MAX
+        WHERE ID = $1
+            `, [id],
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valor de leitos da região: " + err);
+                return;
+            }
+
+            region = regions[id];
+            if (typeof region === "undefined") {
+                res.send("Região não reconhecida. Informe um ID válido.");
+                return;
+            }
+
+            leitos_ocupados = {
+                name: "Leitos Ocupados",
+                type: "scatter",
+                fill: 'tozeroy',
+                opacity: 0.5,
+                x: [],
+                y: [],
+            };
+            leitos_disponiveis = {
+                name: "Leitos Máximo",
+                type: "scatter",
+                fill: 'tonextx',
+                opacity: 0.4,
+                x: [],
+                y: [],
+            };
+
+            result = rows.rows;
+            result.forEach((item) => {
+                leitos_ocupados.x.push(item.data);
+                leitos_ocupados.y.push(item.leitos_ocupados);
+
+                leitos_disponiveis.x.push(item.data);
+                leitos_disponiveis.y.push(item.leitos_ativos_max);
+            });
+
+            res.send({ leitos_disponiveis, leitos_ocupados });
+        },
+    );
+});
+
+app.get("/api/leitos-covid-por-regiao/", (req, res) => {
+    pool.query(
+        `SELECT REGIONAL_SAUDE, ID,
+            LEITOS_OCUPADOS,
+            LEITOS_ATIVOS_MAX,
+            TO_CHAR(DATA,'YYYY-MM-DD HH:MI') AS DATA
+        FROM VIEW_LEITOS_COVID_MAX
+            `,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valor de leitos das regiões: " + err);
+                return;
+            }
+            result = rows.rows;
+            regionais = [];
+            totalEstado = new Map();
+            totalEstadoData = new Set();
+
+            result.forEach((item) => {
+                dataItem = item.data;
+                if (!regionais[item.id]) {
+                    regionais[item.id] = {
+                        name: item.regional_saude,
+                        mode: "lines",
+                        type: "scatter",
+                        visible: "legendonly",
+                        x: [],
+                        y: [],
+                    };
+                }
+                regionais[item.id].x.push(item.data);
+                regionais[item.id].y.push(
+                    (item.leitos_ocupados / item.leitos_ativos_max),
+                );
+
+                totalEstadoData.add(dataItem)
+                if (!totalEstado.has(dataItem)) {
+                    totalEstado.set(dataItem, {
+                        leitos_ocupados: 0,
+                        leitos_ativos_max: 0,
+                        data: item.data,
+                    });
+                }
+                totalEstado.get(dataItem).leitos_ocupados += parseInt(item.leitos_ocupados);
+                totalEstado.get(dataItem).leitos_ativos_max += parseInt(item.leitos_ativos_max);
+            });
+
+            regionais[0] = {
+                name: "Estado de SC",
+                mode: "lines",
+                type: "scatter",
+                x: [],
+                y: [],
+            };
+
+            arrData = Array.from(totalEstadoData).sort();
+
+            leitos_ativos_max_anterior =  totalEstado.get(arrData[0]).leitos_ativos_max 
+            arrData.forEach(function (key) {
+                // console.log(totalEstado.get(key).data);
+                regionais[0].x.push(totalEstado.get(key).data);
+                regionais[0].y.push((totalEstado.get(key).leitos_ocupados / totalEstado.get(key).leitos_ativos_max));
+                // if (totalEstado.get(key).leitos_ativos_max != leitos_ativos_max_anterior){
+                //     console.log("Mudança no dia " + key + ", era: " + leitos_ativos_max_anterior + ", passou:" + totalEstado.get(key).leitos_ativos_max); 
+                //     // Alex: inserir as anotações das mudanças
+                // }
+                leitos_ativos_max_anterior = totalEstado.get(key).leitos_ativos_max;
+            });
+
+            res.send({ regionais });
+        },
+    );
+});
+
+// app.get("/api/leitos-covid-por-regiao/:id", (req, res) => {
+//     id = req.params.id; // Verificar query
 //     pool.query(
 //         `SELECT SUM(leitoscovid.LEITOS_OCUPADOS) AS LEITOS_OCUPADOS,
 //                 SUM(leitoscovid.LEITOS_ATIVOS) AS LEITOS_ATIVOS,
@@ -958,7 +1085,7 @@ app.get("/api/leitos-por-regiao/", (req, res) => {
 // });
 
 
-// app.get("/api/leitos-por-regiao/", (req, res) => {
+// app.get("/api/leitos-covid-por-regiao/", (req, res) => {
 //     pool.query(
 //         `SELECT REGIONAIS.REGIONAL_SAUDE,
 //                 REGIONAIS.ID as ID,
@@ -1358,7 +1485,8 @@ app.get("/api/dados-estado/", (req, res) => {
                     incidencia = result[i].incidencia;
                     letalidade  = result[i].letalidade;
                     vacinacao = result[i].vacinacao_d2_dive * 100;
-                    ocupacao_leitos = result[i].leitos_geral_max * 100;
+                    leitos_geral_max = result[i].leitos_geral_max * 100;
+                    leitos_covid_max = result[i].leitos_covid_max * 100;
 
                     stateData.features.push({
                         type: "Feature",
@@ -1367,7 +1495,8 @@ app.get("/api/dados-estado/", (req, res) => {
                             name: result[i].regional,
                             rt: Number(result[i].rt),
                             media_movel: mediamovel,
-                            ocupacao_leitos: ocupacao_leitos,
+                            leitos_geral_max: leitos_geral_max,
+                            leitos_covid_max: leitos_covid_max,
                             incidencia: incidencia,
                             incidencia_sc: result[i].incidencia_sc,
                             letalidade: letalidade,
@@ -1413,13 +1542,15 @@ app.get("/api/dados-regiao/:id", (req, res) => {
             if (rows.rows.length > 0) {
                 result = rows.rows;
                 mediamovel = result[0].var_media_movel * 100;
-                ocupacao_leitos = result[0].leitos_geral_max * 100;
+                leitos_geral_max = result[0].leitos_geral_max * 100;
+                leitos_covid_max = result[0].leitos_covid_max * 100;
 
                 dados = {
                     rt: (result[0].rt * 1).toFixed(2),
                     media_movel: mediamovel.toFixed(2),
                     vacinacao: result[0].vacinacao_d2_dive * 100,
-                    ocupacao_leitos: ocupacao_leitos,
+                    leitos_geral_max: leitos_geral_max,
+                    leitos_covid_max: leitos_covid_max,
                     incidencia: result[0].incidencia.toFixed(2),
                     incidencia_sc: result[0].incidencia_sc.toFixed(2),
                     letalidade: result[0].letalidade.toFixed(2),
@@ -1523,9 +1654,11 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
             }
 
             result = rows.rows;
+            var d = result[0].data
+            var dataBoletim = ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear();
             indicadores = { cabecalho: 
                             {   Regional: result[0].regional,
-                                Data: result[0].data,
+                                Data: dataBoletim,
                                 Fase_anterior: result[0].fase_anterior,
                                 Data_mudanca_fase: result[0].data_mudanca_fase,
                                 Pontuacao: result[0].pontuacao,
