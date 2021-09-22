@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -1514,12 +1514,12 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                 console.log("Erro ao buscar as fases da região: " + err);
                 return;
             }
-            vacinacao_fase = { "1": {descricao: "1", f: function(x) {return x > 0.2;}},
-                                "2": {descricao: "2", f: function(x) {return x >= 0.3;}},
-                                "3.1": {descricao: "3.1", f: function(x) {return x >= 0.4;}},
-                                "3.2": {descricao: "3.2", f: function(x) {return x >= 0.5;}},
-                                "3.3": {descricao: "3.3", f: function(x) {return x >= 0.75;}},
-                                "4": {descricao: "4",  f: function(x) {return x >= 1;}}
+            vacinacao_fase = { "1": {descricao: ">= 20%", f: function(x) {return x > 0.2;}},
+                                "2": {descricao: ">= 20%", f: function(x) {return x >= 0.3;}},
+                                "3.1": {descricao: ">= 30%", f: function(x) {return x >= 0.4;}},
+                                "3.2": {descricao: ">= 40%", f: function(x) {return x >= 0.5;}},
+                                "3.3": {descricao: ">= 50%", f: function(x) {return x >= 0.75;}},
+                                "4": {descricao: ">= 75%",  f: function(x) {return x >= 1;}}
             }
 
             result = rows.rows;
@@ -1576,7 +1576,7 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                 },
                                 {
                                     campo: "Vacinação",
-                                    texto: "3 pontos conforme a fase da região ",
+                                    texto: "3 pontos conforme a fase da região.<br>O Campus está na fase " + result[0].fase_anterior + ", para pontuar na próxima fase a vacinação precisar que um dos indicadores seja " + vacinacao_fase[result[0].fase_anterior].descricao,
                                     valor: "<p>Vacinação - DIVE = " + (result[0].vacinacao_d2_dive*100).toFixed(2) + "</p>" + 
                                     "<p>Vacinação - OpenDataSus  = " + (result[0].vacinacao_d2_ms*100).toFixed(2)  + "</p>",
                                     cor: vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_dive) || vacinacao_fase[result[0].fase_calculada].f(result[0].vacinacao_d2_ms) ? "green-fase-fundo" : "red-fase-fundo",
