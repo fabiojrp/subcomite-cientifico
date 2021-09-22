@@ -1550,9 +1550,9 @@ app.get("/api/fases-regiao-detalhado/:id", (req, res) => {
                                 },
                                 {
                                     campo: "Leitos UTI Adulto",
-                                    texto: "5 pontos caso a ocupação de Leitos COVID ou Leitos GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
-                                    valor: "<p>Leitos COVID/Máximo = " + (result[0].leitos_covid_max*100).toFixed(2) +'%'+ "</p>" + 
-                                        "<p>Leitos GERAL/Máximo = " + (result[0].leitos_geral_max*100).toFixed(2) +'%' + "</p>",
+                                    texto: "5 pontos caso a ocupação de Leitos UTI Adulto COVID ou Leitos UTI Adulto GERAL for menor do que 60% em relação a quantidade máxima de leitos disponíveis ",
+                                    valor: "<p>Leitos UTI Adulto COVID/Máximo = " + (result[0].leitos_covid_max*100).toFixed(2) +'%'+ "</p>" + 
+                                        "<p>Leitos UTI Adulto GERAL/Máximo = " + (result[0].leitos_geral_max*100).toFixed(2) +'%' + "</p>",
                                     cor: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "green-fase-fundo" : "red-fase-fundo",
                                     cor_text: (result[0].leitos_covid_max < 0.6) || (result[0].leitos_geral_max < 0.6)  ? "" : "red-fase"
 
