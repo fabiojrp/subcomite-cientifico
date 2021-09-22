@@ -465,7 +465,7 @@ class Create:
                         (SELECT VACINACAO_MS.REGIONAL AS REGIONAL_ID,
                                 DATE(VACINACAO_MS.VACINA_DATAAPLICACAO) AS VACINA_DATAAPLICACAO,
                                 SUM(CASE WHEN VACINACAO_MS.VACINA_DESCRICAO_DOSE = '1ª Dose' THEN VACINACAO_MS.DOSES_APLICADAS END) AS D1,
-                                SUM(CASE WHEN VACINACAO_MS.VACINA_DESCRICAO_DOSE != '1ª Dose' THEN VACINACAO_MS.DOSES_APLICADAS END) AS D2
+                                SUM(CASE WHEN VACINACAO_MS.VACINA_DESCRICAO_DOSE IN ('2ª Dose', 'Única', 'Dose') THEN VACINACAO_MS.DOSES_APLICADAS END) AS D2
                             FROM VACINACAO_MS
                             GROUP BY VACINACAO_MS.REGIONAL,
                                 VACINACAO_MS.VACINA_DATAAPLICACAO
@@ -483,8 +483,7 @@ class Create:
                     WHERE VACINACAO_MS.DATA =
                             (SELECT MAX(VACINACAO_MS.DATA) AS MAX_DATA
                                 FROM VACINACAO_MS)
-                        AND VACINACAO_MS.VACINA_DESCRICAO_DOSE = 'Dose'
-                        OR VACINACAO_MS.VACINA_DESCRICAO_DOSE = '2ª Dose'
+                        AND VACINACAO_MS.VACINA_DESCRICAO_DOSE IN ('2ª Dose','Dose','Única')
                     GROUP BY VACINACAO_MS.REGIONAL,
                         VACINACAO_MS.DATA
                     ORDER BY VACINACAO_MS.REGIONAL

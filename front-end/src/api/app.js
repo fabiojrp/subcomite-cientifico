@@ -1419,7 +1419,7 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
                     (SELECT VACINA_DATAAPLICACAO AS DATA,
                             SUM(DOSES_APLICADAS) AS D2
                         FROM VACINACAO_MS
-                        WHERE VACINA_DESCRICAO_DOSE != '1ª Dose'
+                        WHERE VACINA_DESCRICAO_DOSE IN ('2ª Dose', 'Única', 'Dose')
                         GROUP BY VACINA_DATAAPLICACAO
                         ORDER BY VACINA_DATAAPLICACAO) AS T,
                     REGIONAIS
