@@ -44,7 +44,9 @@ $(document).ready(() => {
         regionData.features[0].properties.leitos_covid_max = dados.leitos_covid_max;
         regionData.features[0].properties.incidencia = dados.incidencia;
         regionData.features[0].properties.letalidade = dados.letalidade;
-        regionData.features[0].properties.vacinacao = dados.vacinacao;
+        regionData.features[0].properties.vacinacao_dive = dados.vacinacao_dive;
+        regionData.features[0].properties.vacinacao_ms = dados.vacinacao_ms;
+        regionData.features[0].properties.vacinacao_pontos = dados.vacinacao_pontos;
         regionData.features[0].properties.incidencia_sc = dados.incidencia_sc;
         regionData.features[0].properties.letalidade_sc = dados.letalidade_sc;
         regionData.features[0].properties.pontuacao = dados.pontuacao;
@@ -200,11 +202,12 @@ $(document).ready(() => {
         ? "<h4><b>Regional:</b> " + props.name + "</h4>" + 
         "<p>Taxa de Transmissibilidade: " + props.rt + "<span>("+ props.pontos_rt +" / 5 Pontos)</span></p>"+
         "<p>Média Móvel: " + props.media_movel.toFixed(2) + "%" + "<span>("+ props.pontos_media_movel +" / 5 Pontos)</span></p>"+
-        "<p>Ocupação de Leitos UTI Adulto Geral: " + props.leitos_geral_max.toFixed(2) + "%" + "<span>("+ props.pontos_leitos_geral_max+" / 5 Pontos)</span></p>"+
-        "<p>Ocupação de Leitos UTI Adulto COVID: " + props.leitos_covid_max.toFixed(2) + "%" + "<span>("+ props.pontos_leitos_covid_max+" / 5 Pontos)</span></p>"+
+        "<p>Ocupação de Leitos UTI Adulto Geral: " + props.leitos_geral_max.toFixed(2) + "% ou " + 
+        "<p>Ocupação de Leitos UTI Adulto COVID: " + props.leitos_covid_max.toFixed(2) + "%" +"<span>("+ props.pontos_leitos_max+" / 5 Pontos)</span></p>"+
         "<p> Casos acumulados por 100 mil hab: " + props.incidencia.toFixed(2) + "<span class='float_right'>("+ props.pontos_incidencia +" / 2 Pontos)</span></p>"+
         "<p> Taxa de letalidade: " +  props.letalidade.toFixed(2) + "%" + "<span>("+ props.pontos_letalidade +" / 2 Pontos)</span></p>"+
-        "<p> Percentual de vacinação: " + props.vacinacao.toFixed(2) + "%" + "<span>("+ props.pontos_vacinacao +" / 3 Pontos)</span></p>"+
+        "<p> Percentual de vacinação DIVE: " + props.vacinacao_dive.toFixed(2) + "% ou" + 
+        "<p> Percentual de vacinação OpenDataSus: " + props.vacinacao_ms.toFixed(2) + "%   <span>("+ props.pontos_vacinacao +" / 3 Pontos)</span></p>"+
         "<p> Fase Atual: " + props.fase_atual + '</p>'+
         '<p><a href="' + props.path + '?region=1">Saiba mais sobre essa região</a></p>'
         : "<h4>Dados</h4><p>Clique nas regiões da saúde para saber mais.</p>");
@@ -218,11 +221,10 @@ $(document).ready(() => {
     for (var i = 0; i < dados.features.length; i++) {
       dados.features[i].properties.pontos_rt = (dados.features[i].properties['rt'] <= 1 ? 5 : 0);
       dados.features[i].properties.pontos_media_movel = (dados.features[i].properties.media_movel < 15 ? 5 : 0);
-      dados.features[i].properties.pontos_leitos_geral_max = (dados.features[i].properties.leitos_geral_max <= 60 ? 5 : 0);
-      dados.features[i].properties.pontos_leitos_covid_max = (dados.features[i].properties.leitos_covid_max <= 60 ? 5 : 0);
+      dados.features[i].properties.pontos_leitos_max = (dados.features[i].properties.leitos_geral_max <= 60 || dados.features[i].properties.leitos_covid_max <= 60 ? 5 : 0);
       dados.features[i].properties.pontos_incidencia = (dados.features[i].properties.incidencia <= dados.features[i].properties.incidencia_sc ? 2 : 0);
       dados.features[i].properties.pontos_letalidade = (dados.features[i].properties.letalidade <= dados.features[i].properties.letalidade_sc ? 2 : 0);
-      dados.features[i].properties.pontos_vacinacao = (dados.features[i].properties['vacinacao'] >= 20 ? 3 : 0); 
+      dados.features[i].properties.pontos_vacinacao = dados.features[i].properties.vacinacao_pontos; 
     }
     return dados.features;
   };
@@ -234,7 +236,7 @@ $(document).ready(() => {
     var yellow = "#FAD700";
 
     if (typeof d == "object") {
-      if (!(d.vacinacao)) return "transparent";
+      if (!(d.pontuacao)) return "transparent";
 
       var levelRegion = d.pontuacao;
       // levelRegion += d.rt <= 1 ? 5 : 0;

@@ -1477,6 +1477,14 @@ app.get("/api/dados-estado/", (req, res) => {
                 features: [],
             };
 
+            var vacinacao_fase = { "1": {descricao: ">= 20%", f: function(x) {return x > 0.2;}},
+                "2": {descricao: ">= 20%", f: function(x) {return x >= 0.3;}},
+                "3.1": {descricao: ">= 30%", f: function(x) {return x >= 0.4;}},
+                "3.2": {descricao: ">= 40%", f: function(x) {return x >= 0.5;}},
+                "3.3": {descricao: ">= 50%", f: function(x) {return x >= 0.75;}},
+                "4": {descricao: ">= 75%",  f: function(x) {return x >= 1;}}
+}
+
             if (rows.rows.length > 0) {
                 result = rows.rows;
                 for (var i = 0; i < result.length; i++) {
@@ -1484,7 +1492,6 @@ app.get("/api/dados-estado/", (req, res) => {
                     // leitos = result[i].leitos_geral_max * 100;
                     incidencia = result[i].incidencia;
                     letalidade  = result[i].letalidade;
-                    vacinacao = result[i].vacinacao_d2_dive * 100;
                     leitos_geral_max = result[i].leitos_geral_max * 100;
                     leitos_covid_max = result[i].leitos_covid_max * 100;
 
@@ -1501,7 +1508,9 @@ app.get("/api/dados-estado/", (req, res) => {
                             incidencia_sc: result[i].incidencia_sc,
                             letalidade: letalidade,
                             letalidade_sc: result[i].letalidade_sc,
-                            vacinacao: vacinacao,
+                            vacinacao_dive: result[i].vacinacao_d2_dive * 100,
+                            vacinacao_ms: result[i].vacinacao_d2_ms * 100,
+                            vacinacao_pontos: vacinacao_fase[result[i].fase].f(result[i].vacinacao_d2_dive) || vacinacao_fase[result[0].fase].f(result[0].vacinacao_d2_ms) ? 3: 0,
                             path: result[i].url,
                             fase_atual: result[i].fase,
                             pontuacao: result[i].pontuacao
