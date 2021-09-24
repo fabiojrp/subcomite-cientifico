@@ -242,4 +242,46 @@ $(document).ready(() => {
         })
         .catch((err) => console.error(err));
 
+        fetch(base_url + "/api/fases-regiao/" + id)
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            var layout = {
+                hovermode: "closest",
+                yaxis: {
+                    rangemode: 'tozero',
+                    showline: true,
+                    zeroline: false,
+                },   
+                colorway : ['#f01901', '#ef6d1a', '#EDB80C', '#F7D80C', '#FFF719', '#26994b']
+              };
+            var config = { responsive: true };
+            Plotly.newPlot('fases-graph', dados, layout, config);
+        })
+        .catch((err) => console.error(err));
+
+        fetch(base_url + "/api/fases-regiao-detalhado/" + id)
+        .then((response) => {
+            return response.json();
+        })
+        .then((dados) => {
+            $("#indicadores_titulo").append("Detalhamento da pontuação da fase calculado no dia "+ dados.cabecalho.Data )
+            $.each(dados.linhas, function(i, linha) {
+                var linha_html = "";
+                $.each(linha, function(i, item) {
+                    linha_html+="<div class='col-xl-4 col-sm-6 col-12 my-3'> "+
+                    "<div class= 'card text-center h-100'>"+
+                    "<div class='card-header p-2 "+ item.cor +"'> " + item.campo +" </div>" +
+                    "  <div class='card-body p-5'>" +
+                    "    <h5 class='card-title " + item.cor_text +"'>" +item.valor + "</h5>" +
+                    "    <p class='card-text'>" +item.texto + "</p>" +
+                    "  </div>" + 
+                    " </div>" + 
+                    "</div>";
+                });
+                $("#indicadores").append("<div class='row'>" +linha_html+ "</div>");
+            });
+        })
+        .catch((err) => console.error(err));
 });
