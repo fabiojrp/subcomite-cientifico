@@ -210,7 +210,7 @@ class calculaRT:
 
         sql_dados_totais = """SELECT casos.regional,
                                 CASOS.DATA,
-                                SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                                (CASE WHEN (SUM(CASOS.CASOS_MEDIAMOVEL) < 0) THEN 0 ELSE SUM(CASOS.CASOS_MEDIAMOVEL) END) AS CASOS_MEDIAMOVEL 
                             FROM CASOS
                             WHERE CASOS.REGIONAL = %s 
                                 AND CASOS.DATA > '2020-04-02'
@@ -219,7 +219,7 @@ class calculaRT:
 
         sql_dados_parciais = """SELECT REGIONAIS.ID,
                                 CASOS.DATA,
-                                SUM(CASOS.CASOS_MEDIAMOVEL) AS CASOS_MEDIAMOVEL
+                                (CASE WHEN (SUM(CASOS.CASOS_MEDIAMOVEL) < 0) THEN 0 ELSE SUM(CASOS.CASOS_MEDIAMOVEL) END) AS CASOS_MEDIAMOVEL 
                             FROM REGIONAIS, CASOS
                             WHERE CASOS.DATA BETWEEN %s::DATE - INTERVAL '29 DAYS' AND NOW()
                                 AND CASOS.REGIONAL = %s
