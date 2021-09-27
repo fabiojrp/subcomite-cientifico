@@ -290,11 +290,11 @@ $(document).ready(() => {
             return response.json();
         })
         .then((dados) => {
-            $("#indicadores_titulo").append("Detalhamento da pontuação da fase calculado no dia "+ dados.cabecalho.Data )
+            $("#indicadores_titulo").append("Clique para expandir o boletim diário: "+ dados.cabecalho.Data )
             $.each(dados.linhas, function(i, linha) {
                 var linha_html = "";
                 $.each(linha, function(i, item) {
-                    linha_html+="<div class='col-xl-4 col-sm-6 col-12 my-3'> "+
+                    linha_html+="<div class='collapse col-xl-4 col-sm-6 col-12 my-3' id='testando'> "+
                     "<div class= 'card text-center h-100'>"+
                     "<div class='card-header p-2 "+ item.cor +"'> " + item.campo +" </div>" +
                     "  <div class='card-body p-5'>" +
