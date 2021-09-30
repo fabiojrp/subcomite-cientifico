@@ -290,7 +290,7 @@ $(document).ready(() => {
             return response.json();
         })
         .then((dados) => {
-            $("#indicadores_titulo").append("Clique para expandir o boletim diário: "+ dados.cabecalho.Data )
+            $("#indicadores_titulo").append("Clique para detalhes do cálculo do boletim semanal de: "+ dados.cabecalho.Data )
             $.each(dados.linhas, function(i, linha) {
                 var linha_html = "";
                 $.each(linha, function(i, item) {
