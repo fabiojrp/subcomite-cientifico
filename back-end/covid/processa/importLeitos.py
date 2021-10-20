@@ -97,6 +97,7 @@ class importLeitos:
                 dropdown_item.click()
                 # Escondemos o menu clicando novamente nele
                 dropdown_menu.click()
+                time.sleep(5)
 
             # xpath = "//div[@title='Macroregião']"
             # wait.until(EC.presence_of_element_located((By.XPATH, xpath)))

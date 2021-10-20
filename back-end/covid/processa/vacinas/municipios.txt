@@ -50,6 +50,7 @@
 "Caçador": 420300,
 "Caibi": 420310,
 "Calmon": 420315,
+"Camboriu": 420320,
 "Camboriú": 420320,
 "Capão Alto": 420325,
 "Campo Alegre": 420330,
