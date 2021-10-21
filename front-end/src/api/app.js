@@ -1370,7 +1370,9 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
             POPULACAO,
             DATA, D1,
             D2 AS DOSES_APLICADAS
-        FROM VIEW_VACINACAO_MS_POR_REGIAO ORDER BY REGIONAL_SAUDE,DATA
+        FROM VIEW_VACINACAO_MS_POR_REGIAO 
+            WHERE DATA >= '2021-01-01'
+        ORDER BY REGIONAL_SAUDE,DATA
             `,
         (err, rows) => {
             if (err) {
@@ -1419,11 +1421,13 @@ app.get("/api/vacinacao-ms-por-regiao/", (req, res) => {
                     (SELECT VACINA_DATAAPLICACAO AS DATA,
                             SUM(DOSES_APLICADAS) AS D2
                         FROM VACINACAO_MS
-                        WHERE VACINA_DESCRICAO_DOSE IN ('2ª Dose', 'Única', 'Dose')
+                        WHERE VACINA_DESCRICAO_DOSE IN ('2ª Dose', '2ª Dose', 'Única', 'Dose')
                         GROUP BY VACINA_DATAAPLICACAO
                         ORDER BY VACINA_DATAAPLICACAO) AS T,
                     REGIONAIS
-                WHERE REGIONAIS.ID = 1
+                    WHERE REGIONAIS.ID = 1 AND
+                    T.DATA >= '2021-01-01'
+
                 GROUP BY T.DATA, T.D2
                 ORDER  BY DATA;
                     `,
