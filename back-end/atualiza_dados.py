@@ -11,6 +11,7 @@ from covid.processa.download_vacinados import download_vacinados
 from covid.processa.download_vacinados_MS import download_vacinados_MS
 from covid.processa.rt_predictor.predict_store import predict_store
 from covid.processa.indicadores.processaIndicadores import processaIndicadores
+from covid.processa.download_vacinados2 import download_vacinados2
 
 with open('covid.log', 'w') as f:
     # sys.stdout = f  # Change the standard output to the file we created.from covid.processa.download_leitos import download_leitos
@@ -42,6 +43,14 @@ with open('covid.log', 'w') as f:
         #         dv.storeBD(df)
         # except Exception as mensagem:
         #     print("Erro: ", mensagem)
+        
+        # # Atualiza a vacinacao do MS pelo Coronavirus SC
+        # try:
+        #     vacinados = download_vacinados2()
+        #     df = vacinados.processa_dados()
+        #     vacinados.salva_bd(df)
+        # except Exception as message:
+        #     print(f"Erro: {message}")
 
 
         # # # Baixa e processa os dados de vacinados do MS

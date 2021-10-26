@@ -14,7 +14,7 @@ from sqlalchemy import create_engine
 from urllib.parse import quote
 
 # from covid.processa.dados.tabelas import Tabelas
-from dados.tabelas import Tabelas
+from covid.processa.dados.tabelas import Tabelas
 
 
 class download_vacinados2:
@@ -157,10 +157,10 @@ class download_vacinados2:
         )
         print(" Ok")
 
-if __name__ == "__main__":
-    try:
-        vacinados = download_vacinados2()
-        df = vacinados.processa_dados()
-        vacinados.salva_bd(df)
-    except Exception as message:
-        print(f"Erro: {message}")
+# if __name__ == "__main__":
+#     try:
+#         vacinados = download_vacinados2()
+#         df = vacinados.processa_dados()
+#         vacinados.salva_bd(df)
+#     except Exception as message:
+#         print(f"Erro: {message}")
