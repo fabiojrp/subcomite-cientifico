@@ -117,6 +117,9 @@ class download_vacinados2:
         except KeyError as k:
             raise Exception("Município não encontrado:" + k)
         
+        # converte coluna para tipo integer
+        df['codigo_municipio'] = pd.to_numeric(df['codigo_municipio'], errors='coerce', downcast='integer')
+        
         # adiciona a coluna com a regional dos municipios
         df['regional'] = pd.Series([ self.tabelas.getRegionalMunicipioBrasil(line) for line in df['codigo_municipio'] ])
         

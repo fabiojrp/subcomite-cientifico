@@ -84,6 +84,30 @@ $(document).ready(() => {
         })
         .catch((err) => console.error(err));
 
+    // fetch(base_url + "/api/vacinacao-dive-por-regiao/")
+    //     .then((response) => {
+    //         return response.json();
+    //     })
+    //     .then((dados) => {
+    //         //Limpa célculas vazias. 
+    //         dadosRegionais = $.grep(dados.regionais, function (n) { return n == 0 || n });
+
+    //         console.log(dadosRegionais);
+
+    //         var mm_layout = {
+    //             title: 'Vacinação 2ª Dose da População geral - fonte: <a href="https://www.coronavirus.sc.gov.br">MS pelo Coronavírus SC</a>',
+    //             showlegend: true,
+    //             yaxis: {
+    //                 tickformat: '.2%',
+    //             }
+    //         };
+
+    //         var config = { responsive: true };
+
+    //         Plotly.newPlot("vacina2-graph", dadosRegionais, mm_layout, config);
+    //     })
+    // .catch((err) => console.error(err));
+
     fetch(base_url + "/api/vacinacao-ms-por-regiao/")
         .then((response) => {
             return response.json();

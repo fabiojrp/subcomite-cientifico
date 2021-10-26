@@ -84,6 +84,7 @@ class Create:
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_INCIDENCIA_LETALIDADE_SC_BOLETIM")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_VARIACAO_MM_BOLETIM")
         self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO_MS CASCADE")
+        self.db.execute_query("DROP VIEW IF EXISTS VIEW_VACINACAO_DIVE2 CASCADE")
            
         # Limpa as tabelas
         self.db.execute_query("DROP TABLE IF EXISTS CASOSBRASIL")
@@ -430,6 +431,35 @@ class Create:
 		ORDER BY RT_REGIONAIS.ID, RT_REGIONAIS.DATA
         """
         self.db.execute_query(sql)
+        
+        # VIEW_VACINACAO_DIVE2
+        sql = """
+        CREATE OR REPLACE VIEW VIEW_VACINACAO_DIVE2 AS
+            
+            SELECT
+                REGIONAIS.ID,
+                REGIONAIS.REGIONAL_SAUDE,
+                TB.DATA,
+                REGIONAIS.POPULACAO,
+                TB.D1,
+                TB.D2
+            FROM REGIONAIS, 
+                (    SELECT 
+                        REGIONAIS.ID,
+                        VACINACAO_DIVE2.DATA_ATUALIZACAO AS DATA,
+                        SUM(VACINACAO_DIVE2.D1) AS D1,
+                        SUM(VACINACAO_DIVE2.D2) AS D2
+                    FROM REGIONAIS, VACINACAO_DIVE2
+                        WHERE REGIONAIS.ID = VACINACAO_DIVE2.REGIONAL 
+                    GROUP BY REGIONAIS.ID, VACINACAO_DIVE2.DATA_ATUALIZACAO
+                    ORDER BY REGIONAIS.ID, VACINACAO_DIVE2.DATA_ATUALIZACAO
+                ) AS TB
+                
+            WHERE TB.ID = REGIONAIS.ID
+        
+        """
+        self.db.execute_query(sql)
+        
         
         print("OK")
 
