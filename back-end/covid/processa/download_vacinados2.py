@@ -29,8 +29,7 @@ class download_vacinados2:
             "password": "!admpasswd@covid"
         }
         
-        # with open(os.getcwd() + '/back-end/covid/processa/vacinas/municipios.txt') as f:
-        with open(os.getcwd() + '/vacinas/municipios.txt') as f:
+        with open(os.getcwd() + '/covid/processa/vacinas/municipios.txt') as f:
             self.dadosMunicipio = f.read().upper()
         # Reconstruindo a lista dos munícipios.
         self.municipios = json.loads(self.dadosMunicipio)
