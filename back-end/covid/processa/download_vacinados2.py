@@ -2,14 +2,14 @@
 import json
 import requests
 import pandas as pd
-import pprint
+# import pprint
 import os
 
 # importa especificos modulos
-from xml.dom import minidom
+# from xml.dom import minidom
 from datetime import datetime
 
-from io import StringIO
+# from io import StringIO
 from sqlalchemy import create_engine
 from urllib.parse import quote
 
@@ -34,10 +34,12 @@ class download_vacinados2:
         # Reconstruindo a lista dos munícipios.
         self.municipios = json.loads(self.dadosMunicipio)
 
-        # self.url = 'https://wabi-brazil-south-api.analysis.windows.net/public/reports/querydata?synchronous=true'
+        # site: https://app.powerbi.com/view?r=eyJrIjoiOTM2Y2Y1M2QtMjcxNC00ZGRmLTk0NzEtZjIyNWQxOTQ2MWIxIiwidCI6ImExN2QwM2ZjLTRiYWMtNGI2OC1iZDY4LWUzOTYzYTJlYzRlNiJ9
+        # Aba 8
+        # link da aba: https://app.powerbi.com/view?r=eyJrIjoiOTM2Y2Y1M2QtMjcxNC00ZGRmLTk0NzEtZjIyNWQxOTQ2MWIxIiwidCI6ImExN2QwM2ZjLTRiYWMtNGI2OC1iZDY4LWUzOTYzYTJlYzRlNiJ9&pageName=ReportSectioncb5f966e3459abaf6ab9
+
         self.url = 'https://wabi-brazil-south-api.analysis.windows.net/public/reports/querydata?synchronous=true'
         
-
         self.headers = {
             'Content-Type': 'application/json;charset=UTF-8',
             'Accept': 'application/json, text/plain, */*',
@@ -47,15 +49,21 @@ class download_vacinados2:
             'Origin': 'https://app.powerbi.com',
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15',
             'Referer': 'https://app.powerbi.com/',
-            'Content-Length': '4288',
+            'Content-Length': '3314',
             'Connection': 'keep-alive',
-            'X-PowerBI-ResourceKey': '0cd771d0-47f0-4b51-bf82-6b97ee3bbc1a',
-            'RequestId': '673dc67-6dc7-11af-33ab-df11a89a22bc',
-            'ActivityId': '9133bdb5-2138-f695-6975-f2ef50962769',
+            # 'X-PowerBI-ResourceKey': '0cd771d0-47f0-4b51-bf82-6b97ee3bbc1a',
+            # 'RequestId': '673dc67-6dc7-11af-33ab-df11a89a22bc',
+            # 'ActivityId': '9133bdb5-2138-f695-6975-f2ef50962769',
+            'X-PowerBI-ResourceKey': '936cf53d-2714-4ddf-9471-f225d19461b1',
+            'RequestId': '0b8e6b18-2c77-928b-681e-3c81dc09eb54',
+            'ActivityId': 'fd30eec9-7039-85f2-d24c-515bc700f917',
         }
 
-        data = {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"m","Entity":"medidas","Type":0},{"Name":"m2","Entity":"mfo_municipios","Type":0}],"Select":[{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL 1ª DOSE GERAL"},"Name":"medidas.total_1_dose"},{"Column":{"Expression":{"SourceRef":{"Source":"m2"}},"Property":"MUNICÍPIO"},"Name":"mfo_municipios.MUNICÍPIO"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL IMUNIZADOS"},"Name":"medidas.TOTAL IMUNIZADOS"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"% 1ª DOSE POR POPULACAO GERAL"},"Name":"medidas.% 1ª DOSE POR POPULACAO GERAL"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"% IMUNIZADOS POR POPULACAO GERAL"},"Name":"medidas.% IMUNIZADOS POR POPULACAO GERAL"}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2,3,4],"Subtotal":1}]},"DataReduction":{"DataVolume":3,"Primary":{"Window":{"Count":500}}},"Version":1},"ExecutionMetricsKind":1}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"m\",\"Entity\":\"medidas\",\"Type\":0},{\"Name\":\"m2\",\"Entity\":\"mfo_municipios\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL 1ª DOSE GERAL\"},\"Name\":\"medidas.total_1_dose\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m2\"}},\"Property\":\"MUNICÍPIO\"},\"Name\":\"mfo_municipios.MUNICÍPIO\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL IMUNIZADOS\"},\"Name\":\"medidas.TOTAL IMUNIZADOS\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"% 1ª DOSE POR POPULACAO GERAL\"},\"Name\":\"medidas.% 1ª DOSE POR POPULACAO GERAL\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"% IMUNIZADOS POR POPULACAO GERAL\"},\"Name\":\"medidas.% IMUNIZADOS POR POPULACAO GERAL\"}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1,2,3,4],\"Subtotal\":1}]},\"DataReduction\":{\"DataVolume\":3,\"Primary\":{\"Window\":{\"Count\":500}}},\"Version\":1},\"ExecutionMetricsKind\":1}}]}","QueryId":"","ApplicationContext":{"DatasetId":"7fb96090-5249-4e7e-b2bc-598c7e0d2c8e","Sources":[{"ReportId":"83b397f9-11b9-404e-8f40-889ffc3702af","VisualId":"eec7a79c32dbf13e4b7e"}]}}],"cancelQueries":[],"modelId":3864171}
+        # data = {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"m","Entity":"medidas","Type":0},{"Name":"m2","Entity":"mfo_municipios","Type":0}],"Select":[{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL 1ª DOSE GERAL"},"Name":"medidas.total_1_dose"},{"Column":{"Expression":{"SourceRef":{"Source":"m2"}},"Property":"MUNICÍPIO"},"Name":"mfo_municipios.MUNICÍPIO"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL IMUNIZADOS"},"Name":"medidas.TOTAL IMUNIZADOS"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"% 1ª DOSE POR POPULACAO GERAL"},"Name":"medidas.% 1ª DOSE POR POPULACAO GERAL"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"% IMUNIZADOS POR POPULACAO GERAL"},"Name":"medidas.% IMUNIZADOS POR POPULACAO GERAL"}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2,3,4],"Subtotal":1}]},"DataReduction":{"DataVolume":3,"Primary":{"Window":{"Count":500}}},"Version":1},"ExecutionMetricsKind":1}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"m\",\"Entity\":\"medidas\",\"Type\":0},{\"Name\":\"m2\",\"Entity\":\"mfo_municipios\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL 1ª DOSE GERAL\"},\"Name\":\"medidas.total_1_dose\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m2\"}},\"Property\":\"MUNICÍPIO\"},\"Name\":\"mfo_municipios.MUNICÍPIO\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL IMUNIZADOS\"},\"Name\":\"medidas.TOTAL IMUNIZADOS\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"% 1ª DOSE POR POPULACAO GERAL\"},\"Name\":\"medidas.% 1ª DOSE POR POPULACAO GERAL\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"% IMUNIZADOS POR POPULACAO GERAL\"},\"Name\":\"medidas.% IMUNIZADOS POR POPULACAO GERAL\"}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1,2,3,4],\"Subtotal\":1}]},\"DataReduction\":{\"DataVolume\":3,\"Primary\":{\"Window\":{\"Count\":500}}},\"Version\":1},\"ExecutionMetricsKind\":1}}]}","QueryId":"","ApplicationContext":{"DatasetId":"7fb96090-5249-4e7e-b2bc-598c7e0d2c8e","Sources":[{"ReportId":"83b397f9-11b9-404e-8f40-889ffc3702af","VisualId":"eec7a79c32dbf13e4b7e"}]}}],"cancelQueries":[],"modelId":3864171}
         
+        # Alteração na consulta, alterada no dia 04/11/2021
+        data = {"version":"1.0.0","queries":[{"Query":{"Commands":[{"SemanticQueryDataShapeCommand":{"Query":{"Version":2,"From":[{"Name":"m","Entity":"medidas","Type":0},{"Name":"m1","Entity":"mfo_municipios","Type":0}],"Select":[{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL 1ª DOSE GERAL"},"Name":"medidas.total_1_dose"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL IMUNIZADOS"},"Name":"medidas.TOTAL IMUNIZADOS"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"% 1ª DOSE POR POPULACAO GERAL"},"Name":"medidas.% 1ª DOSE POR POPULACAO GERAL"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"% IMUNIZADOS POR POPULACAO GERAL"},"Name":"medidas.% IMUNIZADOS POR POPULACAO GERAL"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL VACINAS APLIACADAS"},"Name":"medidas.TOTAL VACINAS APLIACADAS"},{"Measure":{"Expression":{"SourceRef":{"Source":"m"}},"Property":"TOTAL DOSE REFORÇO GERAL"},"Name":"medidas.TOTAL DOSE REFORÇO GERAL"},{"Column":{"Expression":{"SourceRef":{"Source":"m1"}},"Property":"MUNICÍPIO"},"Name":"mfo_municipios.MUNICÍPIO"}]},"Binding":{"Primary":{"Groupings":[{"Projections":[0,1,2,3,4,5,6],"Subtotal":1}]},"DataReduction":{"DataVolume":3,"Primary":{"Window":{"Count":500}}},"Aggregates":[{"Select":2,"Aggregations":[{"Min":{}},{"Max":{}}]},{"Select":3,"Aggregations":[{"Min":{}},{"Max":{}}]}],"Version":1},"ExecutionMetricsKind":1}}]},"CacheKey":"{\"Commands\":[{\"SemanticQueryDataShapeCommand\":{\"Query\":{\"Version\":2,\"From\":[{\"Name\":\"m\",\"Entity\":\"medidas\",\"Type\":0},{\"Name\":\"m1\",\"Entity\":\"mfo_municipios\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL 1ª DOSE GERAL\"},\"Name\":\"medidas.total_1_dose\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL IMUNIZADOS\"},\"Name\":\"medidas.TOTAL IMUNIZADOS\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"% 1ª DOSE POR POPULACAO GERAL\"},\"Name\":\"medidas.% 1ª DOSE POR POPULACAO GERAL\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"% IMUNIZADOS POR POPULACAO GERAL\"},\"Name\":\"medidas.% IMUNIZADOS POR POPULACAO GERAL\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL VACINAS APLIACADAS\"},\"Name\":\"medidas.TOTAL VACINAS APLIACADAS\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m\"}},\"Property\":\"TOTAL DOSE REFORÇO GERAL\"},\"Name\":\"medidas.TOTAL DOSE REFORÇO GERAL\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"m1\"}},\"Property\":\"MUNICÍPIO\"},\"Name\":\"mfo_municipios.MUNICÍPIO\"}]},\"Binding\":{\"Primary\":{\"Groupings\":[{\"Projections\":[0,1,2,3,4,5,6],\"Subtotal\":1}]},\"DataReduction\":{\"DataVolume\":3,\"Primary\":{\"Window\":{\"Count\":500}}},\"Aggregates\":[{\"Select\":2,\"Aggregations\":[{\"Min\":{}},{\"Max\":{}}]},{\"Select\":3,\"Aggregations\":[{\"Min\":{}},{\"Max\":{}}]}],\"Version\":1},\"ExecutionMetricsKind\":1}}]}","QueryId":"","ApplicationContext":{"DatasetId":"4f5da74a-d629-434a-adfe-1ba0d597969d","Sources":[{"ReportId":"59d0116c-b20a-4ffe-9376-c7109db83deb","VisualId":"350bde1b3069e389aaaa"}]}}],"cancelQueries":[],"modelId":3934596}
+       
         print("Baixando dados dive 2... ", end='', flush=True)
         req_DB = requests.post(
             self.url, headers=self.headers, json=data).text
@@ -76,8 +84,8 @@ class download_vacinados2:
         self.dados = data_DB['results'][0]['result']['data']['dsr']['DS'][0]['PH'][1]['DM1']
 
         # Salvando apenas para fins de teste
-        with open('data_vacinacao.json', 'w') as f:
-            json.dump(self.dados, f)
+        # with open('data_vacinacao.json', 'w') as f:
+        #     json.dump(self.dados, f)
 
     def processa_dados(self):
         print("Processnado os dados... ", end='', flush=True)
