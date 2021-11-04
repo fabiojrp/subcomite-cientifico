@@ -16,7 +16,7 @@ const pool = new Pool({
     host: "localhost",
     database: "covid", // covid - mauricio
     //password: 'zzdz0737', // postgres mauricio
-    password: "123", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
+    password: "!admpasswd@covid", // postgres marcelo WEpJqsYMnHWB //!admpasswd@covid
     port: 5432,
 });
 
@@ -1366,18 +1366,13 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
 app.get("/api/vacinacao-dive-por-regiao/", (req, res) => {
     pool.query(
         `SELECT 
-            VACINACAO_DIVE2.REGIONAL AS ID,
-            REGIONAIS.REGIONAL_SAUDE as regional_saude,
-            REGIONAIS.POPULACAO,
-            VACINACAO_DIVE2.DATA_ATUALIZACAO as data,
-            SUM(VACINACAO_DIVE2.D2) AS DOSES_APLICADAS
-        FROM VACINACAO_DIVE2, REGIONAIS
-            WHERE DATA_ATUALIZACAO >= '2021-01-01' AND
-            REGIONAIS.ID = VACINACAO_DIVE2.REGIONAL AND
-            REGIONAL NOT IN (0,1)
-            
-        GROUP BY VACINACAO_DIVE2.REGIONAL, VACINACAO_DIVE2.DATA_ATUALIZACAO, REGIONAIS.POPULACAO, REGIONAIS.REGIONAL_SAUDE
-        ORDER BY VACINACAO_DIVE2.REGIONAL, VACINACAO_DIVE2.DATA_ATUALIZACAO
+            TB.ID AS ID,
+            TB.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+            TB.DATA AS DATA, 
+            TB.D2 AS DOSES_APLICADAS,
+            TB.POPULACAO AS POPULACAO
+        FROM VIEW_VACINACAO_DIVE2 AS TB
+        ORDER BY ID, DATA
             `,
         (err, rows) => {
             if (err) {
@@ -1455,7 +1450,8 @@ app.get("/api/vacinacao-dive-por-regiao/", (req, res) => {
                         );
                     });
 
-                    console.log(regionais);
+//                     console.log(regionais);
+//                     console.log(result);
                     res.send({ regionais });
                 },
             );
