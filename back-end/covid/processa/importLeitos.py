@@ -70,28 +70,29 @@ class importLeitos:
             wait = WebDriverWait(self.driver, 30)
 
             # Obtemos o slicer-dropdown-menu de Tipos de Leito
-            xpath = "//div[@aria-label='Tipo de Leito,  All']"
+            xpath = "//div[@aria-label='Tipo de Leito']"
             wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
             dropdown_menu = self.driver.find_element_by_xpath(xpath)
             dropdown_menu.click()
             # Obtemos a opção ADULTO que aparecere por conta desse dropown
             wait.until(EC.presence_of_element_located(
-                (By.XPATH, "//div[@aria-label='ADULTO']")))
+                (By.XPATH, "//span[text()='ADULTO']")))
             dropdown_item = self.driver.find_element_by_xpath(
-                "//div[@aria-label='ADULTO']")
+                "//span[text()='ADULTO']")
             dropdown_item.click()
             # Escondemos o menu clicando novamente nele
             dropdown_menu.click()
 
             # Obtemos o slicer-dropdown-menu de Leito COVID / GERAL
-            xpath = "//div[@aria-label='Leito COVID / GERAL,  All']"
+            xpath = "//div[@aria-label='Leito COVID / GERAL']"
             wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
             dropdown_menu = self.driver.find_element_by_xpath(xpath)
             dropdown_menu.click()
+            time.sleep(5)
 
             if tipo == "Covid":
                 # Obtemos a opção COVID que aparecere por conta desse dropown
-                xpath = "//div[@aria-label='COVID']"
+                xpath = "//span[text()='COVID']"
                 wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
                 dropdown_item = self.driver.find_element_by_xpath(xpath)
                 dropdown_item.click()
@@ -227,7 +228,6 @@ class importLeitos:
             if totais[valor] != df[valor].sum():
                 raise Exception(
                     "!--- {0} não fecha [encontrado: {1}, deveria ser:  {2}]---!".format(valor, df[valor].sum(), totais[valor])) 
-        
         return df
 
     def salvaBD(self, df, param_dic, table):
@@ -268,7 +268,8 @@ class importLeitos:
 #             print("Tentativa {0}".format(i))
 #             soupData = importLeitos.getData("Geral")
 #             df = importLeitos.processData(soupData, "Geral")
-#             importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
+#             print(df)
+#             # importLeitos.salvaBD(df, importLeitos.param_dic, 'leitosgeraiscovid' )
 #         except Exception as mensagem:
 #             print("Erro processando dados:", mensagem)
 #             continue
@@ -281,7 +282,8 @@ class importLeitos:
 #             print("Tentativa {0}....".format(i))
 #             soupData = importLeitos.getData("Covid")
 #             df = importLeitos.processData(soupData, "Covid")
-#             importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
+#             print(df)
+#             # importLeitos.salvaBD(df, importLeitos.param_dic, 'leitoscovid' )
 #         except Exception as mensagem:
 #             print("Erro processando dados:", mensagem)
 #             continue

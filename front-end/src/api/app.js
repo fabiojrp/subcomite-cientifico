@@ -1363,6 +1363,104 @@ app.get("/api/vacinacao-por-regiao/", (req, res) => {
     );
 });
 
+app.get("/api/vacinacao-dive-por-regiao-resumo/", (req, res) => {
+    pool.query(
+        `SELECT 
+            TB.ID AS ID,
+            TB.REGIONAL_SAUDE AS REGIONAL_SAUDE,
+            TB.DATA AS DATA, 
+            TB.D2 AS DOSES_APLICADAS,
+            TB.POPULACAO AS POPULACAO
+        FROM VIEW_VACINACAO_DIVE2 AS TB
+        ORDER BY ID, DATA
+            `,
+        (err, rows) => {
+            if (err) {
+                console.log("Erro ao buscar o valores de vacinação de DIVE 2 por região: " + err);
+                return;
+            }
+
+            result = rows.rows;
+            var regionais = [];
+            regionais[0] = {
+                name: "Estado de SC",
+                mode: "lines",
+                type: "scatter",
+                x: [],
+                y: [],
+                z: [],
+            };
+
+            totalEstadoData = new Set();
+            totalEstado = new Map();
+            result.forEach((item) => {
+                // dataItem = new Date(item.data);
+                // dataItem = dataItem.getFullYear() + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + ("0" + dataItem.getUTCDay()).slice(-2)
+                dataItem = item.data;
+                if (!regionais[item.id-1]) {
+                    regionais[item.id-1] = {
+                        name: item.regional_saude,
+                        mode: "lines",
+                        type: "scatter",
+                        visible: "legendonly",
+                        x: [],
+                        y: [],
+                        z: [],
+                    };
+                }
+                regionais[item.id-1].x.push(item.data);
+                regionais[item.id-1].y.push(item.doses_aplicadas);
+                regionais[item.id-1].z.push(item.populacao);     
+            });
+
+            pool.query(
+                `SELECT 
+                    T.DATA AS DATA,
+                    REGIONAIS.POPULACAO AS POPULACAO,
+                    T.DOSES_APLICADAS AS DOSES_APLICADAS
+                FROM
+                    REGIONAIS,
+                    (
+                        SELECT 
+                            'Santa Catarina' as ESTADO,
+                            VACINACAO_DIVE2.DATA_ATUALIZACAO AS DATA,
+                            SUM(VACINACAO_DIVE2.D2) AS DOSES_APLICADAS
+                        FROM VACINACAO_DIVE2
+                            --WHERE VACINACAO_DIVE2.DATA_ATUALIZACAO = (SELECT MAX(DATA_ATUALIZACAO) FROM VACINACAO_DIVE2)
+                        GROUP BY ESTADO, DATA
+                    ) AS T
+                    WHERE REGIONAIS.ID = 1
+                
+                ORDER BY DATA;
+                    `,
+                (err, rows) => {
+                    if (err) {
+                        console.log("Erro ao buscar o valores de vacinação do estado da tabela de DIVE2: " + err);
+                        return;
+                    }
+
+                    result = rows.rows;
+                    result.forEach((item) => {
+                        // dataItem = new Date(item.data);
+                        // dataItem = dataItem.getFullYear() + "/" + ("0" + (dataItem.getMonth() + 1)).slice(-2) + "/" + ("0" + dataItem.getUTCDay()).slice(-2)
+                        dataItem = item.data;
+                        
+                        regionais[0].x.push(item.data);
+                        regionais[0].y.push(item.doses_aplicadas);
+                        regionais[0].z.push(item.populacao);
+                    });
+
+//                     console.log(regionais);
+//                     console.log(result);
+                    res.send({ regionais });
+                },
+            );
+
+
+        },
+    );
+});
+
 app.get("/api/vacinacao-dive-por-regiao/", (req, res) => {
     pool.query(
         `SELECT 
@@ -2052,8 +2150,14 @@ app.get("/api/dados-boletim-diario/", (req, res) => {
                     LEITOS_COVID_MAX, LEITOS_GERAL_MAX,
                     LETALIDADE_SC, INCIDENCIA_SC,
                     VACINACAO_D2_DIVE, VACINACAO_D2_MS,
+                    VACINACAO_DIVE_MS.VACINACAO_D2_DIVE_MS,
                     FASE_ANTERIOR AS FASE, DATA_MUDANCA_FASE, PONTUACAO
-                FROM "avaliacaoRegionaisDiario" `,
+                FROM "avaliacaoRegionaisDiario",
+                    (  
+                        SELECT 
+                            (D2 / POPULACAO) AS VACINACAO_D2_DIVE_MS
+                        FROM VIEW_VACINACAO_DIVE2
+                    ) AS VACINACAO_DIVE_MS, `,
             (err, rows) => {
                 if (err) {
                     console.log("Erro ao buscar os dados de extrato das regiões: " + err);
