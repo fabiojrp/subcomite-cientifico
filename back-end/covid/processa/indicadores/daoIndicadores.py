@@ -13,7 +13,7 @@ class daoIndicadores:
             "port": 5432,
             "dbname": "covid",
             "user": "postgres",
-            "password": "!admpasswd@covid"
+            "password": "xxxx"
         }
 
     def __get_connection(self):
