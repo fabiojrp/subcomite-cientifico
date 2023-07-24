@@ -38,7 +38,7 @@ class importLeitos:
             "host": "127.0.0.1",
             "database": "covid",
             "user": "postgres",
-            "password": "!admpasswd@covid"
+            "password": "xxxx"
         }
         # create = Create()
         # create.create_leitos()
