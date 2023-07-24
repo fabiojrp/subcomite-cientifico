@@ -133,7 +133,7 @@ class download_vacinados_MS:
             "host": "127.0.0.1",
             "database": "covid",
             "user": "postgres",
-            "password": "!admpasswd@covid"
+            "password": "xxxx"
         }
 
         self.db = self.connect()
