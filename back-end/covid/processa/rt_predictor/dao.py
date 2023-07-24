@@ -10,7 +10,7 @@ config = {
     "port": 5432,
     "dbname": "covid",
     "user": "postgres",
-    "password": "!admpasswd@covid"
+    "password": "xxxx"
 }
 
 
